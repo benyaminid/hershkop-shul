@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>הרשקופ שול</title>
+<style>
+:root{--bg:#f1f1f1;--surface:#fff;--text:#1d2433;--muted:#5d6678;--accent:#1f3a68;--accent2:#b8862b;--line:#e4dfd2;--onaccent:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161f;--surface:#1b2130;--text:#eef0f5;--muted:#a3abbd;--accent:#8fb0ec;--accent2:#e0b258;--line:#2c3447;--onaccent:#10151f}}
+:root[data-theme="dark"]{--bg:#12161f;--surface:#1b2130;--text:#eef0f5;--muted:#a3abbd;--accent:#8fb0ec;--accent2:#e0b258;--line:#2c3447;--onaccent:#10151f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:"Heebo","Segoe UI",Arial,sans-serif;line-height:1.6}
+header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.bar{max-width:1000px;margin:auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-size:1.35rem;font-weight:700;color:var(--accent);text-decoration:none}
+nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+nav a,.dd>button{color:var(--text);text-decoration:none;padding:8px 12px;border-radius:8px;font:inherit;background:none;border:0;cursor:pointer}
+nav a:hover,.dd>button:hover,nav a.on{background:var(--bg);color:var(--accent)}
+.dd{position:relative}
+.menu{display:none;position:absolute;inset-inline-start:0;top:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:190px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.dd.open .menu{display:block}
+.menu a{display:block}
+main{max-width:1000px;margin:auto;padding:20px 16px 90px}
+h1{font-size:1.8rem;margin:.2em 0 .3em;color:var(--accent)}
+.lead{color:var(--muted);margin:0 0 18px}
+.hero{background:var(--accent);color:var(--onaccent);border-radius:16px;padding:26px 22px;margin-bottom:22px}
+.hero h1{color:inherit;margin:0 0 6px}.hero p{margin:0;opacity:.9}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--text);padding:7px 14px;border-radius:999px;cursor:pointer;font:inherit}
+.chip.on{background:var(--accent);color:var(--onaccent);border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.ph{height:110px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:2.6rem}
+.card h3{margin:0;font-size:1.05rem}
+.price{color:var(--accent2);font-weight:700}
+.btn{background:var(--accent);color:var(--onaccent);border:0;border-radius:10px;padding:9px 14px;font:inherit;cursor:pointer}
+.btn.alt{background:none;color:var(--accent);border:1px solid var(--accent)}
+.qty{display:flex;align-items:center;gap:8px;margin-top:auto}
+.qty button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer;font-size:1.1rem}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.panel h3{margin:0 0 6px}
+.list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+.list li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.list a{color:var(--accent);font-weight:600}
+#cartbar{position:fixed;inset-inline:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:none;z-index:6}
+#cartbar .in{max-width:1000px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:9}
+.modal.show{display:flex}
+.sheet{background:var(--surface);width:100%;max-width:560px;max-height:90%;overflow:auto;border-radius:18px 18px 0 0;padding:18px}
+input,textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);margin:4px 0 10px}
+.row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.sec{display:none}.sec.on{display:block}.ph img{width:100%;height:100%;object-fit:cover;border-radius:10px}.arow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.arow .ph{width:70px;height:60px;font-size:1.6rem;flex:none}.arow input:not([type=checkbox]){flex:1 1 120px;width:auto;margin:0}.arow label{display:inline-flex;align-items:center;gap:6px}.arow input[type=checkbox]{width:auto;margin:0}
+.fb{max-width:640px;margin:0 auto 14px;user-select:none;-webkit-user-select:none}.fbw{overflow:hidden;border-radius:8px}.fb.z .fbw{overflow:auto;max-height:78vh}.fb.z .fbs{width:230%}.fbs{position:relative;perspective:1800px;aspect-ratio:var(--ar,.67);touch-action:pan-y pinch-zoom}.fbp{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;transform-origin:right center;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .7s ease;box-shadow:0 4px 14px rgba(0,0,0,.25)}.fbs{overflow:hidden;background:#222}.fbw{background:#222;padding:10px}.fbfw{position:absolute;inset:0;pointer-events:none;z-index:5;filter:drop-shadow(-4px 3px 6px rgba(0,0,0,.5))}.fbf{position:absolute;inset:0;transform-origin:0 0}#fbr{width:100%;margin-top:10px}.fbc{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}.fb:fullscreen{max-width:none;background:#111;padding:8px;display:flex;flex-direction:column;justify-content:center}.fb:fullscreen .fbs{margin:auto}.fb.z:fullscreen .fbs{width:230%}.fb:fullscreen{overflow:auto}.ph{position:relative}.bdg{position:absolute;top:6px;inset-inline-start:6px;background:#c0392b;color:#fff;font-size:.75rem;padding:2px 8px;border-radius:999px}.lnk{display:flex;align-items:center;justify-content:center;gap:8px;padding:15px 18px;border-radius:14px;background:linear-gradient(135deg,#1f3a68,#3f66a8);color:#fff!important;font-weight:700;font-size:1.1rem;text-decoration:none;box-shadow:0 4px 10px rgba(31,58,104,.35);transition:transform .15s,box-shadow .15s}.lnk::after{content:"↗";font-size:1.1rem;opacity:.85}.lnk:hover{transform:translateY(-2px);box-shadow:0 7px 14px rgba(31,58,104,.45)}.lnk:active{transform:scale(.98)}#links .panel{background:none;border:0;padding:0}#links .panel p{margin:0 0 12px}.ph{overflow:hidden}.ph img{position:absolute;inset:0;cursor:zoom-in}.win{text-align:center}.wn{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px}.wn span{background:linear-gradient(#f5d77a,#c9971c);color:#3a2a00;font-weight:700;font-size:1.3rem;border-radius:12px;padding:8px 14px;min-width:54px}.shban{margin:0 0 12px;text-align:center;animation:fi .4s}.shban svg,.shban img{max-width:420px;width:100%;height:auto;border-radius:12px}@keyframes fi{from{opacity:0}to{opacity:1}}a.chip{text-decoration:none}.cb{margin-top:auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}.cb .qty{margin-top:4px;justify-content:center}.stk{font-size:.9rem;color:var(--muted)}.stk.out{color:#c0392b;font-weight:600}
+.fb:fullscreen .fbc{color:#fff}
+html.nosc,html.nosc body{overflow:hidden;height:100%;overscroll-behavior:none}html.nosc main{height:calc(100vh - var(--hh,64px));height:calc(100dvh - var(--hh,64px));padding:8px 16px 12px;display:flex;flex-direction:column}html.nosc #bulletin{flex:1;min-height:0;display:flex;flex-direction:column}html.nosc #bulletin>h1{order:-3;margin:0 0 6px;font-size:1.3rem;color:#fff}html.nosc #bulletin>p{order:-2;margin:0 0 6px}html.nosc .fb{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;margin:0 auto}html.nosc .fbc{order:-1;margin:0 0 6px}html.nosc .fbw{flex:1;min-height:0;container-type:size;display:flex;align-items:center;justify-content:center;background:none;padding:0}html.nosc .fbs{flex:none;width:min(100cqw,calc(100cqh*var(--arn,.67)));touch-action:none;background:none}html.nosc .fb.z .fbs{width:230%;touch-action:auto}html.nosc .fb.z .fbw{align-items:flex-start;justify-content:flex-start}html.nosc [data-fb=prev],html.nosc [data-fb=next],html.nosc #fbr{display:none}html.nosc footer,html.nosc #cartbar{display:none!important}html.nosc .fbc{display:none}html.nosc main{padding:4px 0 0}html.nosc #bulletin>h1{margin:0 0 4px;font-size:1.1rem;text-align:center}html.nosc .fb{max-width:none}.fbe{position:absolute;top:0;bottom:0;width:20%;pointer-events:none;z-index:1500}.fbe-n{left:0;background:linear-gradient(90deg,rgba(0,0,0,.34),rgba(0,0,0,0))}.fbe-p{right:0;background:linear-gradient(270deg,rgba(0,0,0,.34),rgba(0,0,0,0))}.fbe::after{position:absolute;top:50%;margin-top:-1.4rem;font-size:2.8rem;line-height:1;color:#fff;text-shadow:0 0 8px rgba(0,0,0,.8)}.fbe-n::after{content:"›";left:6px;animation:nudgeR 1.6s ease-in-out infinite}.fbe-p::after{content:"‹";right:6px;animation:nudgeL 1.6s ease-in-out infinite}.fbe::before{content:"";position:absolute;bottom:0;width:44px;height:44px;clip-path:polygon(0 0,100% 100%,100% 0);background:linear-gradient(135deg,#fff 0,#bdbdbd 100%);animation:curl 2s ease-in-out infinite}.fbe-n::before{left:0;transform-origin:0 100%}.fbe-p::before{right:0;transform:scaleX(-1);transform-origin:100% 100%}.fbs.zm .fbe{display:none}@keyframes nudgeL{0%,100%{transform:translateX(0)}50%{transform:translateX(-8px)}}@keyframes nudgeR{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}@keyframes curl{0%,100%{width:34px;height:34px}50%{width:58px;height:58px}}
+.fbn2{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.45);color:#fff;padding:2px 14px;border-radius:999px;font-size:.85rem;pointer-events:none;z-index:2000}
+html.nosc nav{position:absolute;top:100%;left:0;right:0;background:#000;z-index:30;padding:0 16px 12px}
+html.nosc body{background:radial-gradient(ellipse at 50% 40%,#3b3b3b,#161616) fixed}html.nosc .fbp{box-shadow:0 0 22px rgba(0,0,0,.75)}.fbc{background:rgba(0,0,0,.55);border-radius:999px;padding:4px 14px;align-self:center;color:#fff;gap:6px}.fbc .chip{background:none;border:0;color:#fff;font-size:1.25rem;padding:4px 10px}#fbn{font-size:.95rem;min-width:56px;text-align:center}.shg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}.shg a,.shg button{text-align:center;text-decoration:none;padding:12px 6px}.bull{display:block;width:100%;margin:0 0 14px;border-radius:10px;border:1px solid var(--line);background:#fff}object.bull{height:80vh;min-height:360px}.herob{margin:-20px -16px 0;background:#0c1224}.herob img{width:100%;display:block}.tile{display:block;margin:44px 0}.tile img{width:100%;display:block}.tile span{display:block;background:#000;color:#fff;padding:50px 16px;text-align:center;font-size:1.8rem;font-weight:700}hr{border:0;border-top:2px solid var(--line);margin:0}.newsbtn{display:block;max-width:480px;margin:46px auto 20px;background:#1a237e;color:#fff;text-align:center;padding:20px;border-radius:16px;font-size:1.25rem;font-weight:600;text-decoration:none;box-shadow:0 4px 10px rgba(0,0,0,.3)}header{background:#000;border-color:#000}.brand{color:#fff}#burger{background:none;border:0;color:#fff;font-size:1.8rem;cursor:pointer}nav{display:none;width:100%;flex-direction:column;align-items:stretch}header.open nav{display:flex}nav a,.dd>button{color:#fff;text-align:start}nav a:hover,.dd>button:hover,nav a.on{background:#222;color:#fff}.menu{position:static;box-shadow:none;background:#111;border:0}.menu a{color:#fff}
+footer{text-align:center;color:var(--muted);padding:24px 16px;font-size:.9rem}
+:root{--bg2:#e4e9f4;--gold:#c9971c;--gold2:#f3d58a;--navy:#1f3a68;--navy2:#3f66a8;--r:20px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg2:#0a0d14}}
+:root[data-theme="dark"]{--bg2:#0a0d14}
+body{background:linear-gradient(180deg,var(--bg),var(--bg2)) fixed}
+header{background:rgba(8,10,16,.82);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
+.bar{padding:12px 18px}.brand{font-size:1.4rem;font-weight:800;letter-spacing:.3px;background:linear-gradient(90deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+#burger{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);font-size:1.4rem;line-height:1;transition:background .2s}#burger:hover{background:rgba(255,255,255,.16)}nav a,.dd>button{border-radius:12px;font-weight:600}
+.herob{border-radius:0 0 28px 28px;box-shadow:0 14px 34px rgba(0,0,0,.28);overflow:hidden}
+#tiles{display:grid;grid-template-columns:1fr;gap:20px;margin:26px 0 8px}@media(min-width:760px){#tiles{grid-template-columns:1fr 1fr;gap:24px}}#tiles hr{display:none}
+.tile{margin:0;border-radius:var(--r);overflow:hidden;background:#000;box-shadow:0 10px 26px rgba(15,25,55,.22);transition:transform .25s ease,box-shadow .25s ease;position:relative;animation:rise .55s ease both}.tile:hover{transform:translateY(-4px);box-shadow:0 16px 34px rgba(15,25,55,.3)}.tile:active{transform:scale(.985)}.tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);pointer-events:none}
+#tiles a:nth-of-type(2){animation-delay:.08s}#tiles a:nth-of-type(3){animation-delay:.16s}#tiles a:nth-of-type(4){animation-delay:.24s}@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.newsbtn{background:linear-gradient(135deg,#232f8f,#4a5fe0);border-radius:999px;box-shadow:0 12px 28px rgba(35,47,143,.45);max-width:520px;padding:18px 24px;margin:30px auto 10px;transition:transform .2s,box-shadow .2s}.newsbtn::before{content:"🔔";margin-inline-end:10px}.newsbtn:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(35,47,143,.55)}
+h1{font-weight:800;letter-spacing:-.2px}h1::after{content:"";display:block;width:56px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--gold2));margin-top:10px}html.nosc #bulletin>h1::after{display:none}
+.grid{gap:18px}.card{border-radius:var(--r);border-color:transparent;box-shadow:0 8px 22px rgba(20,30,60,.10);transition:transform .2s,box-shadow .2s;padding:16px}.card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(20,30,60,.16)}
+.card .ph{border-radius:14px;height:140px;background:linear-gradient(135deg,rgba(201,151,28,.12),rgba(63,102,168,.12))}.card h3{font-size:1.05rem;font-weight:700;line-height:1.35}.price{font-size:1.2rem;font-weight:800;color:#b8860b}
+.qty button{width:36px;height:36px;border-radius:50%;border:0;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;font-size:1.2rem;line-height:1;box-shadow:0 3px 8px rgba(31,58,104,.35);transition:transform .15s}.qty button:active{transform:scale(.9)}.qty b{min-width:26px;text-align:center;font-size:1.1rem}
+.chip{padding:8px 16px;font-weight:600;border-color:transparent;box-shadow:0 1px 4px rgba(20,30,60,.12)}.chip.on{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-color:transparent}
+.btn{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:12px;font-weight:700;padding:10px 16px;box-shadow:0 4px 12px rgba(31,58,104,.28)}.btn.alt{background:none;color:var(--accent);box-shadow:none;border:1px solid var(--accent)}
+.panel{border-radius:var(--r);border-color:transparent;box-shadow:0 6px 18px rgba(20,30,60,.08)}.win{border:1px solid rgba(201,151,28,.5);background:linear-gradient(180deg,rgba(243,213,138,.18),transparent)}.sheet{border-radius:26px 26px 0 0}
+#cartbar{box-shadow:0 -6px 20px rgba(0,0,0,.12);border-top:0;border-radius:22px 22px 0 0}#cartbar .btn{border-radius:999px}footer{padding:30px 16px 40px;font-size:.85rem}
+.tile{box-shadow:0 0 0 2px rgba(201,151,28,.8),0 12px 28px rgba(15,25,55,.3)}.tile:hover{box-shadow:0 0 0 3px #f3d58a,0 18px 38px rgba(15,25,55,.4)}#tiles{gap:22px}
+.tile .cta{display:inline-block;position:absolute;bottom:10px;left:10px;z-index:2;background:linear-gradient(135deg,#f3d58a,#c9971c);color:#2b1d00;padding:7px 18px;font-size:.98rem;font-weight:800;text-align:start;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.45);animation:pulse 2.2s ease-in-out infinite}
+.newsbtn{font-weight:800;font-size:1.3rem;animation:glow 2.4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}@keyframes glow{0%,100%{box-shadow:0 12px 28px rgba(35,47,143,.45)}50%{box-shadow:0 12px 40px rgba(74,95,224,.85)}}
+.tile{animation:rise .55s ease both,tilepulse 2.6s ease-in-out .7s infinite}
+#tiles a:nth-of-type(1){animation-delay:0s,.7s}#tiles a:nth-of-type(2){animation-delay:.08s,1s}#tiles a:nth-of-type(3){animation-delay:.16s,1.3s}#tiles a:nth-of-type(4){animation-delay:.24s,1.6s}.tile:hover{animation-play-state:paused,paused}
+@keyframes tilepulse{0%,100%{transform:scale(1);box-shadow:0 0 0 2px rgba(201,151,28,.8),0 12px 28px rgba(15,25,55,.3)}50%{transform:scale(1.025);box-shadow:0 0 0 3px #f3d58a,0 16px 40px rgba(201,151,28,.6)}}
+@keyframes glow{0%,100%{transform:scale(1);box-shadow:0 12px 28px rgba(35,47,143,.45)}50%{transform:scale(1.04);box-shadow:0 12px 40px rgba(74,95,224,.85)}}
+.lnk .li{flex:none}.lnk.ic::after{content:none}.newsbtn{animation:none;font-size:clamp(.8rem,3.9vw,1.15rem);white-space:nowrap;padding:16px 14px}.newsbtn::before{content:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header><div class="bar">
+<a class="brand" href="#home">הרשקופ שול</a><button type="button" id="burger" aria-label="תפריט">☰</button>
+<nav>
+<a href="#home" data-p="home">דף הבית</a>
+<div class="dd" id="dd"><button type="button" id="ddb">הרש-שופ ▾</button>
+<div class="menu">
+<a href="#shop-100" data-p="shop-100">מוצרים עד 100 הרשקלים</a>
+<a href="#shop-250" data-p="shop-250">מוצרים עד 250 הרשקלים</a>
+<a href="#shop-over" data-p="shop-over">מוצרים מעל 250 הרשקלים</a>
+<a href="#shop-all" data-p="shop-all">כל המוצרים</a>
+</div></div>
+<a href="#fathers" data-p="fathers">אבות ובנים</a>
+<a href="#bulletin" data-p="bulletin">עלון שבועי</a>
+<a href="#links" data-p="links">הרש-קישורים</a>
+<a href="#news" data-p="news">הודעות ועדכונים</a>
+<button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
+</nav></div></header>
+
+<main>
+<section class="sec" id="home">
+<div class="herob" id="hero"></div>
+<div id="tiles"></div>
+<a class="newsbtn" id="newsbtn" href="#news"></a>
+</section>
+
+<section class="sec" id="shop">
+<h1 id="shoptitle"></h1><div id="shopedit"></div><div class="shban" id="shban"></div><div class="chips" id="schips"></div>
+<div class="grid" id="shopgrid"></div>
+</section>
+
+<section class="sec" id="fathers">
+<h1>אבות ובנים</h1><p class="lead">לימוד משותף של אבות ובנים.</p>
+<div class="panel"><h3>מועד הלימוד</h3><p>יום וזמן קבועים – מלאו כאן.</p></div>
+<div class="panel"><h3>הצטרפות</h3><p>מוזמנים להגיע, אין צורך בהרשמה מראש.</p></div>
+</section>
+
+<section class="sec" id="bulletin">
+<h1>עלון שבועי</h1><p class="lead">העלון האחרון של בית הכנסת.</p>
+<div class="panel"><h3>פרשת השבוע</h3><p>דבר תורה קצר, הודעות וזמנים.</p></div>
+<div class="panel"><h3>הודעות</h3><p>שמחות, שיעורים ואירועים קרובים.</p></div>
+</section>
+
+<section class="sec" id="links">
+<h1>הרש-קישורים</h1><p class="lead">קישורים שימושיים.</p>
+<ul class="list">
+<li><a href="#home">הזמנת מוצרים</a></li>
+<li><a href="#bulletin">העלון השבועי</a></li>
+<li><a href="#fathers">אבות ובנים</a></li>
+</ul>
+</section>
+<section class="sec" id="news"></section>
+<section class="sec" id="admin"><h1>ניהול האתר</h1><div class="chips" id="atabs"></div><p class="lead">ערכו שם, מחיר ותמונה, ולחצו שמירה.</p><div id="alist"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn alt" id="addp">+ מוצר חדש</button><button class="btn" id="savep">שמירה</button><button class="btn alt" id="cnl" hidden>ביטול שינויים</button></div><p class="lead" id="amsg"></p></section>
+</main>
+
+<div id="cartbar"><div class="in"><span id="cartsum"></span><button class="btn" id="open">צפייה בעגלה והזמנה</button></div></div>
+
+<div class="modal" id="modal"><div class="sheet">
+<h2 style="margin-top:0">ההזמנה שלך</h2>
+<div id="lines"></div>
+<p><b>סה״כ: <span id="total"></span></b></p>
+<label>שם<input id="nm"></label>
+<label>טלפון<input id="ph" type="tel" inputmode="tel"></label>
+<label>הערות<textarea id="nt" rows="2"></textarea></label>
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<a class="btn" id="wa" target="_blank" rel="noopener" href="#" style="text-decoration:none">שליחה בוואטסאפ</a>
+<button class="btn alt" id="copy">העתקת ההזמנה</button>
+<button class="btn alt" id="close">סגירה</button>
+</div>
+<p id="msg" class="lead"></p>
+</div></div>
+
+<div class="modal" id="lbx" style="align-items:center"><img id="lbi" alt="" style="max-width:96vw;max-height:88vh;border-radius:10px;background:#fff"></div>
+<div class="modal" id="shm"><div class="sheet"><h3 style="margin:0 0 12px">שיתוף העלון</h3><div class="shg" id="shg"></div><p id="shmsg" class="lead"></p><button type="button" class="btn alt" id="shx">סגירה</button></div></div>
+<footer>הרשקופ שול · כל הזכויות שמורות</footer>
+
+<script>
+var EMB={"products":[{"id":2000,"n":"כרטיספר - 100₪ זיכוי באור-החיים","p":270,"s":1,"e":"🎁","d":"30 הרשקלים הנחה ברכישה זו!","t":true,"z":true,"img":"3c4995a80def4b56f3268fbc310b6b12"},{"id":2001,"n":"דיאבלו - יויו סיני מקצועי (3 bearings)","p":130,"s":1,"e":"🎁","img":"e493763c560a5a20244f437642799a3a"},{"id":2002,"n":"פליימוביל - מכונית בנות","p":180,"s":1,"e":"🎁","img":"f9da4e717ae3bb1369e0fdfa3a457007"},{"id":2003,"n":"אמא ואבא של שבת","p":150,"s":1,"e":"🎁","img":"40b5be5c456cb44642f012dc6568bf56"},{"id":2004,"n":"כרטיספר - 50₪ זיכוי באור-החיים","p":135,"s":3,"e":"🎁","d":"15 הרשקלים הנחה ברכישה זו!","img":"db589eba6d4f051665338238ddc30fee"},{"id":2005,"n":"לוח רב פעילות","p":120,"s":2,"e":"🎁","d":"לוח ציור - כולל מגנטים גיר ותבליטים","img":"0f119ecee70f78f8afa180076e96cfe3"},{"id":2006,"n":"אלקטרו דע","p":100,"s":1,"e":"🎁","img":"60d0e9982885a85d9eff45cfe583d0ae"},{"id":2007,"n":"מתגלגלים","p":100,"s":1,"e":"🎁","d":"מכוניות מדבקות דפי צביעה ופאזל רצפה ענק - 28 חלקים","img":"3464bd5ffd40dde2c1523e4fc31aae19"},{"id":2008,"n":"כרטיספר - 30₪ זיכוי באור-החיים","p":90,"s":3,"e":"🎁","img":"17b6228e45ad44f150f9b8231804f16b"},{"id":2009,"n":"קולקציית תכשיטים ערכת יצירה","p":85,"s":1,"e":"🎁","img":"05d26dc9dccb56f1b8e6e18acdc70fe8"},{"id":2010,"n":"משפחת מגנטי","p":80,"s":2,"e":"🎁","img":"cfbe831d1e1e1e1549c7767181ef2d14"},{"id":2011,"n":"זיכוי - שובר לפיצה משפחתית למימוש באומן הפיצה","p":75,"s":7,"e":"🎁","img":"b54ad6d0d066339fab424566ec5abbc3"},{"id":2012,"n":"לוח ציור מואר","p":75,"s":3,"e":"🎁","img":"49b6185b1632d06eed1725701b26d821"},{"id":2013,"n":"חרוזי הקסם ערכת יצירת צורות סמלים מחרוזים","p":70,"s":2,"e":"🎁","img":"ce6e140200332e78b3ebb8e71c19c8ac"},{"id":2014,"n":"מבולבלונים","p":60,"s":1,"e":"🎁","img":"33f1127ca4cca2285de22ac342b50b1c"},{"id":2015,"n":"זיכוי - שובר פיצה אישית למימוש באומן הפיצה","p":60,"s":9,"e":"🎁","img":"feda686c2ba4dab2fc1a57c2054a931c"},{"id":2016,"n":"פליימוביל - כבאי","p":45,"s":1,"e":"🎁"},{"id":2017,"n":"המגדל הנופל","p":50,"s":2,"e":"🎁","img":"3538fe4f5b7c91b2941b78d11021e2f5"},{"id":2018,"n":"פאזל 99 חלקים","p":50,"s":1,"e":"🎁"},{"id":2019,"n":"פליימוביל - ערכת הצלה","p":45,"s":1,"e":"🎁"},{"id":2020,"n":"פליימוביל - מיחזור","p":45,"s":1,"e":"🎁"},{"id":2021,"n":"פליימוביל - ילדה עם אופניים","p":45,"s":1,"e":"🎁"},{"id":2022,"n":"מסוק רחפן","p":35,"s":1,"e":"🎁"},{"id":2023,"n":"סקווישי בדמות מאכלים","p":20,"s":8,"e":"🎁"},{"id":2024,"n":"עולם ומלואו - חבילת זהב עונה 15","p":15,"s":20,"e":"🎁","img":"578493ec8f26c72df0481c98c76966be"},{"id":2025,"n":"מגוון צעצועים קטנים","p":3,"s":99,"e":"🎁","d":"ארנקים/גומיות/קפיצים/עטים ומגוון צעצועים קטנים"},{"id":2026,"n":"לגו - מגוון נשקים","p":1,"s":10,"e":"🎁"}],"pages":{"fathers":{"t":"אבות ובנים","l":"","b":"*מועד הלימוד:*\nבתקופת הקיץ - הלימוד יתקיים ביום שבת כשעה לפני תפילת מנחה. \nבתקופת החורף - הלימוד יתקיים ביום שישי בין תפילת מנחה לקבלת שבת.\n\n*חומר וזמן הלימוד:*\nאין מגבלה לחומר הנלמד וכן אין הכרח להשתתף בכל שעת הלימוד, באחריות כל הורה להעריך את יכולת ילדיו וללמוד איתם בהתאם.\n\n*פרסים:*\nבכל שבוע לאחר הסדר יחולקו למשתתפים הרשקלים, ארטיק / חטיף / ממתק וכן יוגרלו במוצאי שבת 5 שטרות של 50 הרשקלים!\n\n*תנאים נוספים:*\nהגיל המינימלי להשתתפות הוא גיל 6, ילדים מתחת לגיל זה יקבלו הרשקלים וממתק אך לא את כרטיס ההגרלה שנועד לתת תמריץ לילדים הגדולים יותר.\n*הלימוד מיועד לבנים ובנות!*"},"bulletin":{"t":"עלון שבועי – פרשת תולדות","l":"","b":"פרשת השבוע: דבר תורה קצר, הודעות וזמנים.\n\nהודעות: שמחות, שיעורים ואירועים קרובים."},"links":{"t":"הרש-קישורים","l":"","b":"טופס עדכון פרטי חברי קהילה | https://docs.google.com/forms/d/e/1FAIpQLSfflPfuiECzAHP0w1CCSNG9rzC067hSsiKjdoUGLhT6F-AU_A/viewform\n\nתשלום התחייבויות ותרומות | https://sites.google.com/view/harshkop-shul\n\nקישור לקבוצת הוואצאפ | https://chat.whatsapp.com/H6yzvYshqYYJS3uicREq2G"},"news":{"t":"נהלי חלוקה ומכירה","l":"","b":"*נהלי חלוקת הרשקלים:*\nחלוקת ההרשקלים תתבצע בבית הכנסת במהלך התפילות, בלימוד אבות ובנים, בפסוקים ובאירועים שונים.\nחלוקת ההרשקלים מתבצעת כדלהלן מתוך התחשבות במאמץ של הילד ועם מתן אטרקטיביות לילדים הבוגרים:\n1) בתחילת התפילה לילדים הבוגרים שהתחילו תפילה עם החזן - *5 הרשקלים*.\n2) באמצע התפילה לכל הילדים שיושבים יפה ומתפללים - *5 הרשקלים*.\n3) בסיום קריאת התורה לילדים שישבו יפה ונבחנו ע\"י ההורה על השאלות שבתחילת חוברת פרשת השבוע - *5/10 הרשקלים*. \n4) לילדים שיושבים יפה אך אינם מתפללים - *הרשקל 1* (לילדים אלו יש מנעד רחב של מתנות מוזלות בהרשקלים בודדים).\n5) במהלך הפסוקים לילדים המצטיינים - *1/5 הרשקלים*.\n6) במהלך *כל התפילה* בשבתות מברכים - *1/5 הרשקלים*. \n7) למשתתפים באבות ובנים - *5 הרשקלים*.\n8) לילדים הזוכים בהגרלת אבות ובנים - *50 הרשקלים*.\n9) הרשקלים נוספים יחולקו במועדים מיוחדים על פי הצורך ולפי השתדלות הילד.\n*במידה ויש ילד שלא קיבל במהלך החלוקה או ילד שעשה השתדלות מיוחדת על פי שיקול דעת ההורים - ההורים מוזמנים לפנות אלי לקבלת הרשקלים נוספים!*\n\n*נהלי מכירת המתנות:* \nמכירת המתנות תתבצע בשתי דרכים:\nא) מכירה מרוכזת בבית הכנסת שתתבצע בחגים ואחת לתקופה.\nב) הזמנת מתנות ישירות מהאתר ואיסוף עצמי מתיבת הדואר שלי בגפן 6 דירה 4 (לאחר אישור נוסף ממני שהמתנה מוכנה לאיסוף).\nלגבי מועד המכירה המרוכזת הבאה יש לעקוב אחרי ההודעות באתר ובקבוצת הוואצאפ. \nסכום מינימלי להזמנה באתר הינו 50 הרשקלים.\nאין להזמין מתנות ללא אפשרות רכישה.\nלא ניתן לשמור מתנות – כל הקודם זוכה.\nלא ניתן להחליף מתנות לאחר הקנייה. \nבמידה וקיימת בעיה במוצר שהתקבל - ניתן לפנות אלי לקבלת החזר.\nלא ניתן להזמין מתנה שאינה במלאי, אך במידה ואתם רוצים חידוש מלאי למתנה שאזלה או רכישת מתנה חדשה (ביחסיות של 4 הרשקלים ל-1₪~) - מוזמנים לפנות אלי לצורך הזמנה או רכישה נקודתית."}},"home":{"v":2,"hero":"379098887f35c7829d7c874b2af0a60a","btn":"נהלי חלוקת הרשקלים ומכירת משחקים","tiles":[{"t":"הרש-שופ","h":"#shop-100","img":"c3bcfa582c74dd293be993a88e1a16b4"},{"t":"אבות ובנים","h":"#fathers","img":"fa5a6ed53289eac37086f53cbdc4406d"},{"t":"עלון שבועי","h":"#bulletin","img":"55bee9a3b584d3d62859d68c6830237e"},{"t":"הרש-קישורים","h":"#links","img":"37e9afa59d40a1fad4735f21fc899741"}],"ban":{"100":"3f8a82a5a40e4e81669c4459d17b0a45","250":"315b3bfa98758add21befb6ac9e7f736","over":"353c8c991d36649373f2fdfb155c46ec","all":"1341a13aaf4ce8a81c46bea8acd793cd"}},"bull":[{"id":"ccce2bff948f1ae6f3c7a040324d06e2"},{"id":"b48345d660a92a91027dc41c697b333e"},{"id":"10f0968de19241392f7d0ffe2756590f"},{"id":"87d8b4edd4991bb920be521a149670ee"}],"bv":1,"bw":2,"pv":3};
+function A(i){return"img/"+i+".jpg"}
+
+var PRODUCTS=[{"id":2,"n":"ספר תהילים","p":60,"e":"📖","h":false},{"id":3,"n":"טלית קטנה","p":90,"e":"🧵"},{"id":4,"n":"כוס קידוש","p":120,"e":"🥂"},{"id":5,"n":"סידור מהודר","p":180,"e":"📘"},{"id":6,"n":"פמוטי שבת","p":240,"e":"🕯️"},{"id":7,"n":"טלית גדולה","p":320,"e":"🧣"},{"id":8,"n":"סט חנוכייה","p":450,"e":"🕎"},{"id":1793045302581,"n":"מוצר חדש","p":50,"e":"🎁"}];
+var TIERS={"100":"מוצרים עד 100 הרשקלים","250":"מוצרים עד 250 הרשקלים","over":"מוצרים מעל 250 הרשקלים","all":"כל המוצרים"};
+var cart={},filter="all";
+function tier(p){return p<=100?"100":p<=250?"250":"over"}
+function fmt(n){return n+" הרשקלים"}
+function card(x){
+  var q=cart[x.id]||0;
+  return '<div class="card"><div class="ph">'+pic(x)+(x.t?'<span class="bdg">מבצע</span>':'')+'</div><h3>'+em(x.n)+'</h3>'+(x.d?'<div class="stk">'+em(x.d)+'</div>':'')+'<div class="cb"><div class="price">'+fmt(x.p)+'</div>'+stk(x)+
+  '<div class="qty"><button data-a="plus" data-id="'+x.id+'" aria-label="הוסף">+</button><b>'+q+'</b><button data-a="minus" data-id="'+x.id+'" aria-label="הסר">−</button></div></div></div>';
+}
+function list(t){return PRODUCTS.filter(function(x){return !x.h&&(x.s==null||x.s>0||x.z)&&(t==="all"||tier(x.p)===t)}).map(card).join("")}
+function renderChips(){
+  var h="";for(var k in TIERS){h+='<button class="chip'+(k===filter?' on':'')+'" data-f="'+k+'">'+TIERS[k].replace("מוצרים ","")+'</button>'}
+  document.getElementById("chips").innerHTML=h;
+}
+var page="home";
+function render(){
+  
+  if(page.indexOf("shop-")===0){document.getElementById("shopgrid").innerHTML=list(page.slice(5))}
+  var n=0,t=0;PRODUCTS.forEach(function(x){var q=cart[x.id]||0;n+=q;t+=q*x.p});
+  document.getElementById("cartbar").style.display=n?"block":"none";
+  document.getElementById("cartsum").textContent=n+" פריטים · "+fmt(t);
+  document.getElementById("total").textContent=fmt(t);
+  var L="";PRODUCTS.forEach(function(x){var q=cart[x.id]||0;if(q)L+='<div class="row"><span>'+x.n+' × '+q+'</span><span>'+fmt(q*x.p)+'</span></div>'});
+  document.getElementById("lines").innerHTML=L||"<p>העגלה ריקה.</p>";
+}
+function route(){
+  var h=(location.hash||"#home").slice(1);
+  page=h;var sec=h.indexOf("shop-")===0?"shop":h;
+  if(!document.getElementById(sec)){sec="home";page="home"}
+  document.querySelectorAll(".sec").forEach(function(s){s.classList.toggle("on",s.id===sec)});
+  document.querySelectorAll("nav a").forEach(function(a){a.classList.toggle("on",a.getAttribute("data-p")===page)});
+  if(sec==="shop")document.getElementById("shoptitle").textContent=TIERS[page.slice(5)]||TIERS.all;
+  document.getElementById("dd").classList.remove("open");
+  if(sec==="shop")document.getElementById("shban").innerHTML=banHtml(page.slice(5));
+if(sec==="shop")document.getElementById("schips").innerHTML=Object.keys(TIERS).map(function(k){return '<a class="chip'+(page==="shop-"+k?' on':'')+'" href="#shop-'+k+'">'+TIERS[k].replace("מוצרים ","")+'</a>'}).join("");
+document.getElementById("shopedit").innerHTML=cloud&&sec==="shop"?'<p><button class="btn alt" data-edit="shop">✏ ניהול מוצרים</button></p>':'';document.documentElement.classList.toggle("nosc",sec==="bulletin");document.documentElement.style.setProperty("--hh",document.querySelector("header").offsetHeight+"px");document.querySelector("header").classList.remove("open");window.scrollTo(0,0);if(sec==="admin")renderAdmin();if(PAGES[sec])pageRender(sec);if(sec==="home")homeRender();render();pgAnim(sec);
+}
+document.addEventListener("click",function(e){
+  var t=e.target;
+  if(t.id==="ddb"){document.getElementById("dd").classList.toggle("open");return}
+  if(t.dataset.f){filter=t.dataset.f;render();return}
+  if(t.dataset.a){var id=t.dataset.id;var pr=PRODUCTS.filter(function(z){return String(z.id)===String(id)})[0],mx=pr&&pr.s!=null&&pr.s!==""?Math.max(0,+pr.s):1e9;cart[id]=Math.min(mx,Math.max(0,(cart[id]||0)+(t.dataset.a==="plus"?1:-1)));render();return}
+  if(t.id==="open")document.getElementById("modal").classList.add("show");
+  if(t.id==="close"||t.id==="modal")document.getElementById("modal").classList.remove("show");
+  if(t.id==="copy"){
+    var s="הזמנה מ־הרשקופ שול\n";
+    PRODUCTS.forEach(function(x){var q=cart[x.id]||0;if(q)s+=x.n+" × "+q+" = "+fmt(q*x.p)+"\n"});
+    s+="סה״כ: "+document.getElementById("total").textContent+"\nשם: "+document.getElementById("nm").value+"\nטלפון: "+document.getElementById("ph").value+"\nהערות: "+document.getElementById("nt").value;
+    var m=document.getElementById("msg");
+    try{navigator.clipboard.writeText(s).then(function(){m.textContent="ההזמנה הועתקה – אפשר לשלוח אותה לגבאי."},function(){m.textContent="לא הצלחנו להעתיק. סמנו והעתיקו ידנית."})}catch(err){m.textContent="לא הצלחנו להעתיק."}
+  }
+});
+window.addEventListener("hashchange",route);
+var cloud=null,asset=null,tab="p",ek=null,FB=0,BULL=[{id:"ccce2bff948f1ae6f3c7a040324d06e2"},{id:"b48345d660a92a91027dc41c697b333e"},{id:"10f0968de19241392f7d0ffe2756590f"},{id:"87d8b4edd4991bb920be521a149670ee"}],BW=2,BT="עלון שבועי – פרשת תולדות";
+function bullHtml(){var im=BULL.filter(function(f){return!f.pdf}),pd=BULL.filter(function(f){return f.pdf}),h='';
+if(im.length)h+='<div class="fb" id="fb"><div class="fbw"><div class="fbs" id="fbs">'+im.map(function(f,i){return '<img class="fbp" src="'+A(f.id)+'" alt="עמוד '+(i+1)+'" draggable="false">'}).join("")+'</div></div><div class="fbc"><button type="button" class="chip" data-fb="prev">› הקודם</button><span id="fbn"></span><button type="button" class="chip" data-fb="next">הבא ‹</button><button type="button" class="chip" data-fb="zoom" aria-label="הגדלה">🔍</button><button type="button" class="chip" data-fb="full" id="fbf" aria-label="מסך מלא">⛶</button></div></div>';
+pd.forEach(function(f){h+='<object class="bull" data="'+A(f.id)+'" type="application/pdf"><a class="btn" href="'+A(f.id)+'" target="_blank" rel="noopener">פתיחת העלון (PDF)</a></object>'});
+return h||'<p class="lead">העלון יעלה בקרוב.</p>'}
+function fbShow(n){var s=document.getElementById("fbs");if(!s)return;var p=s.children,c=p.length;FB=Math.max(0,Math.min(c-1,n));for(var i=0;i<c;i++){p[i].style.transform=i<FB?"rotateY(180deg)":"none";p[i].style.zIndex=i<FB?i:1000-i}document.getElementById("fbn").textContent=(FB+1)+" / "+c}
+function fbInit(){var s=document.getElementById("fbs");if(!s)return;var f=s.firstChild,ar=function(){if(f.naturalWidth)s.style.setProperty("--ar",f.naturalWidth+"/"+f.naturalHeight)};if(f.complete)ar();else f.onload=ar;if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled))document.getElementById("fbf").hidden=true;fbShow(0)}
+document.addEventListener("click",function(e){var t=e.target,a=t.dataset&&t.dataset.fb,b=document.getElementById("fb");if(!b)return;
+if(a==="next")fbShow(FB+1);else if(a==="prev")fbShow(FB-1);else if(a==="zoom")pzSet(PZ.s>1.01?1:2.5);
+else if(a==="full"){try{if(document.fullscreenElement)document.exitFullscreen();else(b.requestFullscreen||b.webkitRequestFullscreen).call(b)}catch(x){}}
+else if(false){var r=document.getElementById("fbs").getBoundingClientRect();fbShow(e.clientX<r.left+r.width/2?FB+1:FB-1)}});
+var tx=null;document.addEventListener("touchstart",function(e){var b=document.getElementById("fb");tx=false&&b&&e.target.closest&&e.target.closest("#fbs")&&!b.classList.contains("z")?e.touches[0].clientX:null},{passive:true});
+document.addEventListener("touchend",function(e){if(tx==null)return;var d=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(d)>40)fbShow(d>0?FB+1:FB-1)},{passive:true});
+var FA=0,DR=null;
+function clipP(pts,keep,n,m){var out=[],k=keep?1:-1;for(var i=0;i<pts.length;i++){var a=pts[i],b=pts[(i+1)%pts.length],da=k*((a[0]-m[0])*n[0]+(a[1]-m[1])*n[1]),db=k*((b[0]-m[0])*n[0]+(b[1]-m[1])*n[1]);if(da>=0)out.push(a);if((da>=0)!==(db>=0)){var t=da/(da-db);out.push([a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])])}}return out}
+function bullHtml(){var im=BULL.filter(function(f){return!f.pdf}),pd=BULL.filter(function(f){return f.pdf}),h='';
+if(im.length)h+='<div class="fb" id="fb"><div class="fbw"><div class="fbs" id="fbs">'+im.map(function(f,i){return '<img class="fbp" src="'+A(f.id)+'" alt="עמוד '+(i+1)+'" draggable="false">'}).join("")+'<div class="fbfw" id="fbfw"><div class="fbf" id="fbf2"></div></div><span id="fbn" class="fbn2"></span><div class="fbe fbe-n" id="fbeN"></div><div class="fbe fbe-p" id="fbeP"></div></div></div><div class="fbc"><button type="button" class="chip" data-fb="prev">› הקודם</button><span id="fbn"></span><button type="button" class="chip" data-fb="next">הבא ‹</button><button type="button" class="chip" data-fb="zoom" aria-label="הגדלה">🔍</button><button type="button" class="chip" data-fb="full" id="fbf" aria-label="מסך מלא">⛶</button><button type="button" class="chip" data-fb="sharem" aria-label="שיתוף">⤴</button></div><input type="range" id="fbr" min="1" max="'+im.length+'" value="1" dir="rtl" aria-label="עמוד"></div>';
+pd.forEach(function(f){h+='<object class="bull" data="'+A(f.id)+'" type="application/pdf"><a class="btn" href="'+A(f.id)+'" target="_blank" rel="noopener">פתיחת העלון (PDF)</a></object>'});
+return h||'<p class="lead">העלון יעלה בקרוב.</p>'}
+function fbPg(){return document.getElementById("fbs").querySelectorAll(".fbp")}
+function fbIdle(){var p=fbPg();for(var i=0;i<p.length;i++){p[i].style.visibility=i===FB?"visible":"hidden";p[i].style.clipPath="none";p[i].style.zIndex=1}document.getElementById("fbfw").style.display="none";document.getElementById("fbn").textContent=(FB+1)+" / "+p.length;document.getElementById("fbr").value=FB+1;document.getElementById("fbeN").style.display=FB<p.length-1?"":"none";document.getElementById("fbeP").style.display=FB>0?"":"none"}
+function fbPaint(ti,bi,P){document.getElementById("fbeN").style.display="none";document.getElementById("fbeP").style.display="none";var s=document.getElementById("fbs"),p=fbPg(),W=s.clientWidth,H=s.clientHeight,C=[0,H],fw=document.getElementById("fbfw"),fl=document.getElementById("fbf2");
+for(var i=0;i<p.length;i++){p[i].style.visibility=(i===ti||i===bi)?"visible":"hidden";p[i].style.zIndex=i===ti?3:2;p[i].style.clipPath="none"}
+var dx=P[0]-C[0],dy=P[1]-C[1],L=Math.sqrt(dx*dx+dy*dy);if(L<1){fw.style.display="none";return}
+var n=[dx/L,dy/L],m=[(P[0]+C[0])/2,(P[1]+C[1])/2],rect=[[0,0],[W,0],[W,H],[0,H]],R=clipP(rect,1,n,m),Q=clipP(rect,0,n,m);
+function pg(a){return a.length>2?"polygon("+a.map(function(q){return q[0].toFixed(1)+"px "+q[1].toFixed(1)+"px"}).join(",")+")":"polygon(0 0,0 0,0 0)"}
+p[ti].style.clipPath=pg(R);var k=2*(m[0]*n[0]+m[1]*n[1]);fw.style.display="block";fl.style.clipPath=pg(Q);
+fl.style.transform="matrix("+(1-2*n[0]*n[0])+","+(-2*n[0]*n[1])+","+(-2*n[0]*n[1])+","+(1-2*n[1]*n[1])+","+k*n[0]+","+k*n[1]+")";
+var th=Math.atan2(n[0],-n[1]),ln=Math.abs(W*Math.sin(th))+Math.abs(H*Math.cos(th)),t0=ln/2+((m[0]-W/2)*n[0]+(m[1]-H/2)*n[1]);
+fl.style.background="linear-gradient("+th+"rad,#fff 0,#f2f2f2 "+Math.max(0,t0-70)+"px,#cfcfcf "+Math.max(0,t0-8)+"px,#9a9a9a "+t0+"px,#9a9a9a 100%)"}
+function fbRun(ti,bi,a,z,done){var s=document.getElementById("fbs"),st=performance.now(),du=Math.max(150,700*Math.abs(z-a));FA=1;
+function fr(now){var u=Math.min(1,(now-st)/du),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,t=a+(z-a)*e,W=s.clientWidth,H=s.clientHeight;if(u<1){fbPaint(ti,bi,[2*W*t,H-.28*H*Math.sin(Math.PI*t)]);requestAnimationFrame(fr)}else{FA=0;done()}}
+requestAnimationFrame(fr)}
+function fbShow(n){if(!document.getElementById("fbs")||FA)return;var c=fbPg().length;n=Math.max(0,Math.min(c-1,n));if(n===FB)return;
+if(n===FB+1)fbRun(FB,FB+1,0,1,function(){FB=n;fbIdle()});else if(n===FB-1)fbRun(FB-1,FB,1,0,function(){FB=n;fbIdle()});else{FB=n;fbIdle()}}
+function fbInit(){var s=document.getElementById("fbs");if(!s)return;var f=s.querySelector(".fbp"),ar=function(){if(f.naturalWidth){s.style.setProperty("--ar",f.naturalWidth+"/"+f.naturalHeight);s.style.setProperty("--arn",f.naturalWidth/f.naturalHeight)}};if(f.complete)ar();else f.onload=ar;if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled))document.getElementById("fbf").hidden=true;FB=0;FA=0;PT={};G=null;pzSet(1);fbIdle()}
+document.addEventListener("pointerdown",function(e){var s=document.getElementById("fbs");if(!s||!e.target.closest||!e.target.closest("#fbs")||PZ.s>1.01||FA)return;var r=s.getBoundingClientRect(),x=e.clientX-r.left,W=r.width,c=fbPg().length,md=0;
+if(x<W*.22&&FB<c-1)md=1;else if(x>W*.78&&FB>0)md=-1;if(!md)return;DR={md:md,x0:e.clientX,y0:e.clientY,mv:0,P:null};try{s.setPointerCapture(e.pointerId)}catch(q){}});
+document.addEventListener("pointermove",function(e){if(!DR)return;var s=document.getElementById("fbs"),W=s.clientWidth,H=s.clientHeight,dx=e.clientX-DR.x0,dy=e.clientY-DR.y0;if(Math.abs(dx)+Math.abs(dy)>6)DR.mv=1;if(!DR.mv)return;
+var px=Math.max(0,Math.min(2*W,DR.md>0?2*dx:2*W+2*dx)),py=Math.max(H*.1,Math.min(H,H+dy));DR.P=[px,py];if(DR.md>0)fbPaint(FB,FB+1,DR.P);else fbPaint(FB-1,FB,DR.P)});
+function fbEnd(){if(!DR)return;var d=DR;DR=null;var W=document.getElementById("fbs").clientWidth;if(!d.mv)return;
+var t=d.P?d.P[0]/(2*W):(d.md>0?0:1);
+if(d.md>0){var go=t>.25;fbRun(FB,FB+1,t,go?1:0,function(){if(go)FB++;fbIdle()})}else{var go2=t<.75;fbRun(FB-1,FB,t,go2?0:1,function(){if(go2)FB--;fbIdle()})}}
+document.addEventListener("click",function(e){var t=e.target;if(!t.dataset||t.dataset.fb!=="share")return;var u="https://claude.ai/artifact/B1FsDmGbCj44WiAYfmNxsB#bulletin",n=document.getElementById("fbn"),o=n.textContent,say=function(m){n.textContent=m;setTimeout(function(){n.textContent=o},2500)},cp=function(){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){say("הקישור הועתק")},function(){say(u)});else say(u)};
+if(navigator.share)navigator.share({title:"עלון שבועי – הרשקופ שול",text:"העלון השבועי של קהילת הרשקופ שול",url:u}).catch(function(er){if(!er||er.name!=="AbortError")cp()});else cp()});
+document.addEventListener("pointerup",fbEnd);var SEED=[[`כרטיספר - 250₪ זיכוי באור-החיים`,`50 הרשקלים הנחה ברכישה זו!`,700,0],[`המצלמה הראשונה שלי`,``,320,0,1],[`פליימוביל - משאית משטרה`,``,300,0],[`כרטיספר - 100₪ זיכוי באור-החיים`,`30 הרשקלים הנחה ברכישה זו!`,270,0],[`מיני רחפן`,``,250,0,1],[`מצלמה מדפיסה`,``,240,0],[`דיאבלו - יויו סיני מקצועי (3 bearings)`,``,130,0,1],[`קוביה הונגרית Rubik's Cube מקורית`,``,180,0,1],[`וידאו טוקי - מכשיר קשר עם שיחות וידאו`,``,200,0],[`פליימוביל מסוק משטרה`,``,180,0,1],[`פליימוביל - מכונית בנות`,``,180,0],[`פליימוביל - מסוק אמבולנס`,``,180,0,1],[`פליימוביל - מסוק משטרה`,``,180,0],[`אמא ואבא של שבת`,``,150,0,1],[`מצלמה מצלמת תמונות ווידאו כולל משחקים`,``,90,0,1],[`עט תלת מימד`,``,120,0],[`כרטיספר - 50₪ זיכוי באור-החיים`,`15 הרשקלים הנחה ברכישה זו!`,135,2,1],[`פצצות אמבטיה ערכה להכנת 15 פצצות אמבטיה`,``,125,0],[`לוח רב פעילות`,`לוח ציור - כולל מגנטים גיר ותבליטים`,120,0,1,1],[`כספת מתכת גדולה`,``,120,0],[`אלקטרו דע`,``,100,0,1],[`קריוקיד - ערכת סולו רמקול ומיקרופון`,``,100,0],[`מתגלגלים`,`מכוניות מדבקות דפי צביעה ופאזל רצפה ענק - 28 חלקים`,100,0,1],[`מכונית חשמלית`,``,100,0,1],[`כרטיספר - 30₪ זיכוי באור-החיים`,``,90,2,1],[`מכונית פעלולים עם אורות`,``,90,0],[`קולקציית תכשיטים ערכת יצירה`,``,85,0],[`מופע הקסמים ערכת קסמים במזוודה`,``,80,0,1],[`משפחת מגנטי`,``,80,0,1],[`מכונית גדולה לא חשמלית`,``,60,0,1],[`זיכוי - שובר לפיצה משפחתית למימוש באומן הפיצה`,``,75,5,1],[`כספת ספר סודית`,``,75,0],[`לוח לד דיגיטלי צבעוני - 16 אינצ'`,``,75,0],[`לוח ציור מואר`,``,75,0],[`חרוזי הקסם ערכת יצירת צורות סמלים מחרוזים`,``,70,0,1],[`מבולבלונים`,``,60,0,1],[`מכונית מירוץ קטנה ומהירה`,``,60,0],[`זיכוי - שובר פיצה אישית למימוש באומן הפיצה`,``,60,5,1],[`פליימוביל - אופנוע הצלה`,``,60,0,1],[`פליימוביל - אופנוע משטרה`,``,60,0,1],[`פליימוביל - כבאי`,``,60,0],[`המגדל הנופל`,``,50,0,1],[`פאזל 99 חלקים`,``,50,0,1],[`קריוקיד - רמקול אלחוטי כולל אפשרות הקלטה`,``,45,0,1],[`זוג מכשירי קשר`,``,45,0],[`פליימוביל - ערכת הצלה`,``,45,0,1],[`פליימוביל - מיחזור`,``,45,0],[`פליימוביל - ילדה עם אופניים`,``,45,0],[`ערכת גומיות ליצירה`,``,40,0,1],[`מיני פנס לד עוצמתי נטען`,``,35,0],[`מסוק רחפן`,``,35,1],[`לגו - דרקון`,``,35,0],[`קליי בדלי`,``,25,0],[`שעון צמיד ללא אפשרות טעינה`,``,15,0],[`טטריס`,``,20,0],[`סקווישי בדמות מאכלים`,``,20,0],[`עולם ומלואו - חבילת זהב עונה 15`,``,15,20],[`מיני טטריס מחזיק מפתחות`,``,15,0],[`לגו - אופנוע וקסדה`,``,10,0],[`עולם ומלואו - חבילה רגילה עונה 15`,``,7,0],[`מגוון צעצועים קטנים`,`ארנקים/גומיות/קפיצים/עטים ומגוון צעצועים קטנים`,3,0,1],[`לגו - מגוון נשקים`,``,1,10]];
+PRODUCTS=SEED.map(function(a,i){var o={id:1000+i,n:a[0],p:a[2],s:a[3],e:"🎁"};if(a[1])o.d=a[1];if(a[4])o.t=1;if(a[5])o.z=1;return o});
+document.addEventListener("click",function(e){var t=e.target,l=document.getElementById("lbx");if(t.tagName==="IMG"&&t.closest&&t.closest(".card .ph")){document.getElementById("lbi").src=t.src;l.classList.add("show")}else if(t===l||t.id==="lbi")l.classList.remove("show")});
+var PZ={s:1,x:0,y:0},PT={},G=null;
+function pzApply(){var s=document.getElementById("fbs");if(!s)return;var mx=s.offsetWidth*(PZ.s-1)/2,my=s.offsetHeight*(PZ.s-1)/2;PZ.x=Math.max(-mx,Math.min(mx,PZ.x));PZ.y=Math.max(-my,Math.min(my,PZ.y));s.classList.toggle("zm",PZ.s>1.01);s.style.transform=PZ.s>1.001?"translate("+PZ.x+"px,"+PZ.y+"px) scale("+PZ.s+")":"none"}
+function pzSet(v){PZ.s=v;if(v<=1){PZ.x=0;PZ.y=0}pzApply()}
+document.addEventListener("pointerdown",function(e){var s=document.getElementById("fbs");if(!s||!e.target.closest||!e.target.closest("#fbs"))return;PT[e.pointerId]=[e.clientX,e.clientY];var k=Object.keys(PT);
+if(k.length===2){DR=null;if(!FA)fbIdle();var a=PT[k[0]],b=PT[k[1]],r=s.getBoundingClientRect(),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,cx=r.left+r.width/2-PZ.x,cy=r.top+r.height/2-PZ.y;G={d:Math.hypot(a[0]-b[0],a[1]-b[1])||1,s:PZ.s,cx:cx,cy:cy,px:(mx-cx-PZ.x)/PZ.s,py:(my-cy-PZ.y)/PZ.s}}
+else if(k.length===1&&PZ.s>1.01)G={pan:1,x0:e.clientX,y0:e.clientY,tx:PZ.x,ty:PZ.y}});
+document.addEventListener("pointermove",function(e){if(!PT[e.pointerId])return;PT[e.pointerId]=[e.clientX,e.clientY];if(!G)return;var k=Object.keys(PT);
+if(G.pan){if(k.length===1){PZ.x=G.tx+e.clientX-G.x0;PZ.y=G.ty+e.clientY-G.y0;pzApply()}return}
+if(k.length>=2){var a=PT[k[0]],b=PT[k[1]],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,s=Math.max(1,Math.min(4,G.s*Math.hypot(a[0]-b[0],a[1]-b[1])/G.d));PZ.s=s;PZ.x=mx-G.cx-G.px*s;PZ.y=my-G.cy-G.py*s;pzApply()}});
+function pzEnd(e){delete PT[e.pointerId];var k=Object.keys(PT);if(!k.length){G=null;if(PZ.s<1.05)pzSet(1)}else if(k.length<2&&G&&!G.pan)G=null}
+document.addEventListener("pointerup",pzEnd);document.addEventListener("pointercancel",pzEnd);
+var WIN={wk:"",nums:[]};
+function winHtml(){return '<div class="panel win"><svg viewBox="0 0 120 124" width="120" height="124" aria-hidden="true"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7dc6f"/><stop offset="1" stop-color="#c9971c"/></linearGradient></defs><path d="M30 8h60v30c0 24-14 38-30 38S30 62 30 38z" fill="url(#gg)"/><path d="M30 16H12c0 22 8 34 22 36M90 16h18c0 22-8 34-22 36" fill="none" stroke="#c9971c" stroke-width="7" stroke-linecap="round"/><rect x="53" y="74" width="14" height="22" fill="#c9971c"/><rect x="36" y="96" width="48" height="12" rx="3" fill="url(#gg)"/><rect x="28" y="108" width="64" height="12" rx="3" fill="#8a6a12"/><path d="M60 20l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="#fff6c9"/></svg><h3>הזוכים בהגרלה של השבוע הקודם</h3>'+(WIN.wk?'<p class="stk">'+esc(WIN.wk)+'</p>':'')+(WIN.nums.length?'<div class="wn">'+WIN.nums.map(function(n){return '<span>'+esc(n)+'</span>'}).join("")+'</div>':'<p class="lead">הזוכים יפורסמו בקרוב.</p>')+'</div>'}
+var NV={"100":1,"250":5,"over":10,"all":50},NC={1:["#8fc98e","#2d6a3a"],5:["#86bde0","#1b5a88"],10:["#e6bc72","#85571a"],50:["#cc92dc","#58277a"]};
+function note(v){var c=NC[v]||NC[1];return '<svg viewBox="0 0 400 160" role="img" aria-label="'+v+' הרשקלים"><rect x="4" y="4" width="392" height="152" rx="14" fill="'+c[0]+'" stroke="'+c[1]+'" stroke-width="6"/><rect x="16" y="16" width="368" height="128" rx="8" fill="none" stroke="'+c[1]+'" stroke-width="2" stroke-dasharray="6 4"/><circle cx="92" cy="80" r="52" fill="'+c[1]+'" opacity=".22"/><text x="92" y="100" font-size="58" font-weight="700" text-anchor="middle" fill="'+c[1]+'">'+v+'</text><text x="260" y="76" font-size="36" font-weight="700" text-anchor="middle" fill="'+c[1]+'">הרשקל</text><text x="260" y="114" font-size="22" text-anchor="middle" fill="'+c[1]+'">הרש-שופ</text></svg>'}
+function banHtml(k){var id=HOME.ban&&HOME.ban[k];return id?'<img src="'+A(id)+'" alt="">':note(NV[k]||1)}
+var SEED2=[[`כרטיספר - 100₪ זיכוי באור-החיים`,`30 הרשקלים הנחה ברכישה זו!`,270,1],[`דיאבלו - יויו סיני מקצועי (3 bearings)`,``,130,1],[`פליימוביל - מכונית בנות`,``,180,1],[`אמא ואבא של שבת`,``,150,1],[`כרטיספר - 50₪ זיכוי באור-החיים`,`15 הרשקלים הנחה ברכישה זו!`,135,3],[`לוח רב פעילות`,`לוח ציור - כולל מגנטים גיר ותבליטים`,120,2],[`אלקטרו דע`,``,100,1],[`מתגלגלים`,`מכוניות מדבקות דפי צביעה ופאזל רצפה ענק - 28 חלקים`,100,1],[`כרטיספר - 30₪ זיכוי באור-החיים`,``,90,3],[`קולקציית תכשיטים ערכת יצירה`,``,85,1],[`משפחת מגנטי`,``,80,2],[`זיכוי - שובר לפיצה משפחתית למימוש באומן הפיצה`,``,75,7],[`לוח ציור מואר`,``,75,3],[`חרוזי הקסם ערכת יצירת צורות סמלים מחרוזים`,``,70,2],[`מבולבלונים`,``,60,1],[`זיכוי - שובר פיצה אישית למימוש באומן הפיצה`,``,60,9],[`פליימוביל - כבאי`,``,45,1],[`המגדל הנופל`,``,50,2],[`פאזל 99 חלקים`,``,50,1],[`פליימוביל - ערכת הצלה`,``,45,1],[`פליימוביל - מיחזור`,``,45,1],[`פליימוביל - ילדה עם אופניים`,``,45,1],[`מסוק רחפן`,``,35,1],[`סקווישי בדמות מאכלים`,``,20,8],[`עולם ומלואו - חבילת זהב עונה 15`,``,15,20],[`מגוון צעצועים קטנים`,`ארנקים/גומיות/קפיצים/עטים ומגוון צעצועים קטנים`,3,99],[`לגו - מגוון נשקים`,``,1,10]];
+PRODUCTS=SEED2.map(function(a,i){var o={id:2000+i,n:a[0],p:a[2],s:a[3],e:"🎁"};if(a[1])o.d=a[1];return o});
+var SNAP="";function cur(){return JSON.stringify({products:PRODUCTS,pages:PAGES,home:HOME,bull:BULL})}function snap(){SNAP=cur()}
+function dirty(){var b=document.getElementById("cnl");if(b)b.hidden=!SNAP||cur()===SNAP}
+document.addEventListener("click",function(e){if(e.target.id!=="cnl"||!SNAP)return;var d=JSON.parse(SNAP);PRODUCTS=d.products;PAGES=d.pages;HOME=d.home;BULL=d.bull;renderAdmin();render();amsg("השינויים בוטלו")});
+["input","change","click"].forEach(function(n){document.addEventListener(n,function(){setTimeout(dirty,60)})});
+var SHU=location.href.split("#")[0]+"#bulletin";
+document.addEventListener("click",function(e){var t=e.target,m=document.getElementById("shm"),g=function(i){return document.getElementById(i)};if(!m)return;
+if(t.dataset&&t.dataset.fb==="sharem"){var x=encodeURIComponent(SHU),w=encodeURIComponent("העלון השבועי של קהילת הרשקופ שול"),L=[["WhatsApp","https://wa.me/?text="+w+"%20"+x],["Telegram","https://t.me/share/url?url="+x+"&text="+w],["Facebook","https://www.facebook.com/sharer/sharer.php?u="+x],["X","https://twitter.com/intent/tweet?url="+x+"&text="+w],["LinkedIn","https://www.linkedin.com/sharing/share-offsite/?url="+x],["אימייל","mailto:?subject="+w+"&body="+x]];
+g("shg").innerHTML=L.map(function(a){return '<a class="chip" target="_blank" rel="noopener" href="'+a[1]+'">'+a[0]+'</a>'}).join("")+'<button type="button" class="chip" id="shc">העתקת קישור</button>'+(navigator.share?'<button type="button" class="chip" id="shd">במכשיר…</button>':'');g("shmsg").textContent="";m.classList.add("show");return}
+if(t.id==="shm"||t.id==="shx")m.classList.remove("show");
+if(t.id==="shc"){if(navigator.clipboard)navigator.clipboard.writeText(SHU).then(function(){g("shmsg").textContent="הקישור הועתק"},function(){g("shmsg").textContent=SHU});else g("shmsg").textContent=SHU}
+if(t.id==="shd")navigator.share({title:"עלון שבועי – הרשקופ שול",url:SHU}).catch(function(){})});
+document.addEventListener("pointercancel",fbEnd);
+document.addEventListener("input",function(e){if(e.target.id==="fbr"){FB=Math.max(0,+e.target.value-1);fbIdle()}});
+document.addEventListener("keydown",function(e){if(!document.getElementById("fbs")||!document.getElementById("bulletin").classList.contains("on"))return;if(e.key==="ArrowLeft")fbShow(FB+1);if(e.key==="ArrowRight")fbShow(FB-1)});
+function bullOld(){return BULL.length?BULL.map(function(f){return f.pdf?'<object class="bull" data="'+A(f.id)+'" type="application/pdf"><a class="btn" href="'+A(f.id)+'" target="_blank" rel="noopener">פתיחת העלון (PDF)</a></object>':'<img class="bull" src="'+A(f.id)+'" alt="עלון שבועי">'}).join(""):'<p class="lead">העלון יעלה בקרוב.</p>'}
+function bullAdmin(){var p=PAGES.bulletin;return '<div class="panel"><h3>עלון שבועי</h3><input data-pg="bulletin" data-f="t" value="'+esc(p.t)+'" aria-label="כותרת"><p class="lead">העלו את העלון כתמונות (מומלץ, עמוד אחד לכל תמונה) או כקובץ PDF.</p>'+BULL.map(function(f,i){return '<div class="arow">'+(f.pdf?'<div class="ph">📄</div>':'<div class="ph"><img src="'+A(f.id)+'"></div>')+'<b>'+(i+1)+'</b><button class="btn alt" data-bdel="'+i+'">מחיקה</button></div>'}).join("")+'<label class="btn alt">+ הוספת קבצים<input type="file" accept="image/*,application/pdf" multiple data-bup hidden></label></div>'}
+document.addEventListener("change",function(e){var t=e.target;if(!t.hasAttribute("data-bup"))return;amsg("מעלה…");Array.prototype.slice.call(t.files).reduce(function(pr,f){return pr.then(function(){var pdf=f.type==="application/pdf";return(pdf?Promise.resolve(f):shrink(f,2000)).then(function(b){return asset.upload(b)}).then(function(r){BULL.push({id:r.id,pdf:pdf})})})},Promise.resolve()).then(function(){amsg("הועלה. לחצו שמירה.");renderAdmin()}).catch(function(){amsg("ההעלאה נכשלה.");renderAdmin()})});
+var PAGES={fathers:{t:"אבות ובנים",l:"לימוד משותף של אבות ובנים.",b:"מועד הלימוד: יום וזמן קבועים – מלאו כאן.\n\nהצטרפות: מוזמנים להגיע, אין צורך בהרשמה מראש."},bulletin:{t:"עלון שבועי – פרשת תולדות",l:"העלון האחרון של בית הכנסת.",b:"פרשת השבוע: דבר תורה קצר, הודעות וזמנים.\n\nהודעות: שמחות, שיעורים ואירועים קרובים."},links:{t:"הרש-קישורים",l:"קישורים שימושיים.",b:"לדוגמה: אתר הקהילה | https://example.com"},news:{t:"הודעות ועדכונים",l:"",b:"אין הודעות כרגע."}};
+var HOME={v:2,hero:"379098887f35c7829d7c874b2af0a60a",btn:"הודעות ועדכונים",tiles:[{t:"הרש-שופ",h:"#shop-100",img:"c3bcfa582c74dd293be993a88e1a16b4"},{t:"אבות ובנים",h:"#fathers",img:"fa5a6ed53289eac37086f53cbdc4406d"},{t:"עלון שבועי",h:"#bulletin",img:"55bee9a3b584d3d62859d68c6830237e"},{t:"הרש-קישורים",h:"#links",img:"37e9afa59d40a1fad4735f21fc899741"}]};
+function stk(x){return x.s==null||x.s===""?'':'<div class="stk'+(x.s<=0?' out':'')+'">'+(x.s>0?'כמות במלאי: '+x.s:'אזל מהמלאי')+'</div>'}
+function em(s){return esc(s).replace(/\*([^*\n]+)\*/g,"<strong>$1</strong>")}
+function pageRender(k){var p=PAGES[k];if(k==="bulletin"){document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+bullHtml()+(cloud?'<p><button class="btn alt" data-edit="bulletin">✏ עריכת העלון</button></p>':'');fbInit();return}document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+(k==="fathers"?winHtml():'')+(p.l?'<p class="lead">'+em(p.l)+'</p>':'')+p.b.split(/\n\s*\n/).filter(Boolean).map(function(s){return '<div class="panel">'+s.split("\n").map(function(l){var m=l.match(/^(.+?)\s*\|\s*(https?:\/\/\S+)$/);return m?'<p><a class="lnk'+(lic(m[1],m[2])?' ic':'')+'" href="'+esc(m[2])+'" target="_blank" rel="noopener">'+lic(m[1],m[2])+em(m[1])+'</a></p>':'<p>'+em(l)+'</p>'}).join("")+'</div>'}).join("")+(cloud?'<p><button class="btn alt" data-edit="'+k+'">✏ עריכת העמוד</button></p>':'')}
+function lic(l,u){var s=l+" "+u,a='<svg class="li" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+if(/whatsapp|wa\.me|וואצאפ|וואטסאפ|ווצאפ|ווטסאפ/i.test(s))return '<svg class="li" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#25D366" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/><path fill="#fff" d="M16.6 14.2c-.2-.1-1.3-.6-1.5-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.1 6.1 0 0 1-3-2.6c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.3c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.7.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.1-.4-.2z"/></svg>';
+if(/תשלום|אשראי|תרומ/.test(l))return a+'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg>';
+if(/\/forms\/|טופס|עדכון/.test(s))return a+'<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4h6v3H9z"/><path d="M8.5 12h7M8.5 16h5"/></svg>';
+return""}
+function pgAnim(k){var e=document.getElementById(k);if(!e||!e.animate||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return;e.animate([{opacity:0,transform:"translateY(18px)"},{opacity:1,transform:"none"}],{duration:420,easing:"ease-out"})}
+function homeRender(){document.getElementById("hero").innerHTML=HOME.hero?'<img src="'+A(HOME.hero)+'" alt="הרשקופ שול">':'<h1>הרשקופ שול</h1>';document.getElementById("tiles").innerHTML=HOME.tiles.map(function(x){return '<a class="tile" href="'+x.h+'">'+(x.img?'<img src="'+A(x.img)+'" alt="'+esc(x.t)+'">':'<span>'+esc(x.t)+'</span>')+'</a><hr>'}).join("");document.getElementById("newsbtn").textContent=HOME.btn;if(cloud)document.getElementById("tiles").insertAdjacentHTML("beforeend",'<button class="btn alt" data-edit="home">✏ עריכת עמוד הבית</button>')}
+function TABS(){document.getElementById("atabs").innerHTML=[["p","מוצרים"],["h","עמוד הבית"],["g","דפים"]].map(function(x){return '<button class="chip'+(tab===x[0]?' on':'')+'" data-tab="'+x[0]+'">'+x[1]+'</button>'}).join("");document.getElementById("addp").hidden=tab!=="p";dirty()}
+function homeAdmin(){var im=function(i){return '<div class="ph">'+(i?'<img src="'+A(i)+'">':'')+'</div>'};return '<div class="panel arow">'+im(HOME.hero)+'<b>תמונת כותרת</b><label class="btn alt">החלפה<input type="file" accept="image/*" data-up="hero" hidden></label></div>'+HOME.tiles.map(function(x,i){return '<div class="panel arow">'+im(x.img)+'<input data-ti="'+i+'" value="'+esc(x.t)+'" aria-label="כותרת"><label class="btn alt">החלפת תמונה<input type="file" accept="image/*" data-up="'+i+'" hidden></label></div>'}).join("")+'<div class="panel arow"><b>טקסט הכפתור</b><input data-hb value="'+esc(HOME.btn)+'"></div>'+Object.keys(NV).map(function(k){return '<div class="panel arow"><div class="ph">'+(HOME.ban&&HOME.ban[k]?'<img src="'+A(HOME.ban[k])+'">':'')+'</div><b>באנר: '+TIERS[k]+'</b><label class="btn alt">החלפה<input type="file" accept="image/*" data-up="b:'+k+'" hidden></label></div>'}).join("")}
+function pagesAdmin(){return (ek?[ek]:Object.keys(PAGES)).map(function(k){var p=PAGES[k];if(k==="bulletin")return bullAdmin();return '<div class="panel"><h3>'+esc(p.t)+'</h3><input data-pg="'+k+'" data-f="t" value="'+esc(p.t)+'" aria-label="כותרת"><input data-pg="'+k+'" data-f="l" value="'+esc(p.l)+'" aria-label="משפט פתיחה"><textarea rows="6" data-pg="'+k+'" data-f="b" aria-label="תוכן">'+esc(p.b)+'</textarea></div>'}).join("")+'<p class="lead">שורה בצורה: טקסט | https://... הופכת לקישור. שורה ריקה מפרידה בין פסקאות. טקסט בין כוכביות, למשל *כך*, יודגש.</p>'}
+document.addEventListener("input",function(e){var t=e.target,d=t.dataset;if(d.pg)PAGES[d.pg][d.f]=t.value;else if(d.ti!=null)HOME.tiles[d.ti].t=t.value;else if(t.hasAttribute("data-hb"))HOME.btn=t.value});
+document.addEventListener("change",function(e){var t=e.target,u=t.dataset.up;if(u==null||!t.files[0])return;amsg("מעלה…");shrink(t.files[0],1400).then(function(b){return asset.upload(b)}).then(function(r){if(u==="hero")HOME.hero=r.id;else if(String(u).indexOf("b:")===0){HOME.ban=HOME.ban||{};HOME.ban[u.slice(2)]=r.id}else HOME.tiles[u].img=r.id;amsg("הועלה. לחצו שמירה.");renderAdmin()}).catch(function(){amsg("ההעלאה נכשלה.")})});
+document.addEventListener("click",function(e){var t=e.target;if(t.id==="burger")document.querySelector("header").classList.toggle("open");if(t.dataset.bdel!=null){BULL.splice(+t.dataset.bdel,1);renderAdmin()}if(t.dataset.tab){tab=t.dataset.tab;ek=null;renderAdmin()}if(t.dataset.edit){var q=t.dataset.edit;ek=(q==="home"||q==="shop")?null:q;tab=q==="home"?"h":q==="shop"?"p":"g";if(location.hash==="#admin")renderAdmin();else location.hash="#admin"}});
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function pic(x){return x.img?'<img src="'+A(x.img)+'" alt="'+esc(x.n)+'">':x.e||"🎁"}
+function orderText(){var s="הזמנה מהרשקופ שול\n";PRODUCTS.forEach(function(x){var q=cart[x.id]||0;if(q)s+=x.n+" × "+q+" = "+fmt(q*x.p)+"\n"});return s+"סה״כ: "+document.getElementById("total").textContent+"\nשם: "+document.getElementById("nm").value+"\nטלפון: "+document.getElementById("ph").value+"\nהערות: "+document.getElementById("nt").value}
+function renderAdmin(){var el=document.getElementById("alist");if(!cloud){el.innerHTML="<p>אין הרשאת ניהול.</p>";return}
+TABS();if(tab!=="p"){el.innerHTML=tab==="h"?homeAdmin():pagesAdmin();return}
+el.innerHTML=PRODUCTS.map(function(x,i){return '<div class="panel arow"><div class="ph">'+pic(x)+'</div><input data-i="'+i+'" data-k="n" value="'+esc(x.n)+'" aria-label="שם"><input data-i="'+i+'" data-k="p" type="number" inputmode="numeric" value="'+x.p+'" aria-label="מחיר"><input data-i="'+i+'" data-k="s" type="number" inputmode="numeric" min="0" value="'+(x.s==null?'':x.s)+'" placeholder="מלאי" aria-label="כמות במלאי"><input data-i="'+i+'" data-k="d" value="'+esc(x.d||'')+'" placeholder="תיאור" aria-label="תיאור"><label><input type="checkbox" data-i="'+i+'" data-k="h"'+(x.h?' checked':'')+'> מוסתר</label><label><input type="checkbox" data-i="'+i+'" data-k="t"'+(x.t?' checked':'')+'> מבצע</label><label><input type="checkbox" data-i="'+i+'" data-k="z"'+(x.z?' checked':'')+'> מוצג כשאזל</label><label class="btn alt">תמונה<input type="file" accept="image/*" data-i="'+i+'" data-k="img" hidden></label><button class="btn alt" data-del="'+i+'">מחיקה</button></div>'}).join("")}
+function shrink(f,m){return createImageBitmap(f).then(function(b){var s=Math.min(1,(m||700)/Math.max(b.width,b.height)),c=document.createElement("canvas");c.width=Math.round(b.width*s);c.height=Math.round(b.height*s);c.getContext("2d").drawImage(b,0,0,c.width,c.height);return new Promise(function(r,j){c.toBlob(function(x){x?r(x):j()},"image/jpeg",.85)})})}
+function amsg(t){document.getElementById("amsg").textContent=t}
+document.addEventListener("input",function(e){var t=e.target,i=t.dataset.i;if(i==null||t.type==="checkbox"||t.type==="file")return;PRODUCTS[i][t.dataset.k]=t.dataset.k==="p"?(Number(t.value)||0):t.dataset.k==="s"?(t.value===""?null:Math.max(0,Math.floor(Number(t.value)||0))):t.value});
+document.addEventListener("change",function(e){var t=e.target,i=t.dataset.i;if(i==null)return;
+if(t.type==="checkbox"){PRODUCTS[i][t.dataset.k]=t.checked}
+else if(t.type==="file"&&t.files[0]){amsg("מעלה תמונה…");shrink(t.files[0]).then(function(b){return asset.upload(b)}).then(function(r){PRODUCTS[i].img=r.id;amsg("התמונה הועלתה. לחצו שמירה.");renderAdmin()}).catch(function(){amsg("העלאת התמונה נכשלה.")})}});
+document.addEventListener("click",function(e){var t=e.target;
+if(t.id==="adm")location.hash="#admin";
+if(t.id==="addp"){PRODUCTS.push({id:Date.now(),n:"מוצר חדש",p:50,e:"🎁"});renderAdmin()}
+if(t.dataset.del!=null){PRODUCTS.splice(+t.dataset.del,1);renderAdmin()}
+if(t.id==="wa")t.href="https://wa.me/972586796770?text="+encodeURIComponent(orderText());
+if(t.id==="savep"){amsg("שומר…");cloud.publish({"site.json":JSON.stringify({products:PRODUCTS,pages:PAGES,home:HOME,bull:BULL,bv:1,bw:BW,pv:3})}).then(function(){amsg("נשמר ✓");snap();dirty();render()},function(er){var c=er&&er.code;amsg(c==="not_writer"?"אין הרשאת עריכה.":c==="capability_disabled"?"השמירה לא זמינה בתצוגה הזו. פתחו את הדף מהחשבון שלכם.":"השמירה נכשלה, נסו שוב.")})}});
+function init(){
+fetch("site.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():EMB}).catch(function(){return EMB}).then(function(d){if(d){if(Array.isArray(d.products)){if(d.pv===3)PRODUCTS=d.products;else PRODUCTS.forEach(function(p){var o=d.products.filter(function(z){return z.n===p.n&&z.img})[0];if(o)p.img=o.img})}if(d.pages){PAGES=d.pages;if(PAGES.bulletin&&PAGES.bulletin.t==="עלון שבועי")PAGES.bulletin.t="עלון שבועי – פרשת חיי שרה"}if(d.bw===BW&&Array.isArray(d.bull))BULL=d.bull;else if(PAGES.bulletin)PAGES.bulletin.t=BT;if(d.home){if(d.home.v!==2){d.home.v=2;d.home.hero=HOME.hero}HOME=d.home;HOME.tiles.forEach(function(t){if(t.h==="#shop-all")t.h="#shop-100"})}}}).catch(function(){}).then(function(){snap();route()});
+if(window.claude&&claude.use){claude.use("user").then(function(u){if(!(u&&u.canEdit&&u.canEdit()))return;return Promise.all([claude.use("artifact"),claude.use("assets")]).then(function(a){cloud=a[0];asset=a[1];if(cloud){document.getElementById("adm").hidden=false;route()}})}).catch(function(){})}}
+init();
+</script>
+</body>
+</html>
