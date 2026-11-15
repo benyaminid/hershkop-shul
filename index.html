@@ -3,8 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<meta name="application-name" content="הרשקופ-שול">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon-512.png" type="image/png">
+<link rel="apple-touch-icon" href="./icons/icon-512.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="הרשקופ-שול">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<title>הרשקופ שול</title>
+<title>הרשקופ-שול</title>
 <style>
 :root{--bg:#f1f1f1;--surface:#fff;--text:#1d2433;--muted:#5d6678;--accent:#1f3a68;--accent2:#b8862b;--line:#e4dfd2;--onaccent:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161f;--surface:#1b2130;--text:#eef0f5;--muted:#a3abbd;--accent:#8fb0ec;--accent2:#e0b258;--line:#2c3447;--onaccent:#10151f}}
@@ -102,7 +109,7 @@ html.nosc #bulletin>.bh{background:var(--surface);border-radius:16px;padding:8px
 </head>
 <body>
 <header><div class="bar">
-<a class="brand" href="#home">הרשקופ שול</a><button type="button" id="burger" aria-label="תפריט">☰</button>
+<a class="brand" href="#home">הרשקופ שול</a><div style="display:flex;align-items:center;gap:8px"><button type="button" id="install-app" class="chip" style="font-size:.9rem;padding:7px 10px">התקנה</button><button type="button" id="burger" aria-label="תפריט">☰</button></div>
 <nav>
 <a href="#home" data-p="home">דף הבית</a>
 <div class="dd" id="dd"><button type="button" id="ddb">הרש-שופ ▾</button>
@@ -360,6 +367,36 @@ function init(){
 fetch("site.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():EMB}).catch(function(){return EMB}).then(function(d){if(d){if(Array.isArray(d.products)){if(d.pv===3){PRODUCTS=d.products;ADDS.forEach(function(a){if(a.b>(d.ad||0))PRODUCTS.push(a)})}else PRODUCTS.forEach(function(p){var o=d.products.filter(function(z){return z.n===p.n&&z.img})[0];if(o)p.img=o.img})}if(d.pages){PAGES=d.pages;if(PAGES.bulletin&&PAGES.bulletin.t==="עלון שבועי")PAGES.bulletin.t="עלון שבועי – פרשת חיי שרה"}if(d.bw===BW&&Array.isArray(d.bull))BULL=d.bull;else if(PAGES.bulletin)PAGES.bulletin.t=BT;if(d.home){if(d.home.v!==2){d.home.v=2;d.home.hero=HOME.hero}HOME=d.home;HOME.tiles.forEach(function(t){if(t.h==="#shop-all")t.h="#shop-100"})}}}).catch(function(){}).then(function(){snap();route()});
 if(window.claude&&claude.use){claude.use("user").then(function(u){if(!(u&&u.canEdit&&u.canEdit()))return;return Promise.all([claude.use("artifact"),claude.use("assets")]).then(function(a){cloud=a[0];asset=a[1];if(cloud){document.getElementById("adm").hidden=false;route()}})}).catch(function(){})}}
 init();
+
+(function(){
+  var installButton=document.getElementById("install-app");
+  var deferredInstall=null;
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
+  if(isStandalone) installButton.hidden=true;
+  window.addEventListener("beforeinstallprompt",function(event){
+    event.preventDefault();
+    deferredInstall=event;
+    installButton.hidden=false;
+  });
+  installButton.addEventListener("click",function(){
+    if(deferredInstall){
+      deferredInstall.prompt();
+      deferredInstall.userChoice.then(function(){deferredInstall=null;installButton.hidden=true});
+    }else if(isIOS){
+      alert('להתקנה באייפון: פתח את תפריט השיתוף בדפדפן ובחר "הוספה למסך הבית".');
+    }else{
+      alert('אם אפשרות ההתקנה לא מופיעה, פתח את תפריט הדפדפן ובחר "התקנת אפליקציה" או "הוספה למסך הבית".');
+    }
+  });
+  window.addEventListener("appinstalled",function(){installButton.hidden=true});
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",function(){
+      navigator.serviceWorker.register("./sw.js").catch(function(error){console.error("Service worker registration failed",error)});
+    });
+  }
+})();
+
 </script>
 </body>
 </html>
