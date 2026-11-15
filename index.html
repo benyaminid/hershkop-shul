@@ -105,6 +105,13 @@ html.nosc #bulletin>.bh{order:-3;display:flex;align-items:center;justify-content
 html.nosc body{background:linear-gradient(180deg,var(--bg),var(--bg2)) fixed}html.nosc .bh h1{color:var(--accent);font-size:1.8rem}html.nosc .bh h1::after{margin-top:8px;width:56px;height:4px}
 html.nosc #bulletin>.bh{background:var(--surface);border-radius:16px;padding:8px 18px;box-shadow:0 4px 14px rgba(0,0,0,.35)}html.nosc .bh h1{margin:0;font-size:1.8rem;color:var(--accent)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* Keep Netlify's fixed badge clear of every bottom-edge control. */
+main{padding-bottom:130px}
+footer{padding-bottom:120px}
+#cartbar{bottom:100px}
+.modal .sheet{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
+.cart-actions{margin-bottom:0}
 </style>
 </head>
 <body>
