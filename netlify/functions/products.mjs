@@ -1,18 +1,26 @@
-const json = (body, status = 200) => new Response(JSON.stringify(body), {
-  status,
-  headers: {
-    "Content-Type": "application/json; charset=utf-8",
-    "Cache-Control": "public, max-age=60, s-maxage=300, stale-while-revalidate=600"
-  }
-});
+const json = (body, status = 200, cache = "public, max-age=60, s-maxage=300, stale-while-revalidate=600") =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": cache,
+      "X-Content-Type-Options": "nosniff",
+      "Referrer-Policy": "no-referrer"
+    }
+  });
 
-export default async () => {
+export default async (request) => {
+  if (request?.method !== "GET") {
+    return json({ error: "Method not allowed" }, 405, "no-store");
+  }
+
   const token = process.env.AIRTABLE_TOKEN;
   const baseId = process.env.AIRTABLE_BASE_ID;
   const tableName = process.env.AIRTABLE_TABLE_NAME;
 
   if (!token || !baseId || !tableName) {
-    return json({ error: "Airtable environment variables are missing" }, 500);
+    console.error("Airtable environment variables are missing");
+    return json({ error: "Unable to load products" }, 500, "no-store");
   }
 
   try {
@@ -31,9 +39,8 @@ export default async () => {
       });
 
       if (!response.ok) {
-        const detail = await response.text();
-        console.error("Airtable request failed:", response.status, detail);
-        return json({ error: "Unable to load products" }, 502);
+        console.error("Airtable request failed:", response.status);
+        return json({ error: "Unable to load products" }, 502, "no-store");
       }
 
       const page = await response.json();
@@ -59,7 +66,7 @@ export default async () => {
 
     return json(products);
   } catch (error) {
-    console.error("Products function failed:", error);
-    return json({ error: "Unable to load products" }, 500);
+    console.error("Products function failed:", error?.name || "UnknownError");
+    return json({ error: "Unable to load products" }, 500, "no-store");
   }
 };
