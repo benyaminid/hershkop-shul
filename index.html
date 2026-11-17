@@ -121,6 +121,40 @@ footer{padding-bottom:120px}
 .winner-status{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:4px 3px;border:1px solid rgba(243,213,138,.65);border-radius:7px;background:rgba(255,255,255,.12);font-size:clamp(.56rem,2.35vw,.74rem);line-height:1.2;text-align:center;overflow-wrap:anywhere;white-space:normal}
 .winner-status.done{background:rgba(36,122,61,.2);border-color:rgba(100,210,130,.65);color:#a8f0b8}
 @media(max-width:360px){.wn{gap:5px}.winner-status{font-size:.54rem;padding:3px 1px}}
+/* Refined lottery winner display */
+.wn{gap:9px;max-width:500px;margin-top:16px}
+.winner-item{gap:7px}
+.wn .winner-num{
+  position:relative;isolation:isolate;overflow:hidden;
+  width:clamp(49px,15vw,68px);height:clamp(49px,15vw,68px);
+  border:2px solid #ffe9a6;
+  color:#493000;
+  background:radial-gradient(circle at 32% 24%,#fffbe5 0%,#ffe89a 23%,#e9b83f 58%,#a96d12 100%);
+  box-shadow:0 5px 0 #80530e,0 8px 15px rgba(0,0,0,.32),inset 0 2px 4px rgba(255,255,255,.9),inset 0 -4px 7px rgba(107,65,0,.24);
+  font-size:1.45rem;font-weight:900;text-shadow:0 1px 0 rgba(255,255,255,.55);
+  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease
+}
+.wn .winner-num::before{
+  content:"";position:absolute;inset:4px;border:1px solid rgba(255,255,255,.62);
+  border-radius:50%;pointer-events:none;z-index:-1
+}
+.wn .winner-num:not(:disabled):active{transform:translateY(3px);box-shadow:0 2px 0 #80530e,0 4px 8px rgba(0,0,0,.25),inset 0 2px 4px rgba(255,255,255,.8)}
+.wn .winner-num:disabled{filter:saturate(.65);opacity:.82;box-shadow:0 4px 0 #52634f,0 7px 12px rgba(0,0,0,.2),inset 0 2px 4px rgba(255,255,255,.7)}
+.winner-status{
+  min-height:42px;padding:5px 4px;border:1px solid rgba(235,197,105,.8);
+  border-radius:9px;background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(201,151,28,.12));
+  box-shadow:0 3px 8px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.16);
+  color:var(--text);font-size:clamp(.62rem,2.7vw,.76rem);font-weight:700;
+  line-height:1.25;letter-spacing:0;overflow-wrap:normal;word-break:normal
+}
+.winner-status.done{
+  background:linear-gradient(145deg,rgba(36,122,61,.28),rgba(36,122,61,.12));
+  border-color:rgba(100,210,130,.75);color:#a8f0b8
+}
+@media(max-width:380px){
+  .wn{gap:6px}
+  .winner-status{font-size:.6rem;padding:4px 2px;min-height:40px}
+}
 
 </style>
 </head>
