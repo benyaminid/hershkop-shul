@@ -37,7 +37,7 @@ export async function onRequest({ request, env }) {
 
       if (!response.ok) {
         console.error("Airtable request failed:", response.status);
-        return json({ error: "Unable to load products" }, 502);
+        return json({ error: "Unable to load products", diagnostic: `AirtableHTTP_${response.status}` }, 502);
       }
 
       const page = await response.json();
@@ -61,6 +61,6 @@ export async function onRequest({ request, env }) {
     return json(products);
   } catch (error) {
     console.error("Products function failed:", error?.name || "UnknownError");
-    return json({ error: "Unable to load products" }, 500);
+    return json({ error: "Unable to load products", diagnostic: error?.name || "UnknownError" }, 500);
   }
 }

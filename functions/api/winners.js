@@ -43,7 +43,7 @@ export async function onRequest({ request, env }) {
       return json({ winners });
     } catch (error) {
       console.error("Winner status lookup failed:", error?.message || "UnknownError");
-      return json({ error: "Unable to load winner status" }, 503);
+      return json({ error: "Unable to load winner status", diagnostic: error?.message || "UnknownError" }, 503);
     }
   }
 
