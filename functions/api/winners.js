@@ -27,7 +27,7 @@ function validName(value) {
   return typeof value === "string" &&
     value.trim().length > 0 &&
     value.trim().length <= 50 &&
-    /^[\\p{L}\\p{M}][\\p{L}\\p{M}\\s'’-]*$/u.test(value.trim());
+    /^[\p{L}\p{M}][\p{L}\p{M}\s'’-]*$/u.test(value.trim());
 }
 
 export async function onRequest({ request, env }) {
