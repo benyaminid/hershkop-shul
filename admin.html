@@ -19,7 +19,7 @@ label{display:block;font-weight:600;font-size:.94rem;margin:9px 0 4px}input,text
 button,.btn{border:0;border-radius:11px;background:linear-gradient(135deg,#1f3a68,#3f66a8);color:#fff;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}button.danger{background:#fff0ee;color:#a52d24;border:1px solid #f0c5c0}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.topline{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.item{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:10px;margin:8px 0;background:#fff}
+.item{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:10px;margin:8px 0;background:#fff}.item{cursor:pointer}.item:active{background:#f7f9fc}
 .thumb{width:66px;height:66px;border-radius:10px;object-fit:cover;background:#f0f2f6;flex:none}.itemmain{min-width:0;flex:1}.itemmain strong{display:block;overflow-wrap:anywhere}.itemmain small{color:var(--muted)}
 #editor[hidden],#login[hidden],#app[hidden]{display:none}.notice{padding:10px 12px;border-radius:10px;background:#eef4ff;color:#23416f;margin:10px 0}.error{background:#fff0ee;color:#a52d24}.empty{text-align:center;color:var(--muted);padding:18px}
 @media(max-width:560px){.grid{grid-template-columns:1fr}.wrap{margin:14px auto}.panel{padding:14px}.item{align-items:flex-start}.thumb{width:58px;height:58px}}
@@ -83,7 +83,7 @@ function render(){
   if(!products.length){root.innerHTML='<div class="empty">אין מוצרים במאגר.</div>';return}
   root.innerHTML=products.map(p=>{
     const firstImage=(p.images&&p.images[0])||p.image;const image=firstImage&&(/^(https:\/\/|\/img\/|\/api\/images\/)/i.test(firstImage))?'<img class="thumb" src="'+escapeHtml(p.image)+'" alt="">':'<div class="thumb" style="display:grid;place-items:center;font-size:1.8rem">'+escapeHtml(p.emoji||"🎁")+'</div>';
-    return '<div class="item">'+image+'<div class="itemmain"><strong>'+escapeHtml(p.name)+'</strong><small> · '+escapeHtml(p.price)+' הרשקלים · מלאי: '+(p.stock===null?"לא מוגדר":escapeHtml(p.stock))+(p.hidden?" · מוסתר":"")+'</small></div><button class="secondary" data-edit="'+escapeHtml(p.recordId)+'">עריכה</button></div>';
+    return '<div class="item" data-edit="'+escapeHtml(p.recordId)+'">'+image+'<div class="itemmain"><strong>'+escapeHtml(p.name)+'</strong><small> · '+escapeHtml(p.price)+' הרשקלים · מלאי: '+(p.stock===null?"לא מוגדר":escapeHtml(p.stock))+(p.hidden?" · מוסתר":"")+'</small></div><button class="secondary" data-edit="'+escapeHtml(p.recordId)+'">עריכה</button></div>';
   }).join("");
 }
 async function load(){
