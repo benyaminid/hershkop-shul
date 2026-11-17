@@ -82,7 +82,7 @@ function render(){
   const root=$("products");
   if(!products.length){root.innerHTML='<div class="empty">אין מוצרים במאגר.</div>';return}
   root.innerHTML=products.map(p=>{
-    const image=p.image&&/^https:\/\//i.test(p.image)?'<img class="thumb" src="'+escapeHtml(p.image)+'" alt="">':'<div class="thumb" style="display:grid;place-items:center;font-size:1.8rem">'+escapeHtml(p.emoji||"🎁")+'</div>';
+    const image=p.image&&(/^(https:\/\/|\/img\/|\/api\/images\/)/i.test(p.image))?'<img class="thumb" src="'+escapeHtml(p.image)+'" alt="">':'<div class="thumb" style="display:grid;place-items:center;font-size:1.8rem">'+escapeHtml(p.emoji||"🎁")+'</div>';
     return '<div class="item">'+image+'<div class="itemmain"><strong>'+escapeHtml(p.name)+'</strong><small>'++' · '+escapeHtml(p.price)+' הרשקלים · מלאי: '+(p.stock===null?"לא מוגדר":escapeHtml(p.stock))+(p.hidden?" · מוסתר":"")+'</small></div><button class="secondary" data-edit="'+escapeHtml(p.recordId)+'">עריכה</button></div>';
   }).join("");
 }
