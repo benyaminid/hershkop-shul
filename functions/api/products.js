@@ -45,6 +45,19 @@ export async function onRequest({ request, env }) {
       offset = page.offset;
     } while (offset);
 
+    const localImage = (value) => {
+      if (!value) return "";
+      try {
+        const url = new URL(value);
+        if (url.hostname === "hershkop-shul.netlify.app" && url.pathname.startsWith("/img/")) {
+          return url.pathname;
+        }
+      } catch {
+        // Keep non-URL image values unchanged.
+      }
+      return value;
+    };
+
     const products = records.map(({ id, fields }) => ({
       id: fields["Legacy ID"] ?? id,
       n: fields.Name || "מוצר ללא שם",
@@ -55,7 +68,7 @@ export async function onRequest({ request, env }) {
       t: fields["On Sale"] === true || (Array.isArray(fields.Tags) && fields.Tags.includes("מבצע")),
       z: fields["Show Zero"] === true,
       h: fields.Hidden === true,
-      img: fields.Image || ""
+      img: localImage(fields.Image)
     }));
 
     return json(products);
