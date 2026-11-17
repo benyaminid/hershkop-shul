@@ -58,7 +58,12 @@ export async function onRequest({ request, env }) {
       return value;
     };
 
-    const products = records.map(({ id, fields }) => ({
+    const products = records.map(({ id, fields }) => {
+      let images = [];
+      try { const parsed = JSON.parse(fields.Images || "[]"); if (Array.isArray(parsed)) images = parsed.filter(x => typeof x === "string" && x.trim()); } catch {}
+      if (!images.length && fields.Image) images = [fields.Image];
+      images = images.map(localImage);
+      return ({
       id: fields["Legacy ID"] ?? id,
       n: fields.Name || "מוצר ללא שם",
       p: Number(fields.Price || 0),
@@ -68,8 +73,10 @@ export async function onRequest({ request, env }) {
       t: fields["On Sale"] === true || (Array.isArray(fields.Tags) && fields.Tags.includes("מבצע")),
       z: fields["Show Zero"] === true,
       h: fields.Hidden === true,
-      img: localImage(fields.Image)
-    }));
+      img: images[0] || "",
+      imgs: images
+    });
+    });
 
     return json(products);
   } catch (error) {
