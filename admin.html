@@ -43,11 +43,11 @@ button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}butto
 <form id="productForm">
 <div class="grid">
 <div><label for="name">שם המוצר *</label><input id="name" required maxlength="120"></div>
-<div><label for="category">קטגוריה</label><input id="category" maxlength="80"></div>
 <div><label for="price">מחיר בהרשקלים *</label><input id="price" type="number" min="0" step="1" required></div>
 <div><label for="stock">מלאי (השאר ריק למלאי לא מוגדר)</label><input id="stock" type="number" min="0" step="1"></div>
 <div><label for="emoji">אימוג'י</label><input id="emoji" maxlength="16" value="🎁"></div>
-<div><label for="image">קישור לתמונה (כתובת https מלאה)</label><input id="image" type="url" placeholder="https://..."></div>
+<div><label for="image">כתובת תמונה</label><input id="image" type="text" placeholder="/img/... או /api/images/..."></div>
+<div><label for="imageFile">העלאת תמונה מהמכשיר</label><input id="imageFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><small class="muted">עד 5MB. התמונות יישמרו באחסון Cloudflare.</small></div>
 </div>
 <label for="description">תיאור המוצר</label><textarea id="description" maxlength="2000"></textarea>
 <div class="checks">
@@ -83,7 +83,7 @@ function render(){
   if(!products.length){root.innerHTML='<div class="empty">אין מוצרים במאגר.</div>';return}
   root.innerHTML=products.map(p=>{
     const image=p.image&&/^https:\/\//i.test(p.image)?'<img class="thumb" src="'+escapeHtml(p.image)+'" alt="">':'<div class="thumb" style="display:grid;place-items:center;font-size:1.8rem">'+escapeHtml(p.emoji||"🎁")+'</div>';
-    return '<div class="item">'+image+'<div class="itemmain"><strong>'+escapeHtml(p.name)+'</strong><small>'+escapeHtml(p.category||"ללא קטגוריה")+' · '+escapeHtml(p.price)+' הרשקלים · מלאי: '+(p.stock===null?"לא מוגדר":escapeHtml(p.stock))+(p.hidden?" · מוסתר":"")+'</small></div><button class="secondary" data-edit="'+escapeHtml(p.recordId)+'">עריכה</button></div>';
+    return '<div class="item">'+image+'<div class="itemmain"><strong>'+escapeHtml(p.name)+'</strong><small>'++' · '+escapeHtml(p.price)+' הרשקלים · מלאי: '+(p.stock===null?"לא מוגדר":escapeHtml(p.stock))+(p.hidden?" · מוסתר":"")+'</small></div><button class="secondary" data-edit="'+escapeHtml(p.recordId)+'">עריכה</button></div>';
   }).join("");
 }
 async function load(){
@@ -98,8 +98,8 @@ function edit(p){
   editing=p?p.recordId:null;
   $("editorTitle").textContent=p?"עריכת מוצר":"מוצר חדש";
   $("save").textContent=p?"שמירת שינויים":"הוספת מוצר";
-  $("name").value=p?.name||"";$("category").value=p?.category||"";$("price").value=p?.price??"";
-  $("stock").value=p?.stock??"";$("emoji").value=p?.emoji||"🎁";$("image").value=p?.image||"";
+  $("name").value=p?.name||"";$("price").value=p?.price??"";
+  $("stock").value=p?.stock??"";$("emoji").value=p?.emoji||"🎁";$("image").value=p?.image||"";$("imageFile").value="";
   $("description").value=p?.description||"";
   $("tagSale").checked=(p?.tags||[]).includes("מבצע");$("tagNew").checked=(p?.tags||[]).includes("חדש");
   $("onSale").checked=!!p?.onSale;$("showZero").checked=!!p?.showZero;$("hidden").checked=!!p?.hidden;
@@ -120,11 +120,18 @@ $("products").addEventListener("click",e=>{
   const button=e.target.closest("[data-edit]");if(!button)return;
   const p=products.find(x=>x.recordId===button.dataset.edit);if(p)edit(p);
 });
+$("imageFile").addEventListener("change",async()=>{
+ const file=$("imageFile").files?.[0];if(!file)return;
+ if(file.size>5*1024*1024){message($("formMsg"),"התמונה גדולה מ-5MB",true);$("imageFile").value="";return}
+ message($("formMsg"),"מעלה תמונה...");
+ try{const form=new FormData();form.append("file",file);const response=await fetch("/api/admin/upload",{method:"POST",credentials:"same-origin",body:form});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"העלאת התמונה נכשלה");$("image").value=data.url;message($("formMsg"),"התמונה הועלתה. שמור את המוצר כדי לקשר אותה אליו.");}
+ catch(err){message($("formMsg"),err.message,true)}
+});
 $("productForm").addEventListener("submit",async e=>{
   e.preventDefault();
   const tags=[];if($("tagSale").checked)tags.push("מבצע");if($("tagNew").checked)tags.push("חדש");
   const payload={
-    name:$("name").value,category:$("category").value,price:$("price").value,
+    name:$("name").value,price:$("price").value,
     stock:$("stock").value===""?null:$("stock").value,emoji:$("emoji").value,
     image:$("image").value,description:$("description").value,tags,
     onSale:$("onSale").checked,showZero:$("showZero").checked,hidden:$("hidden").checked

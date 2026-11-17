@@ -34,20 +34,18 @@ async function allRecords(env) {
 function cleanInput(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const name = typeof input.name === "string" ? input.name.trim() : "";
-  const category = typeof input.category === "string" ? input.category.trim() : "";
   const description = typeof input.description === "string" ? input.description.trim() : "";
   const image = typeof input.image === "string" ? input.image.trim() : "";
   const emoji = typeof input.emoji === "string" ? input.emoji.trim() : "🎁";
   const price = Number(input.price);
   const stock = input.stock === "" || input.stock === null || input.stock === undefined ? null : Number(input.stock);
   const tags = Array.isArray(input.tags) ? input.tags.filter(x => x === "מבצע" || x === "חדש") : [];
-  if (!name || name.length > 120 || category.length > 80 || description.length > 2000 || image.length > 1000 || emoji.length > 16) return null;
+  if (!name || name.length > 120 || description.length > 2000 || image.length > 1000 || emoji.length > 16) return null;
   if (!Number.isFinite(price) || price < 0 || (stock !== null && (!Number.isFinite(stock) || stock < 0))) return null;
-  if (image && !/^https:\/\//i.test(image)) return null;
+  if (image && !(/^(https:\/\/|\/img\/|\/api\/images\/)/i.test(image))) return null;
   const fields = {
     Name: name,
     Price: price,
-    Category: category,
     Description: description,
     Emoji: emoji || "🎁",
     Tags: [...new Set(tags)],
@@ -66,7 +64,6 @@ function present(record) {
     recordId: record.id,
     name: f.Name || "",
     price: f.Price ?? 0,
-    category: f.Category || "",
     image: f.Image || "",
     description: f.Description || "",
     tags: Array.isArray(f.Tags) ? f.Tags : [],
