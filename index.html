@@ -193,6 +193,10 @@ footer{padding-bottom:120px}
   font-weight:800;
 }
 
+
+/* Compact two-line winner names inside the status rectangle */
+.wn .winner-item .winner-status{box-sizing:border-box;height:48px;min-height:48px;padding:1px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:clamp(.56rem,2.35vw,.72rem);line-height:1.05;overflow:hidden}
+.wn .winner-item .winner-status strong{display:block;width:100%;margin:0;padding:0;font-size:inherit;line-height:1.05;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:clip}
 </style>
 </head>
 <body>
@@ -258,7 +262,6 @@ footer{padding-bottom:120px}
 <div id="lines"></div>
 <p><b>סה״כ: <span id="total"></span></b></p>
 <label>שם<input id="nm"></label>
-<label>טלפון<input id="ph" type="tel" inputmode="tel"></label>
 <label>הערות<textarea id="nt" rows="2"></textarea></label>
 <div class="cart-actions">
 <a class="btn" id="wa" target="_blank" rel="noopener" href="#" style="text-decoration:none">שליחה בוואטסאפ</a>
@@ -325,7 +328,7 @@ document.addEventListener("click",function(e){
   if(t.id==="copy"){
     var s="הזמנה מ־הרשקופ שול\n";
     PRODUCTS.forEach(function(x){var q=cart[x.id]||0;if(q)s+=x.n+" × "+q+" = "+fmt(q*x.p)+"\n"});
-    s+="סה״כ: "+document.getElementById("total").textContent+"\nשם: "+document.getElementById("nm").value+"\nטלפון: "+document.getElementById("ph").value+"\nהערות: "+document.getElementById("nt").value;
+    s+="סה״כ: "+document.getElementById("total").textContent+"\nשם: "+document.getElementById("nm").value+"\nהערות: "+document.getElementById("nt").value;
     var m=document.getElementById("msg");
     try{navigator.clipboard.writeText(s).then(function(){m.textContent="ההזמנה הועתקה – אפשר לשלוח אותה לגבאי."},function(){m.textContent="לא הצלחנו להעתיק. סמנו והעתיקו ידנית."})}catch(err){m.textContent="לא הצלחנו להעתיק."}
   }
