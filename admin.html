@@ -71,7 +71,7 @@ let products=[], editing=null;
 async function api(url,options={}){
   const response=await fetch(url,{credentials:"same-origin",cache:"no-store",...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
   let data={};try{data=await response.json()}catch{}
-  if(!response.ok){if(response.status===401)showLogin();throw new Error(data.error||"הפעולה נכשלה")}
+  if(!response.ok){if(response.status===401)showLogin();const error=new Error(data.error||"הפעולה נכשלה");error.status=response.status;throw error}
   return data;
 }
 function message(el,text,error=false){el.textContent=text;el.hidden=!text;el.classList.toggle("error",error)}
@@ -89,7 +89,7 @@ function render(){
 async function load(){
   message($("listMsg"),"טוען מוצרים...");
   try{const data=await api("/api/admin/products");products=data.products||[];render();message($("listMsg"),"נטענו "+products.length+" מוצרים.");}
-  catch(e){message($("listMsg"),e.message,true)}
+  catch(e){message($("listMsg"),e.message,true);if(e.status===401)throw e}
 }
 function resetForm(){
   editing=null;$("productForm").reset();$("emoji").value="🎁";$("editorTitle").textContent="מוצר חדש";$("save").textContent="הוספת מוצר";message($("formMsg"),"");$("editor").hidden=true;

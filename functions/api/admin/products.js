@@ -2,8 +2,6 @@
 import { json, sameOrigin, isAdmin } from "../../_lib/admin-auth.js";
 
 const TABLE_ID = "tblqCaAc3G8p2XjXO";
-const FIELDS = ["Name", "Price", "Category", "Image", "Description", "Tags", "Show Zero", "Stock", "Legacy ID", "Emoji", "Legacy Image ID", "Hidden", "On Sale"];
-
 async function airtable(env, path = "", options = {}) {
   if (!env.AIRTABLE_WRITE_TOKEN || !env.AIRTABLE_BASE_ID) throw new Error("ConfigurationMissing");
   const url = "https://api.airtable.com/v0/" + env.AIRTABLE_BASE_ID + "/" + TABLE_ID + (path ? "/" + encodeURIComponent(path) : "");
@@ -33,7 +31,7 @@ async function allRecords(env) {
   return records;
 }
 
-function cleanInput(input, creating = false) {
+function cleanInput(input) {
   if (!input || typeof input !== "object" || Array.isArray(input)) return null;
   const name = typeof input.name === "string" ? input.name.trim() : "";
   const category = typeof input.category === "string" ? input.category.trim() : "";
@@ -57,8 +55,7 @@ function cleanInput(input, creating = false) {
     "Show Zero": input.showZero === true,
     Hidden: input.hidden === true
   };
-  if (image) fields.Image = image;
-  else if (!creating) fields.Image = "";
+  fields.Image = image || null;
   fields.Stock = stock;
   return fields;
 }
