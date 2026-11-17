@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#0b1020">
 <meta name="application-name" content="הרשקופ-שול">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icons/icon-512.png" type="image/png">
-<link rel="apple-touch-icon" href="./icons/icon-512.png">
+<link rel="icon" href="./icons/icon.svg?v=2" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./icons/icon.svg?v=2">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="הרשקופ-שול">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -197,6 +197,13 @@ footer{padding-bottom:120px}
 /* Compact two-line winner names inside the status rectangle */
 .wn .winner-item .winner-status{box-sizing:border-box;height:48px;min-height:48px;padding:1px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:clamp(.56rem,2.35vw,.72rem);line-height:1.05;overflow:hidden}
 .wn .winner-item .winner-status strong{display:block;width:100%;margin:0;padding:0;font-size:inherit;line-height:1.05;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:clip}
+
+/* Cart bar now sits at the actual bottom edge; old Netlify watermark offset removed. */
+#cartbar{bottom:0!important}
+/* Keep winner first and last names on adjacent lines with almost no vertical gap. */
+.wn .winner-item .winner-status{gap:0!important;line-height:.82!important}
+.wn .winner-item .winner-status br{display:none}
+.wn .winner-item .winner-status strong{line-height:.82!important;margin:0!important;padding:0!important}
 </style>
 </head>
 <body>
