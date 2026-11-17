@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b1020">
+<title>ניהול מוצרים | הרשקופ שול</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light;--bg:#f1f3f8;--card:#fff;--ink:#1d2433;--muted:#657086;--navy:#1f3a68;--gold:#c9971c;--line:#e1e5ed}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(180deg,#eef1f7,#e3e9f4);color:var(--ink);font-family:Heebo,Arial,sans-serif;line-height:1.55}
+header{background:#080a10;color:#fff;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:10px;position:sticky;top:0;z-index:3}
+header a{color:#f3d58a;text-decoration:none;font-weight:800;font-size:1.1rem}.wrap{max-width:900px;margin:22px auto;padding:0 14px 50px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:16px;box-shadow:0 8px 22px #182b4b10}
+h1{font-size:1.55rem;margin:0 0 5px;color:var(--navy)}h2{font-size:1.2rem;margin:0 0 12px}.muted{color:var(--muted);margin:0 0 14px}
+label{display:block;font-weight:600;font-size:.94rem;margin:9px 0 4px}input,textarea,select{width:100%;font:inherit;color:var(--ink);background:#f8f9fc;border:1px solid #d6dce7;border-radius:10px;padding:10px 12px}textarea{min-height:90px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.checks{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}.checks label{display:flex;align-items:center;gap:7px;margin:0}.checks input{width:auto}
+button,.btn{border:0;border-radius:11px;background:linear-gradient(135deg,#1f3a68,#3f66a8);color:#fff;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}button.danger{background:#fff0ee;color:#a52d24;border:1px solid #f0c5c0}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.topline{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.item{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:10px;margin:8px 0;background:#fff}
+.thumb{width:66px;height:66px;border-radius:10px;object-fit:cover;background:#f0f2f6;flex:none}.itemmain{min-width:0;flex:1}.itemmain strong{display:block;overflow-wrap:anywhere}.itemmain small{color:var(--muted)}
+#editor[hidden],#login[hidden],#app[hidden]{display:none}.notice{padding:10px 12px;border-radius:10px;background:#eef4ff;color:#23416f;margin:10px 0}.error{background:#fff0ee;color:#a52d24}.empty{text-align:center;color:var(--muted);padding:18px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}.wrap{margin:14px auto}.panel{padding:14px}.item{align-items:flex-start}.thumb{width:58px;height:58px}}
+</style>
+</head>
+<body>
+<header><a href="/">הרשקופ שול · ניהול מוצרים</a><button id="logout" class="secondary" hidden>יציאה</button></header>
+<main class="wrap">
+<section id="login" class="panel">
+<h1>כניסה לניהול</h1><p class="muted">הזן את סיסמת המנהל כדי לערוך את קטלוג המוצרים.</p>
+<form id="loginForm"><label for="password">סיסמת מנהל</label><input id="password" type="password" autocomplete="current-password" required maxlength="256"><div class="actions"><button type="submit">כניסה</button></div></form>
+<div id="loginMsg" class="notice" hidden></div>
+</section>
+<section id="app" hidden>
+<div class="panel">
+<div class="topline"><div><h1>ניהול קטלוג המוצרים</h1><p class="muted">הוספה, עריכה, עדכון מלאי והסתרת מוצרים. השינויים נשמרים ישירות במאגר.</p></div><button id="add">＋ מוצר חדש</button></div>
+<div id="listMsg" class="notice" hidden></div><div id="products"></div>
+</div>
+<section id="editor" class="panel" hidden>
+<h2 id="editorTitle">מוצר חדש</h2>
+<form id="productForm">
+<div class="grid">
+<div><label for="name">שם המוצר *</label><input id="name" required maxlength="120"></div>
+<div><label for="category">קטגוריה</label><input id="category" maxlength="80"></div>
+<div><label for="price">מחיר בהרשקלים *</label><input id="price" type="number" min="0" step="1" required></div>
+<div><label for="stock">מלאי (השאר ריק למלאי לא מוגדר)</label><input id="stock" type="number" min="0" step="1"></div>
+<div><label for="emoji">אימוג'י</label><input id="emoji" maxlength="16" value="🎁"></div>
+<div><label for="image">קישור לתמונה (כתובת https מלאה)</label><input id="image" type="url" placeholder="https://..."></div>
+</div>
+<label for="description">תיאור המוצר</label><textarea id="description" maxlength="2000"></textarea>
+<div class="checks">
+<label><input id="tagSale" type="checkbox"> תגית מבצע</label>
+<label><input id="tagNew" type="checkbox"> תגית חדש</label>
+<label><input id="onSale" type="checkbox"> הצג כמבצע</label>
+<label><input id="showZero" type="checkbox"> הצג גם כשאין מלאי</label>
+<label><input id="hidden" type="checkbox"> הסתר מהחנות</label>
+</div>
+<div class="actions"><button type="submit" id="save">שמירת מוצר</button><button type="button" class="secondary" id="cancel">ביטול</button></div>
+</form>
+<div id="formMsg" class="notice" hidden></div>
+</section>
+</section>
+</main>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+let products=[], editing=null;
+async function api(url,options={}){
+  const response=await fetch(url,{credentials:"same-origin",cache:"no-store",...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
+  let data={};try{data=await response.json()}catch{}
+  if(!response.ok){if(response.status===401)showLogin();throw new Error(data.error||"הפעולה נכשלה")}
+  return data;
+}
+function message(el,text,error=false){el.textContent=text;el.hidden=!text;el.classList.toggle("error",error)}
+function showLogin(){ $("login").hidden=false;$("app").hidden=true;$("logout").hidden=true; }
+function showApp(){ $("login").hidden=true;$("app").hidden=false;$("logout").hidden=false; }
+function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function render(){
+  const root=$("products");
+  if(!products.length){root.innerHTML='<div class="empty">אין מוצרים במאגר.</div>';return}
+  root.innerHTML=products.map(p=>{
+    const image=p.image&&/^https:\/\//i.test(p.image)?'<img class="thumb" src="'+escapeHtml(p.image)+'" alt="">':'<div class="thumb" style="display:grid;place-items:center;font-size:1.8rem">'+escapeHtml(p.emoji||"🎁")+'</div>';
+    return '<div class="item">'+image+'<div class="itemmain"><strong>'+escapeHtml(p.name)+'</strong><small>'+escapeHtml(p.category||"ללא קטגוריה")+' · '+escapeHtml(p.price)+' הרשקלים · מלאי: '+(p.stock===null?"לא מוגדר":escapeHtml(p.stock))+(p.hidden?" · מוסתר":"")+'</small></div><button class="secondary" data-edit="'+escapeHtml(p.recordId)+'">עריכה</button></div>';
+  }).join("");
+}
+async function load(){
+  message($("listMsg"),"טוען מוצרים...");
+  try{const data=await api("/api/admin/products");products=data.products||[];render();message($("listMsg"),"נטענו "+products.length+" מוצרים.");}
+  catch(e){message($("listMsg"),e.message,true)}
+}
+function resetForm(){
+  editing=null;$("productForm").reset();$("emoji").value="🎁";$("editorTitle").textContent="מוצר חדש";$("save").textContent="הוספת מוצר";message($("formMsg"),"");$("editor").hidden=true;
+}
+function edit(p){
+  editing=p?p.recordId:null;
+  $("editorTitle").textContent=p?"עריכת מוצר":"מוצר חדש";
+  $("save").textContent=p?"שמירת שינויים":"הוספת מוצר";
+  $("name").value=p?.name||"";$("category").value=p?.category||"";$("price").value=p?.price??"";
+  $("stock").value=p?.stock??"";$("emoji").value=p?.emoji||"🎁";$("image").value=p?.image||"";
+  $("description").value=p?.description||"";
+  $("tagSale").checked=(p?.tags||[]).includes("מבצע");$("tagNew").checked=(p?.tags||[]).includes("חדש");
+  $("onSale").checked=!!p?.onSale;$("showZero").checked=!!p?.showZero;$("hidden").checked=!!p?.hidden;
+  message($("formMsg"),"");$("editor").hidden=false;$("editor").scrollIntoView({behavior:"smooth",block:"start"});
+}
+$("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();message($("loginMsg"),"בודק סיסמה...");
+  try{await api("/api/admin/login",{method:"POST",body:JSON.stringify({password:$("password").value})});$("password").value="";showApp();await load();}
+  catch(err){message($("loginMsg"),err.message,true)}
+});
+$("logout").addEventListener("click",async()=>{
+  try{await api("/api/admin/logout",{method:"POST",body:"{}"})}catch{}
+  resetForm();showLogin();message($("loginMsg"),"התנתקת בהצלחה.");
+});
+$("add").addEventListener("click",()=>edit(null));
+$("cancel").addEventListener("click",resetForm);
+$("products").addEventListener("click",e=>{
+  const button=e.target.closest("[data-edit]");if(!button)return;
+  const p=products.find(x=>x.recordId===button.dataset.edit);if(p)edit(p);
+});
+$("productForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const tags=[];if($("tagSale").checked)tags.push("מבצע");if($("tagNew").checked)tags.push("חדש");
+  const payload={
+    name:$("name").value,category:$("category").value,price:$("price").value,
+    stock:$("stock").value===""?null:$("stock").value,emoji:$("emoji").value,
+    image:$("image").value,description:$("description").value,tags,
+    onSale:$("onSale").checked,showZero:$("showZero").checked,hidden:$("hidden").checked
+  };
+  $("save").disabled=true;message($("formMsg"),"שומר...");
+  try{
+    await api("/api/admin/products",{method:editing?"PATCH":"POST",body:JSON.stringify(editing?{...payload,recordId:editing}:payload)});
+    await load();resetForm();message($("listMsg"),"המוצר נשמר בהצלחה. רענן את החנות כדי לראות את העדכון.");
+  }catch(err){message($("formMsg"),err.message,true)}
+  finally{$("save").disabled=false}
+});
+(async()=>{
+  try{await load();showApp()}catch{showLogin()}
+})();
+})();
+</script>
+</body>
+</html>
