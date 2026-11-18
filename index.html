@@ -209,7 +209,11 @@ footer{padding-bottom:120px}
 #cartbar,#cartbar .in{overscroll-behavior:none;scrollbar-width:none;-ms-overflow-style:none;-webkit-tap-highlight-color:transparent}
 #cartbar::-webkit-scrollbar,#cartbar .in::-webkit-scrollbar{display:none;width:0;height:0}
 #cartbar::before,#cartbar::after,#cartbar .in::before,#cartbar .in::after{content:none!important;display:none!important}
-\n/* Winner names: larger and tightly stacked inside their status area */\n.winner-item{gap:2px}.winner-status.done{font-size:1.02rem;line-height:.92;font-weight:800;letter-spacing:-.25px}\n</style>
+\n/* Winner names: larger and tightly stacked inside their status area */\n.winner-item{gap:2px}.winner-status.done{font-size:1.02rem;line-height:.92;font-weight:800;letter-spacing:-.25px}\n
+/* Reduce the oversized blank area below the homepage content only. */
+body:has(#home.on) main{padding-bottom:16px}
+body:has(#home.on) footer{padding:16px 16px 24px}
+</style>
 </head>
 <body>
 <header><div class="bar">
