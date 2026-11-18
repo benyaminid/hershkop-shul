@@ -1,7 +1,18 @@
 const BASE_ID = process.env.AIRTABLE_BASE_ID;
 const TABLE_ID = "tbl6n85XwiAZ1gXTk";
 const TOKEN = process.env.WINNERS_AIRTABLE_TOKEN;
-const ALLOWED_NUMBERS = new Set(["6", "13", "21", "55", "96"]);
+async function getAllowedNumbers(request) {
+  const response = await fetch(new URL("/site.json", request.url), { cache: "no-store" });
+  if (!response.ok) throw new Error("LotteryConfigUnavailable");
+  const site = await response.json();
+  const values = site?.winners?.nums;
+  if (!Array.isArray(values) || values.length !== 5) throw new Error("LotteryConfigInvalid");
+  const numbers = values.map((value) => String(value));
+  if (numbers.some((value) => !/^\\d{1,10}$/.test(value)) || new Set(numbers).size !== 5) {
+    throw new Error("LotteryConfigInvalid");
+  }
+  return new Set(numbers);
+}
 
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status,
@@ -35,13 +46,14 @@ function validName(value) {
 export default async (request) => {
   if (request.method === "GET") {
     try {
+      const allowedNumbers = await getAllowedNumbers(request);
       const records = await getRecords();
       const winners = records
         .map(({ fields }) => ({
           number: String(fields["Winning Number"] || ""),
           registered: fields.Registered === true
         }))
-        .filter((winner) => ALLOWED_NUMBERS.has(winner.number));
+        .filter((winner) => allowedNumbers.has(winner.number));
       return json({ winners });
     } catch (error) {
       console.error("Winner status lookup failed:", error?.message || "UnknownError");
@@ -56,10 +68,11 @@ export default async (request) => {
   try {
     const body = await request.json();
     const number = String(body?.number ?? "");
+    const allowedNumbers = await getAllowedNumbers(request);
     const firstName = body?.firstName?.trim();
     const lastName = body?.lastName?.trim();
 
-    if (!ALLOWED_NUMBERS.has(number) || !validName(firstName) || !validName(lastName)) {
+    if (!allowedNumbers.has(number) || !validName(firstName) || !validName(lastName)) {
       return json({ error: "נא למלא שם פרטי ושם משפחה תקינים" }, 400);
     }
 
