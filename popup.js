@@ -1,5 +1,7 @@
 /* Congratulations popup + confetti (Eliezer – birth of a daughter). Remove this file and its <script> tag in index.html to take it down. */
 (function(){
+  var KEY='mz-pop-hide-eliezer-daughter';
+  try{if(localStorage.getItem(KEY)==='1')return}catch(e){}
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var css=''
@@ -16,6 +18,8 @@
   +'#mz-pop .mzf{font-size:1.6rem;letter-spacing:6px;margin:0 0 16px}'
   +'#mz-pop .mzok{border:0;border-radius:999px;padding:12px 28px;font:inherit;font-weight:800;font-size:1.05rem;color:#fff;cursor:pointer;background:linear-gradient(135deg,#d81b78,#f06292);box-shadow:0 6px 16px rgba(216,27,120,.45)}'
   +'#mz-pop .mzok:active{transform:scale(.96)}'
+  +'#mz-pop .mzh{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 0;font-size:.92rem;color:#6b2a4a;cursor:pointer;user-select:none;-webkit-user-select:none}'
+  +'#mz-pop .mzh input{width:20px;height:20px;margin:0;padding:0;accent-color:#d81b78;cursor:pointer;flex:none}'
   +'#mz-cf{position:fixed;inset:0;z-index:2001;pointer-events:none}'
   +'@keyframes mzfloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}'
   +'@media (prefers-reduced-motion:reduce){#mz-pop .mzbow{animation:none!important}#mz-pop .mzc{transition:none}}';
@@ -38,6 +42,7 @@
     +'<p class="mzb">בשעה טובה ומוצלחת! שתזכו לגדל אותה לתורה, לחופה ולמעשים טובים, ולראות ממנה רוב נחת ושמחה.</p>'
     +'<div class="mzf" aria-hidden="true">🌸👶🌸</div>'
     +'<button type="button" class="mzok">אמן, תודה! 🎉</button>'
+    +'<label class="mzh"><input type="checkbox" class="mzcb"><span>אל תציגו לי שוב את ההודעה</span></label>'
     +'</div>';
 
   var cv=null,raf=0,closed=false;
@@ -108,6 +113,13 @@
 
   ov.addEventListener('click',function(e){
     if(e.target===ov||(e.target.classList&&(e.target.classList.contains('mzx')||e.target.classList.contains('mzok'))))close();
+  });
+  ov.addEventListener('change',function(e){
+    if(!e.target.classList||!e.target.classList.contains('mzcb'))return;
+    try{
+      if(e.target.checked)localStorage.setItem(KEY,'1');
+      else localStorage.removeItem(KEY);
+    }catch(x){}
   });
 
   function open(){
