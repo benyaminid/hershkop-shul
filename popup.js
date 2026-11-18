@@ -1,5 +1,8 @@
 /* Congratulations popup + confetti (Eliezer – birth of a daughter). Remove this file and its <script> tag in index.html to take it down. */
 (function(){
+  // הצגת המודעה רק בכניסה לעמוד הראשי, ולא בקישורי עמודים פנימיים.
+  var initialHash=window.location.hash||'';
+  if(initialHash!==''&&initialHash!=='#home')return;
   var KEY='mz-pop-hide-eliezer-daughter';
   try{if(localStorage.getItem(KEY)==='1')return}catch(e){}
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -39,10 +42,10 @@
     +'<div class="mzbow" aria-hidden="true">🎀</div>'
     +'<h2>מזל טוב!</h2>'
     +'<p class="mzs">לאלעזר להולדת הבת</p>'
-    +'<p class="mzb">בשעה טובה ומוצלחת! שתזכו לגדל אותה לתורה, לחופה ולמעשים טובים, ולראות ממנה רוב נחת ושמחה.</p>'
+    +'<p class="mzb">בשעה טובה ומוצלחת! שתזכו לגדלה לתורה, לחופה ולמעשים טובים, ולראות ממנה רוב נחת ושמחה.</p>'
     +'<div class="mzf" aria-hidden="true">🌸👶🌸</div>'
-    +'<button type="button" class="mzok">אמן, תודה! 🎉</button>'
-    +'<label class="mzh"><input type="checkbox" class="mzcb"><span>אל תציגו לי שוב את ההודעה</span></label>'
+    +'<button type="button" class="mzok">אמן, מזל טוב! 🎉</button>'
+    +'<label class="mzh"><input type="checkbox" class="mzcb"><span>אל תציג שוב בהתחברויות הבאות</span></label>'
     +'</div>';
 
   var cv=null,raf=0,closed=false;
