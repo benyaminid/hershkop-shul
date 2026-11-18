@@ -39,7 +39,7 @@ async function verifyTicketToken(token, number, secret) {
   const parts = token.split(".");
   if (parts.length !== 2) return false;
   const key = await crypto.subtle.importKey("raw", new TextEncoder().encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["verify"]);
-  const decode = (value) => Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+  const decode = (value) => Uint8Array.from(atob(value.replace(/-/g, "+").replace(/_/g, "/") + "=".repeat((4 - value.length % 4) % 4)), (c) => c.charCodeAt(0));
   try {
     const payloadBytes = decode(parts[0]);
     const payload = JSON.parse(new TextDecoder().decode(payloadBytes));
