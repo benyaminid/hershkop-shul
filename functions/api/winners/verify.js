@@ -38,7 +38,7 @@ export async function onRequest({ request, env }) {
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
     if (bytes.length < 1000 || bytes.length > 2_800_000) return json({ error: "יש לצלם כרטיס ברור ובגודל קטן יותר" }, 400);
     const prompt = "Inspect this single photographed lottery ticket. Return only JSON with boolean fields: community_emblem, exact_number, participation_text, whole_ticket_visible, genuine_layout. The ticket layout has a round black community emblem at the top, a ticket number in the center, and the Hebrew phrase השתתפתי באבות ובנים below it. The number must be visibly printed and match exactly " + number + ". Do not infer unreadable characters. Set community_emblem true only if the round black emblem is clearly present at the top. Set participation_text true only if the Hebrew phrase is visible and legible. Set genuine_layout true only if all three elements appear in this arrangement. If uncertain, use false.";
-    const result = await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct", { image: Array.from(bytes), prompt, max_tokens: 180 });
+    const result = await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct", { image, prompt, max_tokens: 180 });
     const raw = typeof result?.response === "string" ? result.response : JSON.stringify(result?.response ?? result);
     const match = raw.match(/\{[\s\S]*\}/);
     if (!match) return json({ error: "לא הצלחנו לקרוא את הכרטיס. נסה צילום חד וברור יותר." }, 422);
