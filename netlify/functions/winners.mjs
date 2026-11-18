@@ -8,7 +8,7 @@ async function getAllowedNumbers(request) {
   const values = site?.winners?.nums;
   if (!Array.isArray(values) || values.length !== 5) throw new Error("LotteryConfigInvalid");
   const numbers = values.map((value) => String(value));
-  if (numbers.some((value) => !/^\\d{1,10}$/.test(value)) || new Set(numbers).size !== 5) {
+  if (numbers.some((value) => !/^[0-9]{1,10}$/.test(value)) || new Set(numbers).size !== 5) {
     throw new Error("LotteryConfigInvalid");
   }
   return new Set(numbers);
