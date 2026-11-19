@@ -80,7 +80,7 @@ export async function onRequest({ request, env }) {
       images: [{ content_type: mimeType, base64 }],
       fields: {
         ticket_number: { type: "text", instructions: "Exact consecutive digits printed as the ticket number, preserving all leading zeroes. Null unless clearly printed and readable." },
-        participation_phrase: { type: "text", source_only: true, instructions: "Exact Hebrew phrase printed below the number. Null unless all words are legible." },
+        participation_phrase: { type: "text", instructions: "Exact Hebrew phrase printed below the number. Null unless all words are legible." },
         ticket_is_present: { type: "boolean", instructions: "True only if a complete printed lottery ticket is visibly present, not a room or unrelated image." },
         round_black_emblem_present: { type: "boolean", instructions: "True only if the round black community emblem is visibly printed at the top of the ticket." },
         ticket_edges_visible: { type: "boolean", instructions: "True only if the complete outer boundary of the ticket is visible." }
