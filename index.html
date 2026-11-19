@@ -288,6 +288,10 @@ html.winner-camera-open,html.winner-camera-open body{height:100%;overflow:hidden
 #winner-camera-fallback .camera-actions .btn{min-height:46px}
 
 
+/* Mobile menu update timestamp */
+.menu-updated{display:none}
+@media(max-width:759px){.menu-updated{display:block;margin-top:12px;padding:12px 10px 4px;border-top:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.68);font-size:.78rem;line-height:1.6;text-align:center}}
+
 /* Requested layout refinements */
 body:has(#fathers.on) footer,
 body:has(#shop.on) footer,
@@ -295,7 +299,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 .ph .ribbons{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:3}
 .ph .ribbon{position:absolute;right:-29px;width:112px;height:23px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;padding:0;box-sizing:border-box;transform:rotate(45deg);transform-origin:center;color:#fff;font-size:.72rem;font-weight:800;line-height:23px;letter-spacing:.2px;box-shadow:0 2px 5px rgba(0,0,0,.28)}
 .ph .ribbon.sale{top:7px;background:#c62828;text-align:center}
-.ph .ribbon.new{top:50px;right:-39px;width:150px;background:#1769aa}
+.ph .ribbon.new{top:22px;right:-39px;width:150px;background:#1769aa}
 
 </style>
 </head>
@@ -317,6 +321,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
+<div class="menu-updated">עדכון אחרון באתר<br>19.11.2026 בשעה 16:04</div>
 </nav></div></header>
 
 <main>
