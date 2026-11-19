@@ -239,6 +239,16 @@ body:has(#home.on) footer{padding:16px 16px 24px}
 #winner-modal .sheet>h3{margin:0;text-align:center;flex-shrink:0}
 #winner-picked{margin:0;text-align:center;flex-shrink:0}
 html.winner-camera-open,html.winner-camera-open body{height:100%;overflow:hidden;overscroll-behavior:none}
+#history-check-modal{align-items:stretch;overflow:hidden}
+#history-check-modal .history-check-sheet{width:100%;max-width:none;height:100%;max-height:100%;overflow:hidden;border-radius:0;padding:calc(12px + env(safe-area-inset-top,0px)) 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
+#history-check-modal video{display:block;flex:1;min-height:0;width:100%;object-fit:contain;background:#111;border-radius:12px}
+#history-check-modal .camera-actions{display:flex;gap:8px;flex-shrink:0}
+#history-check-modal .camera-actions .btn{flex:1}
+#history-check-modal [hidden]{display:none!important}
+#history-check-exit{align-self:flex-end;flex-shrink:0}
+#history-check-modal h3,#history-check-modal .scan-help,#history-check-note{margin:0;text-align:center;flex-shrink:0}
+#history-check-result{overflow:auto;text-align:center;padding:14px;border-radius:12px;background:var(--bg);font-weight:700}
+
 </style>
 </head>
 <body>
@@ -277,6 +287,7 @@ html.winner-camera-open,html.winner-camera-open body{height:100%;overflow:hidden
 <h1>אבות ובנים</h1><p class="lead">לימוד משותף של אבות ובנים.</p>
 <div class="panel"><h3>מועד הלימוד</h3><p>יום וזמן קבועים – מלאו כאן.</p></div>
 <div class="panel"><h3>הצטרפות</h3><p>מוזמנים להגיע, אין צורך בהרשמה מראש.</p></div>
+<div class="panel"><h3>בדיקת זכייה בכרטיס</h3><p>סרוק את כרטיס אבות ובנים כדי לבדוק אם המספר זכה באחת ההגרלות בחודש האחרון.</p><button type="button" class="btn" id="history-check-open">סריקת כרטיס ובדיקת זכייה</button></div>
 </section>
 
 <section class="sec" id="bulletin">
@@ -323,6 +334,7 @@ html.winner-camera-open,html.winner-camera-open body{height:100%;overflow:hidden
 <p id="winner-camera-note" aria-live="polite">החזק את הכרטיס מול המצלמה, כשהוא כולו נראה וממוקד. הסריקה תתחיל אוטומטית.</p>
 </div>
 <form id="winner-form" hidden><p class="lead" id="winner-verified">הכרטיס אומת בהצלחה.</p><label>שם הילד<input id="winner-first" name="firstName" maxlength="40" autocomplete="given-name" required></label><label>שם המשפחה<input id="winner-last" name="lastName" maxlength="50" autocomplete="family-name" required></label><div class="cart-actions"><button class="btn" type="submit" id="winner-submit">שליחת פרטים</button><button class="btn alt" type="button" id="winner-close">סגירה</button></div></form><p id="winner-msg" class="lead" aria-live="polite"></p></div></div>
+<div class="modal" id="history-check-modal"><div class="sheet history-check-sheet"><button type="button" class="btn alt" id="history-check-exit">יציאה ✕</button><h3>בדיקת זכייה בחודש האחרון</h3><p class="scan-help">אין צורך לצלם! הצג את הכרטיס מול המצלמה לסריקה אוטומטית.</p><video id="history-check-video" autoplay playsinline muted aria-label="סריקת כרטיס"></video><div class="camera-actions"><button type="button" class="btn" id="history-check-start">פתיחת מצלמה</button></div><div id="history-check-fallback" hidden class="camera-actions"><button type="button" class="btn" id="history-check-capture">צילום ובדיקה</button><label class="btn alt" for="history-check-upload">העלאת תמונה לבדיקה</label><input type="file" id="history-check-upload" accept="image/jpeg,image/png,image/webp" hidden></div><p id="history-check-note" class="lead" aria-live="polite">החזק את הכרטיס כולו מול המצלמה. הבדיקה תתחיל אוטומטית.</p><div id="history-check-result" hidden aria-live="polite"></div></div></div>
 <div class="modal" id="winner-congrats" style="align-items:center"><div class="sheet winner-celebrate"><div id="winner-confetti" aria-hidden="true"></div><h3>🎉 מזל טוב! 🎉</h3><p class="winner-prize">מזל טוב! זכית ב-50 הרשקלים!<br>כל הכבוד על ההשקעה!</p><p class="winner-pickup">את ההרשקלים ניתן לאסוף מתיבת הדואר בגפן 6 דירה 4 (🔑2121), או מדניאל בשבת הבאה!</p><button type="button" class="btn" id="winner-congrats-close">סגירה</button></div></div>
 <footer>הרשקופ שול · כל הזכויות שמורות</footer>
 
@@ -442,6 +454,19 @@ document.addEventListener("click",function(e){var b=e.target.closest&&e.target.c
 function showWinnerCongrats(){var modal=document.getElementById("winner-congrats"),confetti=document.getElementById("winner-confetti");confetti.innerHTML="";var colors=["#f4c542","#e74c3c","#2ecc71","#3498db","#9b59b6","#ff8c42"];for(var i=0;i<48;i++){var piece=document.createElement("i");piece.style.setProperty("--x",Math.random()*100+"%");piece.style.setProperty("--c",colors[i%colors.length]);piece.style.setProperty("--d",(Math.random()*.9)+"s");piece.style.setProperty("--r",Math.random()*360+"deg");piece.style.setProperty("--drift",(Math.random()*150-75)+"px");confetti.appendChild(piece)}modal.classList.add("show")}
 document.getElementById("winner-congrats-close").addEventListener("click",function(){document.getElementById("winner-congrats").classList.remove("show")});
 document.getElementById("winner-congrats").addEventListener("click",function(e){if(e.target.id==="winner-congrats")e.currentTarget.classList.remove("show")});
+var historyCameraStream=null,historyScanTimer=null,historyScanBusy=false;
+function stopHistoryCamera(){if(historyScanTimer){clearTimeout(historyScanTimer);historyScanTimer=null}if(historyCameraStream){historyCameraStream.getTracks().forEach(function(t){t.stop()});historyCameraStream=null}var v=document.getElementById("history-check-video");if(v)v.srcObject=null;document.getElementById("history-check-start").hidden=false}
+function closeHistoryCheck(){stopHistoryCamera();document.getElementById("history-check-modal").classList.remove("show");document.documentElement.classList.remove("winner-camera-open")}
+function showHistoryFallback(m){document.getElementById("history-check-fallback").hidden=false;document.getElementById("history-check-capture").disabled=!historyCameraStream;document.getElementById("history-check-note").textContent=m||"הסריקה לא הצליחה. אפשר לצלם או להעלות תמונה לבדיקה."}
+function checkHistoryImage(image){if(historyScanBusy||!image)return;historyScanBusy=true;document.getElementById("history-check-note").textContent="בודק את הכרטיס…";fetch("/api/winners/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({image:image})}).then(function(r){return r.json().then(function(d){if(!r.ok)throw Error(d.error||"לא ניתן לבדוק");return d})}).then(function(d){var box=document.getElementById("history-check-result");box.hidden=false;if(d.wins&&d.wins.length){box.innerHTML="<div style='font-size:1.2rem;color:#247a3d'>🎉 הכרטיס זכה!</div>"+d.wins.map(function(w){return "<p>פרשת "+esc(w.parsha)+" · "+esc(w.date)+"</p>"}).join("")}else{box.textContent="הכרטיס תקין, אך המספר לא זכה בהגרלות של 30 הימים האחרונים."}document.getElementById("history-check-note").textContent="מספר הכרטיס שזוהה: "+esc(d.number);document.getElementById("history-check-fallback").hidden=true;stopHistoryCamera()}).catch(function(e){showHistoryFallback(e.message||"לא הצלחנו לקרוא את הכרטיס. נסה שוב.")}).finally(function(){historyScanBusy=false})}
+function scanHistoryVideo(){var v=document.getElementById("history-check-video");if(!historyCameraStream||!v.videoWidth)return;var c=document.createElement("canvas"),s=Math.min(1,1400/v.videoWidth);c.width=Math.round(v.videoWidth*s);c.height=Math.round(v.videoHeight*s);c.getContext("2d").drawImage(v,0,0,c.width,c.height);c.toBlob(function(b){if(!b){showHistoryFallback();return}var r=new FileReader();r.onload=function(){checkHistoryImage(String(r.result||""));c.width=c.height=0};r.readAsDataURL(b)},"image/jpeg",.82)}
+function startHistoryCamera(){if(historyCameraStream)return;var v=document.getElementById("history-check-video"),b=document.getElementById("history-check-start"),n=document.getElementById("history-check-note");if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){showHistoryFallback("אין גישה למצלמה. אפשר להעלות תמונה לבדיקה.");return}n.textContent="מבקש הרשאה למצלמה…";b.disabled=true;navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:"environment"}},audio:false}).then(function(s){historyCameraStream=s;v.srcObject=s;return v.play()}).then(function(){b.hidden=true;b.disabled=false;n.textContent="הסריקה האוטומטית מתחילה. אין צורך לצלם.";historyScanTimer=setTimeout(scanHistoryVideo,2500)}).catch(function(){b.disabled=false;showHistoryFallback("לא ניתן לפתוח מצלמה. בדוק הרשאות או העלה תמונה.")})}
+document.getElementById("history-check-open").addEventListener("click",function(){document.getElementById("history-check-result").hidden=true;document.getElementById("history-check-fallback").hidden=true;document.getElementById("history-check-note").textContent="החזק את הכרטיס כולו מול המצלמה. הבדיקה תתחיל אוטומטית.";document.getElementById("history-check-modal").classList.add("show");document.documentElement.classList.add("winner-camera-open");startHistoryCamera()});
+document.getElementById("history-check-start").addEventListener("click",startHistoryCamera);
+document.getElementById("history-check-exit").addEventListener("click",closeHistoryCheck);
+document.getElementById("history-check-modal").addEventListener("click",function(e){if(e.target.id==="history-check-modal")closeHistoryCheck()});
+document.getElementById("history-check-capture").addEventListener("click",scanHistoryVideo);
+document.getElementById("history-check-upload").addEventListener("change",function(){var f=this.files&&this.files[0];if(!f)return;if(!/^image\/(jpeg|png|webp)$/i.test(f.type)||f.size>5*1024*1024){document.getElementById("history-check-note").textContent="יש לבחור תמונת JPEG, PNG או WEBP עד 5MB.";this.value="";return}var r=new FileReader();r.onload=function(){checkHistoryImage(String(r.result||""))};r.readAsDataURL(f)});
 var winnerVerifyToken="";
 var winnerCameraStream=null;
 var winnerAutoScanTimer=null;
