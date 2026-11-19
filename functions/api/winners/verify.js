@@ -93,7 +93,7 @@ export async function onRequest({ request, env }) {
         participation_phrase: { type: "text", instructions: "Exact Hebrew phrase printed below the number. Null unless all words are legible." },
         ticket_is_present: { type: "boolean", instructions: "True only if a complete printed lottery ticket is visibly present, not a room or unrelated image." },
         round_black_emblem_present: { type: "boolean", instructions: "True only if the round black emblem is visible at the top of image 1." },
-        emblem_matches_reference: { type: "boolean", instructions: "Compare the emblem in image 1 directly against image 2. True only when the distinctive Hebrew lettering, ornament, circular border, internal linework and overall composition closely match the reference. A generic black circle or a different community logo is false." },\n        emblem_matches_reference: { type: "boolean", instructions: "Compare the emblem in image 1 directly against image 2. True only when the distinctive Hebrew lettering, ornament, circular border, internal linework and overall composition closely match the reference. A generic black circle or a different community logo is false." },
+        emblem_matches_reference: { type: "boolean", instructions: "Compare the emblem in image 1 directly against image 2. True only when the distinctive Hebrew lettering, ornament, circular border, internal linework and overall composition closely match the reference. A generic black circle or a different community logo is false." },
         ticket_edges_visible: { type: "boolean", instructions: "True only if the complete outer boundary of the ticket is visible." }
       }
     });
