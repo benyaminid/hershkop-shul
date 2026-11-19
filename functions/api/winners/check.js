@@ -7,11 +7,22 @@ export async function onRequest({request,env}){
   if(typeof image!=="string"||!/^data:image\/(jpeg|png|webp);base64,/.test(image)||image.length>4000000)return json({error:"תמונת הכרטיס אינה תקינה או גדולה מדי."},400);
   const bytes=Uint8Array.from(atob(image.slice(image.indexOf(",")+1)),c=>c.charCodeAt(0));
   if(bytes.length<1000||bytes.length>2800000)return json({error:"יש לסרוק כרטיס ברור ובגודל קטן יותר."},400);
-  const prompt="Read this lottery ticket. Return only JSON: {number:string, community_emblem:boolean, participation_text:boolean, whole_ticket_visible:boolean}. Copy the exact printed ticket number using digits only. The genuine ticket has a round black community emblem at the top and the Hebrew phrase השתתפתי באבות ובנים below the number. Do not guess unreadable digits. Set booleans true only when clearly visible.";
-  const result=await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct",{image,prompt,max_tokens:140});
-  const raw=typeof result?.response==="string"?result.response:JSON.stringify(result?.response??result),match=raw.match(/\{[\s\S]*\}/);
-  if(!match)return json({error:"לא הצלחנו לקרוא את הכרטיס. נסה להציג אותו בצורה ברורה יותר."},422);
-  let parsed;try{parsed=JSON.parse(match[0])}catch{return json({error:"לא הצלחנו לקרוא את הכרטיס."},422)}
+  const prompt="Inspect the lottery ticket image. Read the exact printed number using digits only. Also verify whether the round black community emblem at the top is clearly visible, whether the exact Hebrew phrase השתתפתי באבות ובנים appears below the number, and whether the entire ticket is visible. Do not guess. Return ONLY one JSON object with exactly these keys: number (string), community_emblem (boolean), participation_text (boolean), whole_ticket_visible (boolean). If you cannot return JSON, return exactly four lines in this format: number: 123 / community_emblem: true or false / participation_text: true or false / whole_ticket_visible: true or false. No explanations.";
+  const result=await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct",{image,prompt,max_tokens:180,temperature:0});
+  const raw=typeof result?.response==="string"?result.response:JSON.stringify(result?.response??result);
+  const match=raw.match(/\\{[\\s\\S]*\\}/);
+  let parsed=null;
+  if(match){try{parsed=JSON.parse(match[0])}catch{}}
+  if(!parsed){
+   const readLine=(labels)=>{const re=new RegExp("(?:^|\\\\n)\\\\s*[-*]?\\\\s*(?:"+labels+")\\\\s*[:=：-]\\\\s*([^\\\\r\\\\n]+)","i");return raw.match(re)?.[1]?.trim()||""};
+   const numberLine=readLine("number|ticket number|מספר הכרטיס|מספר");
+   const boolValue=(value)=>{const v=String(value).replace(/[.,;].*$/,"").trim().toLowerCase();if(/^(true|yes|present|visible|כן|קיים|נראה)$/.test(v))return true;if(/^(false|no|absent|not visible|לא|לא קיים|לא נראה)$/.test(v))return false;return null};
+   const emblemLine=readLine("community[_ ]emblem|emblem|סמל הקהילה|סמל");
+   const phraseLine=readLine("participation[_ ]text|participation text|phrase|כיתוב השתתפתי|כיתוב");
+   const wholeLine=readLine("whole[_ ]ticket[_ ]visible|whole ticket visible|entire ticket|כל הכרטיס");
+   if(numberLine&&emblemLine&&phraseLine&&wholeLine)parsed={number:numberLine.replace(/\\D/g,""),community_emblem:boolValue(emblemLine),participation_text:boolValue(phraseLine),whole_ticket_visible:boolValue(wholeLine)};
+  }
+  if(!parsed)return json({error:"לא הצלחנו לקרוא את הכרטיס. נסה להציג אותו בצורה ברורה יותר."},422);
   const number=String(parsed.number||"").replace(/\D/g,"");
   if(!/^[0-9]{1,10}$/.test(number)||parsed.community_emblem!==true||parsed.participation_text!==true||parsed.whole_ticket_visible!==true)return json({error:"הכרטיס לא זוהה בוודאות. ודא שכל הכרטיס, הסמל והכיתוב נראים בבירור."},422);
   const sr=await fetch(new URL("/site.json",request.url),{cache:"no-store"});if(!sr.ok)throw Error("LotteryHistoryUnavailable");
