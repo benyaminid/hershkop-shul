@@ -1,3 +1,4 @@
+import { normalizeTicketNumber, readTicketNumber } from "../../_lib/ticket-number.js";
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Referrer-Policy":"no-referrer"}});
 function normalizeTicketNumber(value){
  const digits=String(value??"").replace(/\D/g,"");
@@ -31,18 +32,8 @@ export async function onRequest({request,env}){
   if(typeof image!=="string"||!/^data:image\/(jpeg|png|webp);base64,/.test(image)||image.length>4000000)return json({error:"תמונת הכרטיס אינה תקינה או גדולה מדי."},400);
   const bytes=Uint8Array.from(atob(image.slice(image.indexOf(",")+1)),c=>c.charCodeAt(0));
   if(bytes.length<1000||bytes.length>2800000)return json({error:"יש לסרוק כרטיס ברור ובגודל קטן יותר."},400);
-  const prompt="Read ONLY the large printed lottery ticket number in the center of the ticket. Ignore the emblem, Hebrew text, paper edges, background and all other details. Preserve leading zeroes. Return a JSON object containing number as a string. If the number cannot be read clearly, set number to null. Do not guess.";
-  const result=await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct",{image,prompt,max_tokens:80,temperature:0});
-  const raw=typeof result?.response==="string"?result.response:JSON.stringify(result?.response??result);
-  const match=raw.match(/\{[\s\S]*?\}/);
-  let parsed=null;
-  if(match){try{parsed=JSON.parse(match[0])}catch{}}
-  let number=normalizeTicketNumber(parsed?.number);
-  if(!number){
-   const direct=raw.match(/(?:number|ticket\s*number|מספר(?:\s*הכרטיס)?)\s*["':=：-]*\s*["']?([0-9]{1,10})/i);
-   if(direct)number=normalizeTicketNumber(direct[1]);
-  }
-  if(!/^[0-9]{1,10}$/.test(number))return json({error:"לא הצלחנו לקרוא את מספר הכרטיס. נסה צילום חד יותר ומקרוב."},422);
+  const number=await readTicketNumber(env,image);
+  if(!number)return json({error:"לא הצלחנו לקרוא את מספר הכרטיס. נסה להתמקד במספר ולהימנע משוליים ריקים רחבים."},422);
   const wins=await findHistoricalWins(request,number);
   return json({success:true,number,wins});
  }catch(e){console.error("Historical ticket check failed:",e?.message||"UnknownError");return json({error:"לא ניתן לבדוק כרגע. נסה שוב מאוחר יותר."},503)}
