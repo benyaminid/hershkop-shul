@@ -1,4 +1,4 @@
-import { normalizeTicketNumber, readTicketNumber } from "../../_lib/ticket-number.js";
+import { readTicketNumber } from "../../_lib/ticket-number.js";
 const json=(body,status=200)=>new Response(JSON.stringify(body),{status,headers:{"Content-Type":"application/json; charset=utf-8","Cache-Control":"no-store","X-Content-Type-Options":"nosniff","Referrer-Policy":"no-referrer"}});
 function normalizeTicketNumber(value){
  const digits=String(value??"").replace(/\D/g,"");
