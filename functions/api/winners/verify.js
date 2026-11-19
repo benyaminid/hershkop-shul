@@ -47,14 +47,6 @@ function normalizeTicketNumber(value) {
   return extractDigits(value).replace(/^0+(?=\d)/, "");
 }
 
-function confident(field, minimum = 0.90, maximumNull = 0.05) {
-  return field?.value !== null && field?.value !== undefined &&
-    Number.isFinite(Number(field?.confidence)) &&
-    Number.isFinite(Number(field?.p_null)) &&
-    Number(field.confidence) >= minimum &&
-    Number(field.p_null) <= maximumNull;
-}
-
 export async function onRequest({ request, env }) {
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
