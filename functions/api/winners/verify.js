@@ -36,6 +36,9 @@ function parseJsonResponse(result) {
   try { return JSON.parse(match[0]); } catch { return null; }
 }
 
+// Cropped, high-contrast 128x128 reference of the community emblem supplied for the ticket layout.
+const EMBLEM_REFERENCE_BASE64 = "iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAAAAADmVT4XAAADKUlEQVR42u1b25KrMAyzPPz/L+s8FFqaq3Nz2DllZnfYbYlkW7aTAKDsPVR+BDYfR/+luJ33KwkcAg4OLieA+le4jADso3IBAbQZxskE0CEvTiOAbolzRh0A5mRqpwcG0G1OKBMYhq9T0OX4lVF0OX5FRbpEfA2m6Grza9boevPLBqmD+cUx1Qs/N6q64WfGVT/89MjqiJ8cWz3xU6OrK35ifPXFjxH81wUoEYA/A3XHD2DUH/8Ba0OkCWALA90bgG3Lc8QEsInBY3ZIsCsIT/HAqAPY7QKdnthdHsC+VHyGBvCANBR/Fb7sVtmsQt0ZAchvs3o3AYjo3iT8aQBP8AB+abj3yN+0Il4/IgTxaTfn7vL701cnuv/ZpEJYL6Pgq+Wdf+HshO8PETTG63sEk1hqRBcRUvCRLF+nFDJoxzh/435GufBpDUFQMpHp+8xMDSi8znBFLOUBcCQNGU8HsuMxw2Hw7jnJvWk4Xsb+6vMDrZ7nGAHG8DDyqhE9SqBotIZp7Uef3FPhMMiL3/dPmBAfM6IM6nciU48Gpd8uzD28gLxLaL9hkStuSNuJfFIiWfBQI4Dyf5C9o1W48G4/23tBXdDoLl5cmPzzCxFWEOCkIHRW1D82KcVmAljjgZ0NmbY6EFZRRg9+9M7KjYUIYVdLtb3P7PzzVQhrcdOG8POSASJJMKpXJzLAcpC1Lbtrfjibxdt4ClEIDs8ON2FmiVgihhn/RWB2fpn1yEWrY+sjepy3PGd3xdIpTea+UF9RBxa1SN4IdC9R2ae+WWtD8qs8MOkNFrkfMuACFqbF7xVBpR4MeQDfoAgLIs6tkRL7Q2RIBcWnnME8flwzZlfDypCJRZvvliljDXAH/pcIuQH/YXvF9HfAHg8wW4jojh96gN74UQi4VYQuDFhrRnTFT2UBPfGNu2Tr8NN1gH74mUJEN/xcJaQXfrYUcz4xts0J2blJw8oE2j4pte1K0kiRXetILI2+oR3P2pqt7ZCsWPeZzagv5bHOetuMaCwOdftMw2MRunlO2OcFm21LXvlskG/bS6+YjC49r/1CpmYuuqKLeVUD//3b9/8AP1n35niFHoQAAAAASUVORK5CYII=";
+
 function extractDigits(value) {
   return String(value ?? "").replace(/[^0-9]/g, "");
 }
@@ -76,13 +79,13 @@ export async function onRequest({ request, env }) {
     // Clairic accepts embedded images as {content_type, base64}; it returns typed values and uncertainty.
     const extraction = await env.AI.run("@cf/cloudflare/clairic", {
       model: "clairic",
-      state: "Read the attached image as a printed lottery ticket. Preserve every digit exactly, including leading zeroes. The ticket layout has a round black community emblem at the top, a large printed digit string in the center, and the exact Hebrew phrase השתתפתי באבות ובנים below it. Do not infer missing content. If the image is not clearly a complete ticket, return null or false for the relevant fields.",
-      images: [{ content_type: mimeType, base64 }],
+      state: "Image 1 is the submitted ticket photo. Image 2 is the exact community emblem reference cropped from the owners original ticket sample. Read image 1 as a printed lottery ticket and compare its top emblem directly with image 2. Preserve every digit exactly, including leading zeroes. The ticket layout has the round black emblem at the top, a large printed digit string in the center, and the exact Hebrew phrase השתתפתי באבות ובנים below it. Do not infer missing content. If the ticket is not complete or the emblem is not a close visual match to image 2 in its distinctive lettering, ornaments, border and layout, return false for the relevant fields.",
+      images: [\n        { content_type: mimeType, base64 },\n        { content_type: "image/png", base64: EMBLEM_REFERENCE_BASE64 }\n      ],
       fields: {
         ticket_number: { type: "text", instructions: "Exact consecutive digits printed as the ticket number, preserving all leading zeroes. Null unless clearly printed and readable." },
         participation_phrase: { type: "text", instructions: "Exact Hebrew phrase printed below the number. Null unless all words are legible." },
         ticket_is_present: { type: "boolean", instructions: "True only if a complete printed lottery ticket is visibly present, not a room or unrelated image." },
-        round_black_emblem_present: { type: "boolean", instructions: "True only if the round black community emblem is visibly printed at the top of the ticket." },
+        round_black_emblem_present: { type: "boolean", instructions: "True only if the round black emblem is visible at the top of image 1." },\n        emblem_matches_reference: { type: "boolean", instructions: "Compare the emblem in image 1 directly against image 2. True only when the distinctive Hebrew lettering, ornament, circular border, internal linework and overall composition closely match the reference. A generic black circle or a different community logo is false." },
         ticket_edges_visible: { type: "boolean", instructions: "True only if the complete outer boundary of the ticket is visible." }
       }
     });
