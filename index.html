@@ -39,7 +39,7 @@ h1{font-size:1.8rem;margin:.2em 0 .3em;color:var(--accent)}
 .chip.on{background:var(--accent);color:var(--onaccent);border-color:var(--accent)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
-.ph{height:110px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:2.6rem}
+.ph{height:110px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:2.6rem;position:relative;overflow:hidden}
 .card h3{margin:0;font-size:1.05rem}
 .price{color:var(--accent2);font-weight:700}
 .btn{background:var(--accent);color:var(--onaccent);border:0;border-radius:10px;padding:9px 14px;font:inherit;cursor:pointer}
@@ -293,7 +293,7 @@ body:has(#fathers.on) footer,
 body:has(#shop.on) footer,
 body:has(#updates.on) footer{padding:6px 16px 8px!important}
 .ph .ribbons{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:3}
-.ph .ribbon{position:absolute;right:-29px;width:112px;height:23px;display:flex;align-items:center;justify-content:center;transform:rotate(45deg);color:#fff;font-size:.72rem;font-weight:800;line-height:1;letter-spacing:.2px;box-shadow:0 2px 5px rgba(0,0,0,.28)}
+.ph .ribbon{position:absolute;right:-29px;width:112px;height:23px;display:flex;align-items:center;justify-content:center;text-align:center;transform:rotate(45deg);transform-origin:center;color:#fff;font-size:.72rem;font-weight:800;line-height:1;letter-spacing:.2px;box-shadow:0 2px 5px rgba(0,0,0,.28)}
 .ph .ribbon.sale{top:7px;background:#c62828}
 .ph .ribbon.new{top:38px;right:-39px;width:150px;background:#1769aa}
 
