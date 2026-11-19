@@ -47,10 +47,12 @@ function normalizeTicketNumber(value) {
   return extractDigits(value).replace(/^0+(?=\d)/, "");
 }
 
-function confident(field) {
+function confident(field, minimum = 0.90, maximumNull = 0.05) {
   return field?.value !== null && field?.value !== undefined &&
-    Number(field?.confidence) >= 0.995 &&
-    Number(field?.p_null) <= 0.001;
+    Number.isFinite(Number(field?.confidence)) &&
+    Number.isFinite(Number(field?.p_null)) &&
+    Number(field.confidence) >= minimum &&
+    Number(field.p_null) <= maximumNull;
 }
 
 export async function onRequest({ request, env }) {
@@ -83,7 +85,7 @@ export async function onRequest({ request, env }) {
     // Clairic accepts embedded images as {content_type, base64}; it returns typed values and uncertainty.
     const extraction = await env.AI.run("@cf/cloudflare/clairic", {
       model: "clairic",
-      state: "Image 1 is the submitted ticket photo. Image 2 is the exact community emblem reference cropped from the owners original ticket sample. Read image 1 as a printed lottery ticket and compare its top emblem directly with image 2. Preserve every digit exactly, including leading zeroes. The ticket layout has the round black emblem at the top, a large printed digit string in the center, and the exact Hebrew phrase השתתפתי באבות ובנים below it. Do not infer missing content. If the ticket is not complete or the emblem is not a close visual match to image 2 in its distinctive lettering, ornaments, border and layout, return false for the relevant fields.",
+      state: "Image 1 is the submitted ticket photo. Image 2 is the exact community emblem reference cropped from the owners original ticket sample. Read image 1 as a printed lottery ticket and compare its top emblem directly with image 2. Preserve every digit exactly, including leading zeroes. The ticket layout has the round black emblem at the top, a large printed digit string in the center, and the exact Hebrew phrase השתתפתי באבות ובנים below it. Do not infer missing content. The printed information area must be visible; do not require the paper outer edges or unprinted margins to be visible. If the emblem is not a close visual match to image 2 in its distinctive lettering, ornaments, border and layout, return false for the relevant fields.",
       images: [
         { content_type: mimeType, base64 },
         { content_type: "image/png", base64: EMBLEM_REFERENCE_BASE64 }
@@ -91,10 +93,9 @@ export async function onRequest({ request, env }) {
       fields: {
         ticket_number: { type: "text", instructions: "Exact consecutive digits printed as the ticket number, preserving all leading zeroes. Null unless clearly printed and readable." },
         participation_phrase: { type: "text", instructions: "Exact Hebrew phrase printed below the number. Null unless all words are legible." },
-        ticket_is_present: { type: "boolean", instructions: "True only if a complete printed lottery ticket is visibly present, not a room or unrelated image." },
+        ticket_is_present: { type: "boolean", instructions: "True only if the printed ticket content is visibly present, not a room or unrelated image. The outer paper edges may be cropped if the number, emblem and phrase are all visible." },
         round_black_emblem_present: { type: "boolean", instructions: "True only if the round black emblem is visible at the top of image 1." },
         emblem_matches_reference: { type: "boolean", instructions: "Compare the emblem in image 1 directly against image 2. True only when the distinctive Hebrew lettering, ornament, circular border, internal linework and overall composition closely match the reference. A generic black circle or a different community logo is false." },
-        ticket_edges_visible: { type: "boolean", instructions: "True only if the complete outer boundary of the ticket is visible." }
       }
     });
 
@@ -105,16 +106,15 @@ export async function onRequest({ request, env }) {
       extraction?.truncated === false &&
       normalizeTicketNumber(extractedNumber) === normalizeTicketNumber(number) &&
       phrase === "השתתפתי באבות ובנים" &&
-      confident(answers.ticket_number) &&
-      confident(answers.participation_phrase) &&
+      confident(answers.ticket_number, 0.90, 0.05) &&
+      confident(answers.participation_phrase, 0.85, 0.10) &&
       answers.ticket_is_present?.value === true &&
       answers.round_black_emblem_present?.value === true &&
-      answers.ticket_edges_visible?.value === true &&
-      confident(answers.ticket_is_present) &&
-      confident(answers.round_black_emblem_present) &&
+      confident(answers.ticket_is_present, 0.85, 0.10) &&
+      confident(answers.round_black_emblem_present, 0.85, 0.10) &&
       answers.emblem_matches_reference?.value === true &&
       confident(answers.emblem_matches_reference) &&
-      confident(answers.ticket_edges_visible);
+      confident(answers.emblem_matches_reference, 0.90, 0.05);
 
     if (!typedPass) {
       return json({ error: "לא זוהה כרטיס מלא וברור עם המספר, הסמל והכיתוב הנדרשים. נסה צילום חד יותר." }, 422);
@@ -124,7 +124,7 @@ export async function onRequest({ request, env }) {
     const visual = await env.AI.run("@cf/moondream/moondream3.1-9B-A2B", {
       task: "query",
       image,
-      question: "Inspect only this image. Return ONLY JSON with keys ticket_present (boolean), whole_ticket_visible (boolean), round_black_emblem_at_top (boolean), hebrew_phrase_below_number (boolean), and printed_number (string of digits exactly as printed, preserving leading zeroes). The expected layout is a complete paper ticket with a round black emblem at the top, a large number in the middle, and the exact Hebrew phrase השתתפתי באבות ובנים below. Do not guess. If no complete ticket is clearly visible, set all booleans false and printed_number to an empty string. Read the digits from the image itself.",
+      question: "Inspect only this image. Return ONLY JSON with keys ticket_present (boolean), all_required_printed_content_visible (boolean), round_black_emblem_at_top (boolean), hebrew_phrase_below_number (boolean), and printed_number (string of digits exactly as printed, preserving leading zeroes). The required printed content is a round black emblem at the top, a large number in the middle, and the exact Hebrew phrase השתתפתי באבות ובנים below. The outer paper edges and blank margins do NOT need to be visible. Do not guess. If the number, emblem or phrase is missing or unreadable, set the relevant booleans false and printed_number to an empty string. Read the digits from the image itself.",
       temperature: 0,
       reasoning: false,
       stream: false,
@@ -135,7 +135,7 @@ export async function onRequest({ request, env }) {
 
     const visualPass =
       visualCheck.ticket_present === true &&
-      visualCheck.whole_ticket_visible === true &&
+      visualCheck.all_required_printed_content_visible === true &&
       visualCheck.round_black_emblem_at_top === true &&
       visualCheck.hebrew_phrase_below_number === true &&
       normalizeTicketNumber(visualCheck.printed_number) === normalizeTicketNumber(number);
