@@ -37,14 +37,17 @@ export async function onRequest({ request, env }) {
     const binary = atob(base64);
     const bytes = Uint8Array.from(binary, (c) => c.charCodeAt(0));
     if (bytes.length < 1000 || bytes.length > 2_800_000) return json({ error: "יש לצלם כרטיס ברור ובגודל קטן יותר" }, 400);
-    const prompt = "Inspect this single photographed lottery ticket. Return only JSON with boolean fields: community_emblem, exact_number, participation_text, whole_ticket_visible, genuine_layout. The ticket layout has a round black community emblem at the top, a ticket number in the center, and the Hebrew phrase השתתפתי באבות ובנים below it. The number must be visibly printed and match exactly " + number + ". Do not infer unreadable characters. Set community_emblem true only if the round black emblem is clearly present at the top. Set participation_text true only if the Hebrew phrase is visible and legible. Set genuine_layout true only if all three elements appear in this arrangement. If uncertain, use false.";
-    const result = await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct", { image, prompt, max_tokens: 180 });
+    const prompt = "Read this photographed Hebrew lottery ticket. Return ONLY one JSON object with exactly four fields: number (string containing only the printed digits), community_emblem (boolean), participation_text (boolean), whole_ticket_visible (boolean). The expected winning number is " + number + ". The ticket layout: a round black community emblem at the top, the ticket number in the center, and the exact Hebrew phrase השתתפתי באבות ובנים below the number. Read the printed digits yourself; do not simply repeat the expected number. If any digit is unclear, return an empty number string. Set community_emblem true only when the round black emblem is clearly visible at the top. Set participation_text true only when the exact Hebrew phrase is visible and legible. Set whole_ticket_visible true only when the entire ticket is visible. Do not require extra design details. If uncertain about any visual check, use false.";
+    const result = await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct", { image, prompt, max_tokens: 180, temperature: 0 });
     const raw = typeof result?.response === "string" ? result.response : JSON.stringify(result?.response ?? result);
     const match = raw.match(/\{[\s\S]*\}/);
     if (!match) return json({ error: "לא הצלחנו לקרוא את הכרטיס. נסה צילום חד וברור יותר." }, 422);
     let check;
     try { check = JSON.parse(match[0]); } catch { return json({ error: "לא הצלחנו לקרוא את הכרטיס. נסה שוב." }, 422); }
-    const valid = check.community_emblem === true && check.exact_number === true && check.participation_text === true && check.whole_ticket_visible === true && check.genuine_layout === true;
+    const normalize = (value) => String(value ?? "").replace(/\D/g, "").replace(/^0{1,2}(?=\d)/, "");
+    const readNumber = normalize(check.number);
+    const validNumber = /^[0-9]{1,10}$/.test(readNumber) && readNumber === normalize(number);
+    const valid = validNumber && check.community_emblem === true && check.participation_text === true && check.whole_ticket_visible === true;
     if (!valid) return json({ error: "הכרטיס לא אומת. ודא שסמל הקהילה, המספר הזוכה והכיתוב מופיעים בבירור ונסה שוב." }, 422);
     return json({ success: true, token: await signToken(number, env.WINNER_VERIFY_SECRET) });
   } catch (error) {
