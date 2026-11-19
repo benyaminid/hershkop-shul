@@ -1,7 +1,7 @@
 /*
- * Banners: popup carousel on entry + the "עדכונים ומודעות" page (#updates) + a home-page button to it.
+ * Banners: popup carousel on entry + the "מודעות ועדכונים" page (#updates) + a home-page button to it.
  * To add a banner: put the image in img/ and add an entry to BANNERS below.
- *  - page "עדכונים ומודעות": all banners, newest (by date) on top.
+ *  - page "מודעות ועדכונים": all banners, newest (by date) on top.
  *  - popup: banners with popup:true, oldest first, slides right-to-left, dots at the bottom.
  *  - "אל תציג שוב": saved per banner (localStorage key hs-hide-<id>), per browser/device.
  * The nav link, the #updates section and the home button are injected here (index.html only loads this file).
@@ -87,7 +87,7 @@
     return cardHtml(withBtn);
   }
 
-  /* ---------- Home page: button to "עדכונים ומודעות" (same look as the rules button) ---------- */
+  /* ---------- Home page: button to "מודעות ועדכונים" (same look as the rules button) ---------- */
   function injectHomeBtn(){
     var nb=document.getElementById('newsbtn');
     if(!nb||document.getElementById('updbtn'))return;
@@ -95,19 +95,19 @@
     b.id='updbtn';
     b.className='newsbtn';
     b.href='#updates';
-    b.textContent='עדכונים ומודעות';
+    b.textContent='מודעות ועדכונים';
     b.style.marginTop='14px';
-    nb.insertAdjacentElement('afterend',b);
+    nb.insertAdjacentElement('beforebegin',b);
   }
 
-  /* ---------- Page: "עדכונים ומודעות" (#updates) ---------- */
+  /* ---------- Page: "מודעות ועדכונים" (#updates) ---------- */
   function injectPage(){
     var nav=document.querySelector('nav'),main=document.querySelector('main');
     if(!nav||!main||document.getElementById('updates'))return;
     var a=document.createElement('a');
     a.href='#updates';
     a.setAttribute('data-p','updates');
-    a.textContent='עדכונים ומודעות';
+    a.textContent='מודעות ועדכונים';
     var ref=nav.querySelector('a[data-p="links"]');
     if(ref&&ref.nextSibling)nav.insertBefore(a,ref.nextSibling);else nav.appendChild(a);
 
@@ -115,7 +115,7 @@
     sec.className='sec';
     sec.id='updates';
     var sorted=BANNERS.slice().sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:0});
-    sec.innerHTML='<h1>עדכונים ומודעות</h1>'+sorted.map(function(b){
+    sec.innerHTML='<h1>מודעות ועדכונים</h1>'+sorted.map(function(b){
       return '<div class="hs-frame hs-pulse hs-pg" data-bid="'+esc(b.id)+'"><div class="hs-slide">'+bodyHtml(b,false)+'</div></div>';
     }).join('');
     main.appendChild(sec);
@@ -189,7 +189,7 @@
     ov.id='mz-pop';
     ov.setAttribute('role','dialog');
     ov.setAttribute('aria-modal','true');
-    ov.setAttribute('aria-label','עדכונים ומודעות');
+    ov.setAttribute('aria-label','מודעות ועדכונים');
     var slides=list.map(function(b){return '<div class="hs-slide">'+bodyHtml(b,true)+'</div>'}).join('');
     if(n>1)slides+='<div class="hs-slide" aria-hidden="true">'+bodyHtml(list[0],true)+'</div>';
     var dots='';
