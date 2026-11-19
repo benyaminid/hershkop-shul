@@ -1,9 +1,10 @@
 /*
- * Banners: popup carousel on entry + the "עדכונים ומודעות" page (#updates).
+ * Banners: popup carousel on entry + the "עדכונים ומודעות" page (#updates) + a home-page button to it.
  * To add a banner: put the image in img/ and add an entry to BANNERS below.
  *  - page "עדכונים ומודעות": all banners, newest (by date) on top.
  *  - popup: banners with popup:true, oldest first, slides right-to-left, dots at the bottom.
- * The nav link and the #updates section are injected here (index.html only loads this file).
+ *  - "אל תציג שוב": saved per banner (localStorage key hs-hide-<id>), per browser/device.
+ * The nav link, the #updates section and the home button are injected here (index.html only loads this file).
  * To take everything down: remove the <script src="./popup.js"> tag from index.html.
  */
 (function(){
@@ -12,11 +13,25 @@
      alt:'י׳ כסלו – התוועדות חסידית לרגל חג הגאולה ויום הולדת האדמו״ר האמצעי, בשעה 21:00 בבית הכנסת הרשקופ שול'},
     {id:'daughter',type:'card',date:'2026-11-18',popup:true}
   ];
-  var KEY='hs-banners-hidden';
   // הצגת המודעה רק בכניסה לעמוד הראשי, ולא בקישורי עמודים פנימיים.
   var initialHash=window.location.hash||'';
   var showPopup=(initialHash===''||initialHash==='#home');
   var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* per-banner "don't show again" (the old single key of the birth popup still counts for 'daughter') */
+  function isHidden(id){
+    try{
+      if(localStorage.getItem('hs-hide-'+id)==='1')return true;
+      if(id==='daughter'&&localStorage.getItem('mz-pop-hide-eliezer-daughter')==='1')return true;
+    }catch(e){}
+    return false;
+  }
+  function setHidden(id,v){
+    try{
+      if(v)localStorage.setItem('hs-hide-'+id,'1');
+      else{localStorage.removeItem('hs-hide-'+id);if(id==='daughter')localStorage.removeItem('mz-pop-hide-eliezer-daughter')}
+    }catch(e){}
+  }
 
   var css=''
   +'.hs-frame{position:relative;border:3px solid #e2b04a;border-radius:30px;overflow:hidden;background:#fff;box-shadow:0 0 0 6px rgba(244,143,177,.38),0 24px 60px rgba(120,20,60,.5)}'
@@ -70,6 +85,19 @@
   function bodyHtml(b,withBtn){
     if(b.type==='image')return '<div class="hs-img"><img src="'+esc(b.src)+'" alt="'+esc(b.alt||'')+'" width="720" height="883" draggable="false"></div>';
     return cardHtml(withBtn);
+  }
+
+  /* ---------- Home page: button to "עדכונים ומודעות" (same look as the rules button) ---------- */
+  function injectHomeBtn(){
+    var nb=document.getElementById('newsbtn');
+    if(!nb||document.getElementById('updbtn'))return;
+    var b=document.createElement('a');
+    b.id='updbtn';
+    b.className='newsbtn';
+    b.href='#updates';
+    b.textContent='עדכונים ומודעות';
+    b.style.marginTop='14px';
+    nb.insertAdjacentElement('afterend',b);
   }
 
   /* ---------- Page: "עדכונים ומודעות" (#updates) ---------- */
@@ -156,8 +184,6 @@
 
   function openPopup(list){
     var n=list.length,cur=0,busy=false,closed=false,timer=0;
-    var sig=list.map(function(b){return b.id}).join(',');
-    try{if(localStorage.getItem(KEY)===sig)return}catch(e){}
 
     var ov=document.createElement('div');
     ov.id='mz-pop';
@@ -174,10 +200,11 @@
       +dots
       +'<label class="hs-h"><input type="checkbox" class="hs-cb"><span>אל תציג שוב בהתחברויות הבאות</span></label>'
       +'</div>';
-    var track=ov.querySelector('.hs-track'),dotEls=[].slice.call(ov.querySelectorAll('.hs-dots button'));
+    var track=ov.querySelector('.hs-track'),dotEls=[].slice.call(ov.querySelectorAll('.hs-dots button')),cb=ov.querySelector('.hs-cb');
 
     function onShow(idx){
       dotEls.forEach(function(d,k){d.classList.toggle('on',k===idx)});
+      if(cb)cb.checked=isHidden(list[idx].id);
       if(list[idx].type==='card'){if(!fired){fired=true;startConfetti()}}else stopConfetti();
     }
     function go(i,animate){
@@ -229,9 +256,10 @@
         schedule(10000);
       }
     });
+    /* the checkbox belongs to the banner that is currently shown */
     ov.addEventListener('change',function(e){
       if(!e.target.classList||!e.target.classList.contains('hs-cb'))return;
-      try{if(e.target.checked)localStorage.setItem(KEY,sig);else localStorage.removeItem(KEY)}catch(x){}
+      setHidden(list[cur%n].id,e.target.checked);
     });
     /* swipe: finger moving right-to-left = next banner */
     var sx=null,sy=null;
@@ -255,8 +283,9 @@
 
   function start(){
     injectPage();
+    injectHomeBtn();
     if(!showPopup)return;
-    var popupList=BANNERS.filter(function(b){return b.popup}).sort(function(x,y){return x.date<y.date?-1:x.date>y.date?1:0});
+    var popupList=BANNERS.filter(function(b){return b.popup&&!isHidden(b.id)}).sort(function(x,y){return x.date<y.date?-1:x.date>y.date?1:0});
     Promise.all(popupList.map(function(b){return b.type==='image'?loadOk(b.src):Promise.resolve(true)})).then(function(oks){
       var list=popupList.filter(function(b,i){return oks[i]});
       if(list.length)setTimeout(function(){openPopup(list)},350);
