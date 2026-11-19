@@ -26,6 +26,7 @@ async function signToken(number, secret) {
 export async function onRequest({ request, env }) {
   if (request.method !== "POST") return json({ error: "Method not allowed" }, 405);
   try {
+    return json({ error: "אימות הזכייה הושהה זמנית כדי למנוע אישור שגוי. לא ניתן כרגע לרשום זוכה עד להטמעת בדיקת כרטיס אמינה." }, 503);
     if (!env.AI || !env.WINNER_VERIFY_SECRET) return json({ error: "שירות אימות הכרטיס עדיין לא הופעל. יש להגדיר Cloudflare Workers AI ואת WINNER_VERIFY_SECRET." }, 503);
     const body = await request.json();
     const number = String(body?.number ?? "");
