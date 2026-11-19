@@ -8,7 +8,7 @@ async function findHistoricalWins(request,number){
  if(!sr.ok)throw Error("LotteryHistoryUnavailable");
  const site=await sr.json(),history=site?.winners?.history;
  if(!Array.isArray(history))throw Error("LotteryHistoryInvalid");
- const cutoff=new Date(Date.now()-30*86400000),today=new Date(),normalized=normalizeTicketNumber(number);
+ const now=new Date(),cutoff=new Date(now.getTime()-30*86400000),today=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59,999),normalized=normalizeTicketNumber(number);
  return history.filter(x=>{
   const d=new Date(x.date+"T12:00:00");
   return d>=cutoff&&d<=today&&Array.isArray(x.nums)&&x.nums.some(n=>normalizeTicketNumber(n)===normalized);
@@ -31,15 +31,15 @@ export async function onRequest({request,env}){
   if(typeof image!=="string"||!/^data:image\/(jpeg|png|webp);base64,/.test(image)||image.length>4000000)return json({error:"תמונת הכרטיס אינה תקינה או גדולה מדי."},400);
   const bytes=Uint8Array.from(atob(image.slice(image.indexOf(",")+1)),c=>c.charCodeAt(0));
   if(bytes.length<1000||bytes.length>2800000)return json({error:"יש לסרוק כרטיס ברור ובגודל קטן יותר."},400);
-  const prompt="Read ONLY the large printed lottery ticket number in the center of the ticket. Ignore the emblem, Hebrew text, paper edges, background and all other details. Preserve leading zeroes. Return ONLY a JSON object: {\\"number\\":\\"exact digits\\"}. If the number cannot be read clearly, return {\\"number\\":null}. Do not guess.";
+  const prompt = \`Read ONLY the large printed lottery ticket number in the center of the ticket. Ignore the emblem, Hebrew text, paper edges, background and all other details. Preserve leading zeroes. Return ONLY JSON with a string field named number, for example {"number":"123"}. If the number cannot be read clearly, return {"number":null}. Do not guess.\`;
   const result=await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct",{image,prompt,max_tokens:80,temperature:0});
   const raw=typeof result?.response==="string"?result.response:JSON.stringify(result?.response??result);
-  const match=raw.match(/\\{[\\s\\S]*?\\}/);
+  const match=raw.match(/\{[\s\S]*?\}/);
   let parsed=null;
   if(match){try{parsed=JSON.parse(match[0])}catch{}}
   let number=normalizeTicketNumber(parsed?.number);
   if(!number){
-   const direct=raw.match(/(?:number|ticket\\s*number|מספר(?:\\s*הכרטיס)?)\\s*["':=：-]*\\s*["']?([0-9]{1,10})/i);
+   const direct=raw.match(/(?:number|ticket\s*number|מספר(?:\s*הכרטיס)?)\s*["':=：-]*\s*["']?([0-9]{1,10})/i);
    if(direct)number=normalizeTicketNumber(direct[1]);
   }
   if(!/^[0-9]{1,10}$/.test(number))return json({error:"לא הצלחנו לקרוא את מספר הכרטיס. נסה צילום חד יותר ומקרוב."},422);
