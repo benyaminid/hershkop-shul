@@ -49,7 +49,7 @@ function cleanInput(input) {
     Description: description,
     Emoji: emoji || "🎁",
     Tags: [...new Set(tags)],
-    "On Sale": input.onSale === true || tags.includes("מבצע"),
+    "On Sale": tags.includes("מבצע"),
     "Show Zero": input.showZero === true,
     Hidden: input.hidden === true
   };
@@ -76,7 +76,6 @@ function present(record) {
     emoji: f.Emoji || "🎁",
     showZero: f["Show Zero"] === true,
     hidden: f.Hidden === true,
-    onSale: f["On Sale"] === true
   };
 }
 
