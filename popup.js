@@ -96,7 +96,7 @@
     b.className='newsbtn';
     b.href='#updates';
     b.textContent='מודעות ועדכונים';
-    b.style.marginTop='14px';
+    b.style.marginTop='28px';
     nb.insertAdjacentElement('beforebegin',b);
   }
 
