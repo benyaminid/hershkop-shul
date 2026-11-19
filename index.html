@@ -298,8 +298,9 @@ body:has(#shop.on) footer,
 body:has(#updates.on) footer{padding:6px 16px 8px!important}
 .ph .ribbons{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:3}
 .ph .ribbon{position:absolute;right:-29px;width:112px;height:23px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;padding:0;box-sizing:border-box;transform:rotate(45deg);transform-origin:center;color:#fff;font-size:.72rem;font-weight:800;line-height:23px;letter-spacing:.2px;box-shadow:0 2px 5px rgba(0,0,0,.28)}
-.ph .ribbon.sale{top:7px;right:-29px;width:112px;height:23px;background:#c62828;text-align:center;text-indent:0;letter-spacing:0}
-.ph .ribbon.new{top:39px;right:-29px;width:112px;height:23px;background:#1769aa}
+.ph .ribbon.sale{top:7px;right:-29px;width:112px;height:23px;background:#c62828;text-align:center;text-indent:0;letter-spacing:0}.ph .ribbon.sale span{display:block;transform:translateX(8px)}
+.ph .ribbon.new span{display:block;transform:translateX(-8px)}
+.ph .ribbon.new{top:35px;right:-25px;width:112px;height:23px;background:#1769aa}
 
 </style>
 </head>
@@ -321,7 +322,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">19.11.26 19:39</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">19.11.26 19:42</span></div>
 </nav></div></header>
 
 <main>
@@ -402,7 +403,7 @@ function fmt(n){return n+" הרשקלים"}
 function card(x){
   var q=cart[x.id]||0;
   var tags=Array.isArray(x.tags)?x.tags:[];
-  var ribbons=(x.t||tags.includes("מבצע")?'<span class="ribbon sale">מבצע</span>':'')+(tags.includes("חדש")?'<span class="ribbon new">חדש</span>':'');
+  var ribbons=(x.t||tags.includes("מבצע")?'<span class="ribbon sale"><span>מבצע</span></span>':'')+(tags.includes("חדש")?'<span class="ribbon new"><span>חדש</span></span>':'');
   return '<div class="card"><div class="ph">'+pic(x)+(ribbons?'<div class="ribbons">'+ribbons+'</div>':'')+'</div><h3>'+em(x.n)+'</h3>'+(x.d?'<div class="stk">'+em(x.d)+'</div>':'')+'<div class="cb"><div class="price">'+fmt(x.p)+'</div><div class="purchase-row">'+stk(x)+'<div class="qty"><button data-a="plus" data-id="'+x.id+'" aria-label="הוסף">+</button><b>'+q+'</b><button data-a="minus" data-id="'+x.id+'" aria-label="הסר">−</button></div></div></div></div>';
 }
 function list(t){return PRODUCTS.filter(function(x){return !x.h&&(x.s==null||x.s>0||x.z)&&(t==="all"||tier(x.p)===t)}).sort(function(a,b){return a.p-b.p}).map(card).join("")}
