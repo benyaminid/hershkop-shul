@@ -466,7 +466,21 @@ document.getElementById("history-check-start").addEventListener("click",startHis
 document.getElementById("history-check-exit").addEventListener("click",closeHistoryCheck);
 document.getElementById("history-check-modal").addEventListener("click",function(e){if(e.target.id==="history-check-modal")closeHistoryCheck()});
 document.getElementById("history-check-capture").addEventListener("click",scanHistoryVideo);
-document.getElementById("history-check-upload").addEventListener("change",function(){var f=this.files&&this.files[0];if(!f)return;if(!/^image\/(jpeg|png|webp)$/i.test(f.type)||f.size>5*1024*1024){document.getElementById("history-check-note").textContent="יש לבחור תמונת JPEG, PNG או WEBP עד 5MB.";this.value="";return}var r=new FileReader();r.onload=function(){checkHistoryImage(String(r.result||""))};r.readAsDataURL(f)});
+function compressHistoryUpload(file){
+ return createImageBitmap(file).then(function(bitmap){
+  var scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height)),canvas=document.createElement("canvas");
+  canvas.width=Math.max(1,Math.round(bitmap.width*scale));canvas.height=Math.max(1,Math.round(bitmap.height*scale));
+  canvas.getContext("2d").drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close&&bitmap.close();
+  return new Promise(function(resolve,reject){canvas.toBlob(function(blob){canvas.width=canvas.height=0;blob?resolve(blob):reject(new Error("לא ניתן לעבד את התמונה"))},"image/jpeg",.82)});
+ });
+}
+document.getElementById("history-check-upload").addEventListener("change",function(){
+ var f=this.files&&this.files[0];if(!f)return;
+ if(!/^image\\/(jpeg|png|webp)$/i.test(f.type)||f.size>5*1024*1024){document.getElementById("history-check-note").textContent="יש לבחור תמונת JPEG, PNG או WEBP עד 5MB.";this.value="";return}
+ document.getElementById("history-check-note").textContent="מכין את התמונה לסריקה…";
+ compressHistoryUpload(f).then(function(blob){var r=new FileReader();r.onload=function(){checkHistoryImage(String(r.result||""))};r.onerror=function(){showHistoryFallback("לא ניתן לקרוא את קובץ התמונה. נסה תמונה אחרת.")};r.readAsDataURL(blob)}).catch(function(){showHistoryFallback("לא ניתן לעבד את התמונה. נסה צילום אחר.")});
+ this.value="";
+});
 var winnerVerifyToken="";
 var winnerCameraStream=null;
 var winnerAutoScanTimer=null;
