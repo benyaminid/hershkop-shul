@@ -95,8 +95,8 @@ export async function onRequest({ request, env }) {
     const extractedNumber = extractDigits(answers.ticket_number?.value);
     const phrase = String(answers.participation_phrase?.value ?? "")
       .replace(/[״“”"']/g, "")
-      .replace(/[^\\u0590-\\u05FF\\s]/g, " ")
-      .replace(/\\s+/g, " ")
+      .replace(/[^\u0590-\u05FF\s]/g, " ")
+      .replace(/\s+/g, " ")
       .trim();
     const phrasePass = phrase.includes("השתתפתי") && phrase.includes("באבות") && phrase.includes("ובנים");
     const typedPass =
