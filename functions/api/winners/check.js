@@ -31,7 +31,7 @@ export async function onRequest({request,env}){
   if(typeof image!=="string"||!/^data:image\/(jpeg|png|webp);base64,/.test(image)||image.length>4000000)return json({error:"תמונת הכרטיס אינה תקינה או גדולה מדי."},400);
   const bytes=Uint8Array.from(atob(image.slice(image.indexOf(",")+1)),c=>c.charCodeAt(0));
   if(bytes.length<1000||bytes.length>2800000)return json({error:"יש לסרוק כרטיס ברור ובגודל קטן יותר."},400);
-  const prompt = \`Read ONLY the large printed lottery ticket number in the center of the ticket. Ignore the emblem, Hebrew text, paper edges, background and all other details. Preserve leading zeroes. Return ONLY JSON with a string field named number, for example {"number":"123"}. If the number cannot be read clearly, return {"number":null}. Do not guess.\`;
+  const prompt="Read ONLY the large printed lottery ticket number in the center of the ticket. Ignore the emblem, Hebrew text, paper edges, background and all other details. Preserve leading zeroes. Return a JSON object containing number as a string. If the number cannot be read clearly, set number to null. Do not guess.";
   const result=await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct",{image,prompt,max_tokens:80,temperature:0});
   const raw=typeof result?.response==="string"?result.response:JSON.stringify(result?.response??result);
   const match=raw.match(/\{[\s\S]*?\}/);
