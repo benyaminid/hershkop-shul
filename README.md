@@ -681,3 +681,9 @@ Cloudflare Pages מחובר ל-GitHub. כל commit ל-main מפעיל deployment
 - נדרשים Workers AI binding בשם `AI` ו-secret בשם `WINNER_VERIFY_SECRET`. המודלים החדשים זמינים בקטלוג Workers AI, אך לא אומתה זמינותם בחשבון הפרויקט או הופעלה בדיקת inference.
 - מגבלה חשובה: זהו אימות כפול מבוסס מודלים, לא התאמת פיקסלים ישירה לתמונת הייחוס שסיפק בעל האתר. Confidence אינו הוכחה לנכונות, ושני מודלים עדיין עלולים לטעות. אין להציג את האבטיפוס כמנגנון שמונע העתקה או שימוש חוזר בכרטיס.
 - לא בוצעה בדיקת AI חיה, לא נבדקו תמונות שליליות, לא הונפק אסימון בפועל ולא אומתה פריסה. מסלול הרישום נשאר חסום כברירת מחדל.
+
+### 19.11.2026 – תיקון ממשק Workers AI באבטיפוס אימות הכרטיס
+- תוקן מבנה בקשת Clairic: התמונה נשלחת בשדה `images` בפורמט המתועד `{ content_type, base64 }`; השדות מוגדרים לפי סכמת extraction הרשמית, ללא `source_only` שאינו נתמך בשדה טקסט.
+- תוקנו ביטויי regular expression לעיבוד Base64, פענוח JSON, זיהוי Data URL וניקוי רווחים. הגרסה הקודמת הכילה escaping כפול שעלול היה למנוע טעינת קובץ או זיהוי תמונה.
+- אימות נשאר fail-closed באמצעות `WINNER_VERIFY_V2_ENABLED`; לא הופעלו השירות או יצירת אסימונים. לא בוצעה בדיקת inference מול חשבון Cloudflare.
+- מקורות API שנבדקו: Cloudflare Clairic schema ו-Moondream 3.1 model reference. ראו https://developers.cloudflare.com/workers-ai/models/clairic/ ו-https://developers.cloudflare.com/workers-ai/models/moondream3.1-9B-A2B/.
