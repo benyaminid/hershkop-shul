@@ -598,4 +598,4 @@ Cloudflare Pages מחובר ל-GitHub. כל commit ל-main מפעיל deployment
 - אם המודל אינו מחזיר JSON אך מחזיר את ארבעת הנתונים בשורות מסומנות (`number`, `community_emblem`, `participation_text`, `whole_ticket_visible`), השרת מנסה לפענח גם את המבנה החלופי. תנאי האימות לא הוחלשו: המספר חייב להיות ספרות בלבד וכל שלושת סימוני האימות חייבים להיות `true`.
 - לא שונתה דרך העברת התמונה ל-Workers AI ולא נוספה שמירת תמונות. לפי תיעוד Cloudflare, מודל Llama 3.2 Vision מחזיר את הטקסט שנוצר בשדה `response`; תיעוד המודל כולל דוגמה להעברת Data URL בשדה `image`.
 - בדיקת קוד: בוצעה שליפה חוזרת מ-GitHub ואומתו parser JSON, fallback לשורות, טמפרטורה 0 ושמירת תנאי האימות. לא ניתן לבדוק את התשובה בפועל בלי לשלוח כרטיס אמיתי למנוע AI; פריסה ובדיקה באתר החי לא אומתו.
-- Commit קוד: `6e0e8262eb6aefc4ae80f32fa491b9c4cec65e28`.
+- Commits קוד: `6e0e8262eb6aefc4ae80f32fa491b9c4cec65e28` (פענוח חלופי) ו-`ca4ac80a635eba0b45431dcb2de290e46a9cf30b` (הבהרת פורמט השורות).
