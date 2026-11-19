@@ -489,7 +489,20 @@ document.addEventListener("click",function(e){if(e.target.closest&&e.target.clos
 document.getElementById("history-check-start").addEventListener("click",startHistoryCamera);
 document.getElementById("history-check-exit").addEventListener("click",function(){closeHistoryCheck(false)});window.addEventListener("popstate",function(){if(historyCheckStatePushed){historyCheckStatePushed=false;closeHistoryCheck(true)}});
 document.getElementById("history-check-modal").addEventListener("click",function(e){if(e.target.id==="history-check-modal")closeHistoryCheck()});
-document.getElementById("history-check-capture").addEventListener("click",scanHistoryVideo);document.getElementById("history-manual-toggle").addEventListener("click",function(){var p=document.getElementById("history-manual-panel");p.hidden=!p.hidden;if(!p.hidden)document.getElementById("history-manual-number").focus()});document.getElementById("history-manual-check").addEventListener("click",function(){var input=document.getElementById("history-manual-number"),result=document.getElementById("history-manual-result"),number=input.value.trim(),btn=this;if(!/^[0-9]{1,10}$/.test(number)){result.hidden=false;result.textContent="יש להזין מספר תקין בן 1 עד 10 ספרות.";return}btn.disabled=true;result.hidden=false;result.textContent="בודק את המספר…";fetch("/api/winners/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({number:number})}).then(function(r){return r.json().then(function(d){if(!r.ok)throw Error(d.error||"לא ניתן לבדוק");return d})}).then(function(d){if(d.wins&&d.wins.length){result.innerHTML="<strong style=\"color:#247a3d\">🎉 המספר זכה!</strong>"+d.wins.map(function(w){return "<p>פרשת "+esc(w.parsha)+" · "+esc(w.date)+"</p>"}).join("")}else result.textContent="המספר לא זכה בהגרלות של 30 הימים האחרונים."}).catch(function(e){result.textContent=e.message||"לא ניתן לבדוק כרגע."}).finally(function(){btn.disabled=false})});
+document.getElementById("history-check-capture").addEventListener("click",scanHistoryVideo);document.addEventListener("click",function(e){
+ var toggle=e.target.closest&&e.target.closest("#history-manual-toggle");
+ if(toggle){var panel=document.getElementById("history-manual-panel");panel.hidden=!panel.hidden;if(!panel.hidden)document.getElementById("history-manual-number").focus();return}
+ var check=e.target.closest&&e.target.closest("#history-manual-check");
+ if(!check)return;
+ var input=document.getElementById("history-manual-number"),result=document.getElementById("history-manual-result"),number=input.value.trim(),btn=check;
+ if(!/^[0-9]{1,10}$/.test(number)){result.hidden=false;result.textContent="יש להזין מספר תקין בן 1 עד 10 ספרות.";return}
+ btn.disabled=true;result.hidden=false;result.textContent="בודק את המספר…";
+ fetch("/api/winners/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({number:number})})
+ .then(function(r){return r.json().then(function(d){if(!r.ok)throw Error(d.error||"לא ניתן לבדוק");return d})})
+ .then(function(d){if(d.wins&&d.wins.length){result.innerHTML="<strong style=\"color:#247a3d\">🎉 המספר זכה!</strong>"+d.wins.map(function(w){return "<p>פרשת "+esc(w.parsha)+" · "+esc(w.date)+"</p>"}).join("")}else result.textContent="המספר לא זכה בהגרלות של 30 הימים האחרונים."})
+ .catch(function(err){result.textContent=err.message||"לא ניתן לבדוק כרגע."})
+ .finally(function(){btn.disabled=false});
+});
 function compressHistoryUpload(file){
  return createImageBitmap(file).then(function(bitmap){
   var scale=Math.min(1,1600/Math.max(bitmap.width,bitmap.height)),canvas=document.createElement("canvas");
