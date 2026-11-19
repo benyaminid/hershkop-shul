@@ -205,10 +205,6 @@ $("productForm").addEventListener("submit",e=>{
 $("saveAll").addEventListener("click",saveAll);
 $("saveAllBottom").addEventListener("click",saveAll);
 
-    await load();resetForm();message($("listMsg"),"המוצר נשמר בהצלחה. רענן את החנות כדי לראות את העדכון.");
-  }catch(err){message($("formMsg"),err.message,true)}
-  finally{$("save").disabled=false}
-});
 (async()=>{
   try{await load();showApp()}catch{showLogin()}
 })();
