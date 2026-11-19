@@ -124,7 +124,11 @@ export async function onRequest({ request, env }) {
     const visual = await env.AI.run("@cf/moondream/moondream3.1-9B-A2B", {
       task: "query",
       image,
-      question: "Inspect only this image. Return ONLY JSON with keys ticket_present (boolean), whole_ticket_visible (boolean), round_black_emblem_at_top (boolean), hebrew_phrase_below_number (boolean), and printed_number (string of digits exactly as printed, preserving leading zeroes). The expected layout is a complete paper ticket with a round black emblem at the top, a large number in the middle, and the exact Hebrew phrase השתתפתי באבות ובנים below. Do not guess. If no complete ticket is clearly visible, set all booleans false and printed_number to an empty string. Read the digits from the image itself."
+      question: "Inspect only this image. Return ONLY JSON with keys ticket_present (boolean), whole_ticket_visible (boolean), round_black_emblem_at_top (boolean), hebrew_phrase_below_number (boolean), and printed_number (string of digits exactly as printed, preserving leading zeroes). The expected layout is a complete paper ticket with a round black emblem at the top, a large number in the middle, and the exact Hebrew phrase השתתפתי באבות ובנים below. Do not guess. If no complete ticket is clearly visible, set all booleans false and printed_number to an empty string. Read the digits from the image itself.",
+      temperature: 0,
+      reasoning: false,
+      stream: false,
+      max_tokens: 350
     });
     const visualCheck = parseJsonResponse(visual?.answer ? visual : visual?.response ? visual : { answer: JSON.stringify(visual) });
     if (!visualCheck) return json({ error: "בדיקת התמונה הנוספת לא הצליחה. נסה שוב." }, 422);
