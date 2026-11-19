@@ -19,7 +19,7 @@ label{display:block;font-weight:600;font-size:.94rem;margin:9px 0 4px}input,text
 button,.btn{border:0;border-radius:11px;background:linear-gradient(135deg,#1f3a68,#3f66a8);color:#fff;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}
 button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}button.danger{background:#fff0ee;color:#a52d24;border:1px solid #f0c5c0}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.topline{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.item{display:flex;gap:12px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:10px;margin:8px 0;background:#fff}.item{cursor:pointer}.item:active{background:#f7f9fc}
+.item{display:flex;gap:12px;align-items:center;border:1px solid #cbd6e7;border-radius:13px;padding:10px;margin:8px 0;background:#eaf0fa;box-shadow:0 2px 7px rgba(31,58,104,.07)}.item{cursor:pointer}.item:active{background:#dfe8f7}
 .thumb{width:66px;height:66px;border-radius:10px;object-fit:cover;background:#f0f2f6;flex:none}.itemmain{min-width:0;flex:1}.itemmain strong{display:block;overflow-wrap:anywhere}.itemmain small{color:var(--muted)}
 #editor[hidden],#login[hidden],#app[hidden]{display:none}.notice{padding:10px 12px;border-radius:10px;background:#eef4ff;color:#23416f;margin:10px 0}.error{background:#fff0ee;color:#a52d24}.empty{text-align:center;color:var(--muted);padding:18px}
 @media(max-width:560px){.grid{grid-template-columns:1fr}.wrap{margin:14px auto}.panel{padding:14px}.item{align-items:flex-start}.thumb{width:58px;height:58px}}
@@ -53,7 +53,6 @@ button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}butto
 <div class="checks">
 <label><input id="tagSale" type="checkbox"> תגית מבצע</label>
 <label><input id="tagNew" type="checkbox"> תגית חדש</label>
-<label><input id="onSale" type="checkbox"> הצג כמבצע</label>
 <label><input id="showZero" type="checkbox"> הצג גם כשאין מלאי</label>
 <label><input id="hidden" type="checkbox"> הסתר מהחנות</label>
 </div>
@@ -116,7 +115,7 @@ function edit(p){
   $("images").value=(p?.images&&p.images.length?p.images:(p?.image?[p.image]:[])).join("\n");
   $("imageFile").value="";$("description").value=p?.description||"";
   $("tagSale").checked=(p?.tags||[]).includes("מבצע");$("tagNew").checked=(p?.tags||[]).includes("חדש");
-  $("onSale").checked=!!p?.onSale;$("showZero").checked=!!p?.showZero;$("hidden").checked=!!p?.hidden;
+  $("showZero").checked=!!p?.showZero;$("hidden").checked=!!p?.hidden;
   message($("formMsg"),"");$("editorHome").appendChild($("editor"));$("editor").hidden=false;
   $("editor").scrollIntoView({behavior:"smooth",block:"start"});
 }
@@ -127,14 +126,14 @@ function readPayload(){
     stock:$("stock").value===""?null:$("stock").value,emoji:$("emoji").value,
     images:$("images").value.split("\n").map(x=>x.trim()).filter(Boolean),
     description:$("description").value,tags,
-    onSale:$("onSale").checked,showZero:$("showZero").checked,hidden:$("hidden").checked
+    showZero:$("showZero").checked,hidden:$("hidden").checked
   };
 }
 function applyPayload(product,payload){
   return {...product,name:payload.name,price:Number(payload.price)||0,
     stock:payload.stock===""||payload.stock===null?null:Number(payload.stock),
     emoji:payload.emoji||"🎁",images:payload.images,image:payload.images[0]||"",
-    description:payload.description,tags:payload.tags,onSale:payload.onSale,
+    description:payload.description,tags:payload.tags,
     showZero:payload.showZero,hidden:payload.hidden};
 }
 async function saveAll(){
@@ -167,8 +166,14 @@ $("loginForm").addEventListener("submit",async e=>{
   catch(err){message($("loginMsg"),err.message,true)}
 });
 $("logout").addEventListener("click",async()=>{
-  try{await api("/api/admin/logout",{method:"POST",body:"{}"})}catch{}
-  pending.clear();pendingNew=[];resetForm();showLogin();message($("loginMsg"),"התנתקת בהצלחה.");
+  const returnTo=document.referrer&&new URL(document.referrer).origin===location.origin
+    ?document.referrer:"/";
+  try{
+    await api("/api/admin/logout",{method:"POST",body:"{}"});
+    pending.clear();pendingNew=[];location.replace(returnTo);
+  }catch(err){
+    message($("listMsg"),"היציאה נכשלה: "+err.message,true);
+  }
 });
 $("add").addEventListener("click",()=>edit(null));
 $("cancel").addEventListener("click",resetForm);
