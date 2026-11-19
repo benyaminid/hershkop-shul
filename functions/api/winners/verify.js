@@ -85,62 +85,38 @@ export async function onRequest({ request, env }) {
     // Clairic accepts embedded images as {content_type, base64}; it returns typed values and uncertainty.
     const extraction = await env.AI.run("@cf/cloudflare/clairic", {
       model: "clairic",
-      state: "Image 1 is the submitted ticket photo. Image 2 is the exact community emblem reference cropped from the owners original ticket sample. Read image 1 as a printed lottery ticket and compare its top emblem directly with image 2. Preserve every digit exactly, including leading zeroes. The ticket layout has the round black emblem at the top, a large printed digit string in the center, and the exact Hebrew phrase השתתפתי באבות ובנים below it. Do not infer missing content. The printed information area must be visible; do not require the paper outer edges or unprinted margins to be visible. If the emblem is not a close visual match to image 2 in its distinctive lettering, ornaments, border and layout, return false for the relevant fields.",
+      state: "Image 1 is the submitted ticket photo. Image 2 is the exact community emblem reference cropped from the owners original ticket sample. Read image 1 as a printed lottery ticket and compare its top emblem directly with image 2. Preserve every digit exactly, including leading zeroes. The ticket layout has the round black emblem at the top, a large printed digit string in the center, and the exact Hebrew phrase השתתפתי באבות ובנים below it. Do not infer missing content. Only the number, emblem and phrase need to be visible; ignore cropped paper edges, blank margins, lighting differences, shadows and mild blur. Be tolerant of minor print and camera variations. If the emblem is not a close visual match to image 2 in its distinctive lettering, ornaments, border and layout, return false for the relevant fields.",
       images: [
         { content_type: mimeType, base64 },
         { content_type: "image/png", base64: EMBLEM_REFERENCE_BASE64 }
       ],
       fields: {
         ticket_number: { type: "text", instructions: "Exact consecutive digits printed as the ticket number, preserving all leading zeroes. Null unless clearly printed and readable." },
-        participation_phrase: { type: "text", instructions: "Exact Hebrew phrase printed below the number. Null unless all words are legible." },
+        participation_phrase: { type: "text", instructions: "Read the Hebrew phrase below the number. Return the words you can read even if there are minor print defects, blur, spacing differences or punctuation. Null only if the phrase is not visible at all." },
         ticket_is_present: { type: "boolean", instructions: "True only if the printed ticket content is visibly present, not a room or unrelated image. The outer paper edges may be cropped if the number, emblem and phrase are all visible." },
         round_black_emblem_present: { type: "boolean", instructions: "True only if the round black emblem is visible at the top of image 1." },
-        emblem_matches_reference: { type: "boolean", instructions: "Compare the emblem in image 1 directly against image 2. True only when the distinctive Hebrew lettering, ornament, circular border, internal linework and overall composition closely match the reference. A generic black circle or a different community logo is false." },
+        emblem_matches_reference: { type: "boolean", instructions: "Compare the emblem in image 1 with image 2. Be tolerant of blur, lighting, print quality, slight crop and camera angle. Return true when it is visibly the same community emblem overall; return false only for a clearly different emblem or no visible emblem." },
       }
     });
 
     const answers = extraction?.answers || {};
     const extractedNumber = extractDigits(answers.ticket_number?.value);
-    const phrase = String(answers.participation_phrase?.value ?? "").replace(/[״“”"']/g, "").replace(/\s+/g, " ").trim();
+    const phrase = String(answers.participation_phrase?.value ?? "")
+      .replace(/[״“”"']/g, "")
+      .replace(/[^\\u0590-\\u05FF\\s]/g, " ")
+      .replace(/\\s+/g, " ")
+      .trim();
+    const phrasePass = phrase.includes("השתתפתי") && phrase.includes("באבות") && phrase.includes("ובנים");
     const typedPass =
-      extraction?.truncated === false &&
       normalizeTicketNumber(extractedNumber) === normalizeTicketNumber(number) &&
-      phrase === "השתתפתי באבות ובנים" &&
-      confident(answers.ticket_number, 0.90, 0.05) &&
-      confident(answers.participation_phrase, 0.85, 0.10) &&
+      phrasePass &&
       answers.ticket_is_present?.value === true &&
       answers.round_black_emblem_present?.value === true &&
-      confident(answers.ticket_is_present, 0.85, 0.10) &&
-      confident(answers.round_black_emblem_present, 0.85, 0.10) &&
-      answers.emblem_matches_reference?.value === true &&
-      confident(answers.emblem_matches_reference) &&
-      confident(answers.emblem_matches_reference, 0.90, 0.05);
+      answers.emblem_matches_reference?.value === true;
 
     if (!typedPass) {
-      return json({ error: "לא זוהה כרטיס מלא וברור עם המספר, הסמל והכיתוב הנדרשים. נסה צילום חד יותר." }, 422);
+      return json({ error: "לא הצלחנו לזהות את המספר, סמל הקהילה והכיתוב. נסה שוב צילום ברור יותר." }, 422);
     }
-
-    // Independent visual cross-check. A malformed or disagreeing response always rejects.
-    const visual = await env.AI.run("@cf/moondream/moondream3.1-9B-A2B", {
-      task: "query",
-      image,
-      question: "Inspect only this image. Return ONLY JSON with keys ticket_present (boolean), all_required_printed_content_visible (boolean), round_black_emblem_at_top (boolean), hebrew_phrase_below_number (boolean), and printed_number (string of digits exactly as printed, preserving leading zeroes). The required printed content is a round black emblem at the top, a large number in the middle, and the exact Hebrew phrase השתתפתי באבות ובנים below. The outer paper edges and blank margins do NOT need to be visible. Do not guess. If the number, emblem or phrase is missing or unreadable, set the relevant booleans false and printed_number to an empty string. Read the digits from the image itself.",
-      temperature: 0,
-      reasoning: false,
-      stream: false,
-      max_tokens: 350
-    });
-    const visualCheck = parseJsonResponse(visual?.answer ? visual : visual?.response ? visual : { answer: JSON.stringify(visual) });
-    if (!visualCheck) return json({ error: "בדיקת התמונה הנוספת לא הצליחה. נסה שוב." }, 422);
-
-    const visualPass =
-      visualCheck.ticket_present === true &&
-      visualCheck.all_required_printed_content_visible === true &&
-      visualCheck.round_black_emblem_at_top === true &&
-      visualCheck.hebrew_phrase_below_number === true &&
-      normalizeTicketNumber(visualCheck.printed_number) === normalizeTicketNumber(number);
-
-    if (!visualPass) return json({ error: "שתי בדיקות התמונה לא הסכימו על פרטי הכרטיס. לא ניתן לאמת אותו." }, 422);
 
     return json({ success: true, token: await signToken(number, env.WINNER_VERIFY_SECRET) });
   } catch (error) {
