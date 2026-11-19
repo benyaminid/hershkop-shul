@@ -10,17 +10,18 @@ export async function onRequest({request,env}){
   const prompt="Inspect the lottery ticket image. Read the exact printed number using digits only. Also verify whether the round black community emblem at the top is clearly visible, whether the exact Hebrew phrase השתתפתי באבות ובנים appears below the number, and whether the entire ticket is visible. Do not guess. Return ONLY one JSON object with exactly these keys: number (string), community_emblem (boolean), participation_text (boolean), whole_ticket_visible (boolean). If you cannot return JSON, return exactly four lines in this format: number: 123 / community_emblem: true or false / participation_text: true or false / whole_ticket_visible: true or false. No explanations.";
   const result=await env.AI.run("@cf/meta/llama-3.2-11b-vision-instruct",{image,prompt,max_tokens:180,temperature:0});
   const raw=typeof result?.response==="string"?result.response:JSON.stringify(result?.response??result);
-  const match=raw.match(/\\{[\\s\\S]*\\}/);
+  const match=raw.match(/\{[\s\S]*\}/);
   let parsed=null;
   if(match){try{parsed=JSON.parse(match[0])}catch{}}
   if(!parsed){
-   const readLine=(labels)=>{const re=new RegExp("(?:^|\\\\n)\\\\s*[-*]?\\\\s*(?:"+labels+")\\\\s*[:=：-]\\\\s*([^\\\\r\\\\n]+)","i");return raw.match(re)?.[1]?.trim()||""};
+   const lines=raw.split(/\r?\n/);
+   const readLine=(labels)=>{const re=new RegExp("^\\s*[-*]?\\s*(?:"+labels+")\\s*[:=：-]\\s*(.+)$","i");return lines.map(line=>line.match(re)?.[1]?.trim()||"").find(Boolean)||""};
    const numberLine=readLine("number|ticket number|מספר הכרטיס|מספר");
    const boolValue=(value)=>{const v=String(value).replace(/[.,;].*$/,"").trim().toLowerCase();if(/^(true|yes|present|visible|כן|קיים|נראה)$/.test(v))return true;if(/^(false|no|absent|not visible|לא|לא קיים|לא נראה)$/.test(v))return false;return null};
    const emblemLine=readLine("community[_ ]emblem|emblem|סמל הקהילה|סמל");
    const phraseLine=readLine("participation[_ ]text|participation text|phrase|כיתוב השתתפתי|כיתוב");
    const wholeLine=readLine("whole[_ ]ticket[_ ]visible|whole ticket visible|entire ticket|כל הכרטיס");
-   if(numberLine&&emblemLine&&phraseLine&&wholeLine)parsed={number:numberLine.replace(/\\D/g,""),community_emblem:boolValue(emblemLine),participation_text:boolValue(phraseLine),whole_ticket_visible:boolValue(wholeLine)};
+   if(numberLine&&emblemLine&&phraseLine&&wholeLine)parsed={number:numberLine.replace(/\D/g,""),community_emblem:boolValue(emblemLine),participation_text:boolValue(phraseLine),whole_ticket_visible:boolValue(wholeLine)};
   }
   if(!parsed)return json({error:"לא הצלחנו לקרוא את הכרטיס. נסה להציג אותו בצורה ברורה יותר."},422);
   const number=String(parsed.number||"").replace(/\D/g,"");
