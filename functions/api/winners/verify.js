@@ -1,3 +1,4 @@
+import { normalizeTicketNumber, readTicketNumber } from "../../_lib/ticket-number.js";
 const json = (body, status = 200) => new Response(JSON.stringify(body), {
   status,
   headers: { "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff", "Referrer-Policy": "no-referrer" }
@@ -75,6 +76,11 @@ export async function onRequest({ request, env }) {
     if (binary.length < 1000 || binary.length > 2_800_000) return json({ error: "יש לצלם כרטיס ברור ובגודל קטן יותר" }, 400);
 
     // Clairic accepts embedded images as {content_type, base64}; it returns typed values and uncertainty.
+    const extractedNumber = await readTicketNumber(env, image);
+    if (!extractedNumber || normalizeTicketNumber(extractedNumber) !== normalizeTicketNumber(number)) {
+      return json({ error: "לא הצלחנו לזהות את מספר הזכייה בכרטיס." }, 422);
+    }
+
     const extraction = await env.AI.run("@cf/cloudflare/clairic", {
       model: "clairic",
       state: "Image 1 is the submitted ticket photo. Image 2 is the exact community emblem reference cropped from the owners original ticket sample. Read image 1 as a printed lottery ticket and compare its top emblem directly with image 2. Preserve every digit exactly, including leading zeroes. The ticket layout has the round black emblem at the top, a large printed digit string in the center, and the exact Hebrew phrase השתתפתי באבות ובנים below it. Do not infer missing content. Only the number, emblem and phrase need to be visible; ignore cropped paper edges, blank margins, lighting differences, shadows and mild blur. Be tolerant of minor print and camera variations. If the emblem is not a close visual match to image 2 in its distinctive lettering, ornaments, border and layout, return false for the relevant fields.",
@@ -83,7 +89,6 @@ export async function onRequest({ request, env }) {
         { content_type: "image/png", base64: EMBLEM_REFERENCE_BASE64 }
       ],
       fields: {
-        ticket_number: { type: "text", instructions: "Exact consecutive digits printed as the ticket number, preserving all leading zeroes. Null unless clearly printed and readable." },
         participation_phrase: { type: "text", instructions: "Read the Hebrew phrase below the number. Return the words you can read even if there are minor print defects, blur, spacing differences or punctuation. Null only if the phrase is not visible at all." },
         ticket_is_present: { type: "boolean", instructions: "True only if the printed ticket content is visibly present, not a room or unrelated image. The outer paper edges may be cropped if the number, emblem and phrase are all visible." },
         round_black_emblem_present: { type: "boolean", instructions: "True only if the round black emblem is visible at the top of image 1." },
@@ -92,7 +97,6 @@ export async function onRequest({ request, env }) {
     });
 
     const answers = extraction?.answers || {};
-    const extractedNumber = extractDigits(answers.ticket_number?.value);
     const phrase = String(answers.participation_phrase?.value ?? "")
       .replace(/[״“”"']/g, "")
       .replace(/[^\u0590-\u05FF\s]/g, " ")
@@ -100,7 +104,6 @@ export async function onRequest({ request, env }) {
       .trim();
     const phrasePass = phrase.includes("השתתפתי") && phrase.includes("באבות") && phrase.includes("ובנים");
     const typedPass =
-      normalizeTicketNumber(extractedNumber) === normalizeTicketNumber(number) &&
       phrasePass &&
       answers.ticket_is_present?.value === true &&
       answers.round_black_emblem_present?.value === true &&
