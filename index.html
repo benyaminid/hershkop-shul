@@ -476,7 +476,7 @@ function compressHistoryUpload(file){
 }
 document.getElementById("history-check-upload").addEventListener("change",function(){
  var f=this.files&&this.files[0];if(!f)return;
- if(!/^image\\/(jpeg|png|webp)$/i.test(f.type)||f.size>5*1024*1024){document.getElementById("history-check-note").textContent="יש לבחור תמונת JPEG, PNG או WEBP עד 5MB.";this.value="";return}
+ if(!/^image\/(jpeg|png|webp)$/i.test(f.type)||f.size>5*1024*1024){document.getElementById("history-check-note").textContent="יש לבחור תמונת JPEG, PNG או WEBP עד 5MB.";this.value="";return}
  document.getElementById("history-check-note").textContent="מכין את התמונה לסריקה…";
  compressHistoryUpload(f).then(function(blob){var r=new FileReader();r.onload=function(){var data=String(r.result||""),preview=document.getElementById("history-check-preview");document.getElementById("history-check-video").hidden=true;preview.src=data;preview.hidden=false;stopHistoryCamera();document.getElementById("history-check-fallback").hidden=true;document.getElementById("history-check-result").hidden=true;checkHistoryImage(data)};r.onerror=function(){showHistoryFallback("לא ניתן לקרוא את קובץ התמונה. נסה תמונה אחרת.")};r.readAsDataURL(blob)}).catch(function(){showHistoryFallback("לא ניתן לעבד את התמונה. נסה צילום אחר.")});
  this.value="";
