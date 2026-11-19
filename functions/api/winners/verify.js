@@ -44,7 +44,7 @@ function extractDigits(value) {
 }
 
 function normalizeTicketNumber(value) {
-  return extractDigits(value).replace(/^0+(?=\\d)/, "");
+  return extractDigits(value).replace(/^0+(?=\d)/, "");
 }
 
 function confident(field) {
@@ -84,7 +84,10 @@ export async function onRequest({ request, env }) {
     const extraction = await env.AI.run("@cf/cloudflare/clairic", {
       model: "clairic",
       state: "Image 1 is the submitted ticket photo. Image 2 is the exact community emblem reference cropped from the owners original ticket sample. Read image 1 as a printed lottery ticket and compare its top emblem directly with image 2. Preserve every digit exactly, including leading zeroes. The ticket layout has the round black emblem at the top, a large printed digit string in the center, and the exact Hebrew phrase השתתפתי באבות ובנים below it. Do not infer missing content. If the ticket is not complete or the emblem is not a close visual match to image 2 in its distinctive lettering, ornaments, border and layout, return false for the relevant fields.",
-      images: [\n        { content_type: mimeType, base64 },\n        { content_type: "image/png", base64: EMBLEM_REFERENCE_BASE64 }\n      ],
+      images: [
+        { content_type: mimeType, base64 },
+        { content_type: "image/png", base64: EMBLEM_REFERENCE_BASE64 }
+      ],
       fields: {
         ticket_number: { type: "text", instructions: "Exact consecutive digits printed as the ticket number, preserving all leading zeroes. Null unless clearly printed and readable." },
         participation_phrase: { type: "text", instructions: "Exact Hebrew phrase printed below the number. Null unless all words are legible." },
