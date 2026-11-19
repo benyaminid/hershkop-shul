@@ -43,6 +43,10 @@ function extractDigits(value) {
   return String(value ?? "").replace(/[^0-9]/g, "");
 }
 
+function normalizeTicketNumber(value) {
+  return extractDigits(value).replace(/^0+(?=\\d)/, "");
+}
+
 function confident(field) {
   return field?.value !== null && field?.value !== undefined &&
     Number(field?.confidence) >= 0.995 &&
@@ -96,7 +100,7 @@ export async function onRequest({ request, env }) {
     const phrase = String(answers.participation_phrase?.value ?? "").replace(/[״“”"']/g, "").replace(/\s+/g, " ").trim();
     const typedPass =
       extraction?.truncated === false &&
-      extractedNumber === number &&
+      normalizeTicketNumber(extractedNumber) === normalizeTicketNumber(number) &&
       phrase === "השתתפתי באבות ובנים" &&
       confident(answers.ticket_number) &&
       confident(answers.participation_phrase) &&
@@ -127,7 +131,7 @@ export async function onRequest({ request, env }) {
       visualCheck.whole_ticket_visible === true &&
       visualCheck.round_black_emblem_at_top === true &&
       visualCheck.hebrew_phrase_below_number === true &&
-      extractDigits(visualCheck.printed_number) === number;
+      normalizeTicketNumber(visualCheck.printed_number) === normalizeTicketNumber(number);
 
     if (!visualPass) return json({ error: "שתי בדיקות התמונה לא הסכימו על פרטי הכרטיס. לא ניתן לאמת אותו." }, 422);
 
