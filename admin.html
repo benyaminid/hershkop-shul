@@ -35,8 +35,8 @@ button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}butto
 </section>
 <section id="app" hidden>
 <div class="panel">
-<div class="topline"><div><h1>ניהול קטלוג המוצרים</h1><p class="muted">הוספה, עריכה, עדכון מלאי והסתרת מוצרים. השינויים נשמרים ישירות במאגר.</p></div><button id="add">＋ מוצר חדש</button></div>
-<div id="listMsg" class="notice" hidden></div><div id="editorHome"></div><div id="products"></div>
+<div class="topline"><div><h1>ניהול קטלוג המוצרים</h1><p class="muted">אפשר לערוך כמה מוצרים ברצף ולשמור את כל השינויים בפעולה אחת.</p></div><div class="actions"><button type="button" id="saveAll" hidden>שמירת כל השינויים</button><button id="add">＋ מוצר חדש</button></div></div>
+<div id="listMsg" class="notice" hidden></div><div id="editorHome"></div><div id="products"></div><div class="actions"><button type="button" id="saveAllBottom" hidden>שמירת כל השינויים</button></div>
 </div>
 <section id="editor" class="panel" hidden>
 <h2 id="editorTitle">מוצר חדש</h2>
@@ -57,7 +57,7 @@ button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}butto
 <label><input id="showZero" type="checkbox"> הצג גם כשאין מלאי</label>
 <label><input id="hidden" type="checkbox"> הסתר מהחנות</label>
 </div>
-<div class="actions"><button type="submit" id="save">שמירת מוצר</button><button type="button" class="secondary" id="cancel">ביטול</button></div>
+<div class="actions"><button type="submit" id="save">הוסף לרשימת השמירה</button><button type="button" class="secondary" id="cancel">ביטול</button></div>
 </form>
 <div id="formMsg" class="notice" hidden></div>
 </section>
@@ -67,7 +67,7 @@ button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}butto
 (function(){
 "use strict";
 const $=id=>document.getElementById(id);
-let products=[], editing=null;
+let products=[], editing=null, pending=new Map(), pendingNew=[];
 async function api(url,options={}){
   const response=await fetch(url,{credentials:"same-origin",cache:"no-store",...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
   let data={};try{data=await response.json()}catch{}
@@ -78,13 +78,23 @@ function message(el,text,error=false){el.textContent=text;el.hidden=!text;el.cla
 function showLogin(){ $("login").hidden=false;$("app").hidden=true;$("logout").hidden=true; }
 function showApp(){ $("login").hidden=true;$("app").hidden=false;$("logout").hidden=false; }
 function escapeHtml(value){return String(value??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function updateSaveButtons(){
+  const hasChanges=pending.size>0||pendingNew.length>0;
+  $("saveAll").hidden=!hasChanges;
+  $("saveAllBottom").hidden=!hasChanges;
+}
 function render(){
   const root=$("products");
-  if(!products.length){root.innerHTML='<div class="empty">אין מוצרים במאגר.</div>';return}
+  if(!products.length){root.innerHTML='<div class="empty">אין מוצרים במאגר.</div>';updateSaveButtons();return}
   root.innerHTML=products.map(p=>{
-    const firstImage=(p.images&&p.images[0])||p.image;const image=firstImage&&(/^(https:\/\/|\/img\/|\/api\/images\/)/i.test(firstImage))?'<img class="thumb" src="'+escapeHtml(p.image)+'" alt="">':'<div class="thumb" style="display:grid;place-items:center;font-size:1.8rem">'+escapeHtml(p.emoji||"🎁")+'</div>';
-    return '<div class="item" data-edit="'+escapeHtml(p.recordId)+'">'+image+'<div class="itemmain"><strong>'+escapeHtml(p.name)+'</strong><small> · '+escapeHtml(p.price)+' הרשקלים · מלאי: '+(p.stock===null?"לא מוגדר":escapeHtml(p.stock))+(p.hidden?" · מוסתר":"")+'</small></div><button class="secondary" data-edit="'+escapeHtml(p.recordId)+'">עריכה</button></div>';
+    const firstImage=(p.images&&p.images[0])||p.image;
+    const image=firstImage&&(/^(https:\/\/|\/img\/|\/api\/images\/)/i.test(firstImage))
+      ?'<img class="thumb" src="'+escapeHtml(firstImage)+'" alt="">'
+      :'<div class="thumb" style="display:grid;place-items:center;font-size:1.8rem">'+escapeHtml(p.emoji||"🎁")+'</div>';
+    const staged=pending.has(p.recordId)||pendingNew.some(x=>x.tempId===p.recordId);
+    return '<div class="item">'+image+'<div class="itemmain"><strong>'+escapeHtml(p.name)+'</strong><small> · '+escapeHtml(p.price)+' הרשקלים · מלאי: '+(p.stock===null?"לא מוגדר":escapeHtml(p.stock))+(p.hidden?" · מוסתר":"")+(staged?" · ממתין לשמירה":"")+'</small></div><button type="button" class="secondary" data-edit="'+escapeHtml(p.recordId)+'">עריכה</button></div>';
   }).join("");
+  updateSaveButtons();
 }
 async function load(){
   message($("listMsg"),"טוען מוצרים...");
@@ -92,18 +102,64 @@ async function load(){
   catch(e){message($("listMsg"),e.message,true);if(e.status===401)throw e}
 }
 function resetForm(){
-  editing=null;$("productForm").reset();$("emoji").value="🎁";$("editorTitle").textContent="מוצר חדש";$("save").textContent="הוספת מוצר";message($("formMsg"),"");$("editor").hidden=true;$("editorHome").appendChild($("editor"));
+  editing=null;$("productForm").reset();$("emoji").value="🎁";
+  $("editorTitle").textContent="מוצר חדש";$("save").textContent="הוסף לרשימת השמירה";
+  message($("formMsg"),"");$("editor").hidden=true;
+  $("editorHome").appendChild($("editor"));
 }
 function edit(p){
   editing=p?p.recordId:null;
   $("editorTitle").textContent=p?"עריכת מוצר":"מוצר חדש";
-  $("save").textContent=p?"שמירת שינויים":"הוספת מוצר";
+  $("save").textContent="הוסף לרשימת השמירה";
   $("name").value=p?.name||"";$("price").value=p?.price??"";
-  $("stock").value=p?.stock??"";$("emoji").value=p?.emoji||"🎁";$("images").value=(p?.images&&p.images.length?p.images:(p?.image?[p.image]:[])).join("\n");$("imageFile").value="";
-  $("description").value=p?.description||"";
+  $("stock").value=p?.stock??"";$("emoji").value=p?.emoji||"🎁";
+  $("images").value=(p?.images&&p.images.length?p.images:(p?.image?[p.image]:[])).join("\n");
+  $("imageFile").value="";$("description").value=p?.description||"";
   $("tagSale").checked=(p?.tags||[]).includes("מבצע");$("tagNew").checked=(p?.tags||[]).includes("חדש");
   $("onSale").checked=!!p?.onSale;$("showZero").checked=!!p?.showZero;$("hidden").checked=!!p?.hidden;
-  message($("formMsg"),"");$("editor").hidden=false;if(p){const row=Array.from(document.querySelectorAll("#products .item")).find(el=>el.querySelector("[data-edit]")?.dataset.edit===p.recordId);if(row)row.insertAdjacentElement("afterend",$("editor"));else $("editorHome").appendChild($("editor"));}else $("editorHome").appendChild($("editor"));
+  message($("formMsg"),"");$("editorHome").appendChild($("editor"));$("editor").hidden=false;
+  $("editor").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function readPayload(){
+  const tags=[];if($("tagSale").checked)tags.push("מבצע");if($("tagNew").checked)tags.push("חדש");
+  return {
+    name:$("name").value,price:$("price").value,
+    stock:$("stock").value===""?null:$("stock").value,emoji:$("emoji").value,
+    images:$("images").value.split("\n").map(x=>x.trim()).filter(Boolean),
+    description:$("description").value,tags,
+    onSale:$("onSale").checked,showZero:$("showZero").checked,hidden:$("hidden").checked
+  };
+}
+function applyPayload(product,payload){
+  return {...product,name:payload.name,price:Number(payload.price)||0,
+    stock:payload.stock===""||payload.stock===null?null:Number(payload.stock),
+    emoji:payload.emoji||"🎁",images:payload.images,image:payload.images[0]||"",
+    description:payload.description,tags:payload.tags,onSale:payload.onSale,
+    showZero:payload.showZero,hidden:payload.hidden};
+}
+async function saveAll(){
+  const top=$("saveAll"),bottom=$("saveAllBottom");
+  top.disabled=true;bottom.disabled=true;message($("listMsg"),"שומר את כל השינויים...");
+  let saved=0;const failures=[];
+  for(const [recordId,payload] of Array.from(pending.entries())){
+    try{
+      const data=await api("/api/admin/products",{method:"PATCH",body:JSON.stringify({...payload,recordId})});
+      pending.delete(recordId);
+      products=products.map(p=>p.recordId===recordId?data.product:p);
+      saved++;
+    }catch(err){failures.push((products.find(p=>p.recordId===recordId)?.name||"מוצר")+": "+err.message)}
+  }
+  for(const item of pendingNew.slice()){
+    try{
+      const data=await api("/api/admin/products",{method:"POST",body:JSON.stringify(item.payload)});
+      pendingNew=pendingNew.filter(x=>x.tempId!==item.tempId);
+      products=products.map(p=>p.recordId===item.tempId?data.product:p);
+      saved++;
+    }catch(err){failures.push(item.payload.name+": "+err.message)}
+  }
+  render();top.disabled=false;bottom.disabled=false;
+  if(failures.length)message($("listMsg"),"נשמרו "+saved+" שינויים. "+failures.length+" לא נשמרו: "+failures.join(" | "),true);
+  else message($("listMsg"),saved?"כל "+saved+" השינויים נשמרו בהצלחה.":"אין שינויים שממתינים לשמירה.");
 }
 $("loginForm").addEventListener("submit",async e=>{
   e.preventDefault();message($("loginMsg"),"בודק סיסמה...");
@@ -112,12 +168,13 @@ $("loginForm").addEventListener("submit",async e=>{
 });
 $("logout").addEventListener("click",async()=>{
   try{await api("/api/admin/logout",{method:"POST",body:"{}"})}catch{}
-  resetForm();showLogin();message($("loginMsg"),"התנתקת בהצלחה.");
+  pending.clear();pendingNew=[];resetForm();showLogin();message($("loginMsg"),"התנתקת בהצלחה.");
 });
 $("add").addEventListener("click",()=>edit(null));
 $("cancel").addEventListener("click",resetForm);
 $("products").addEventListener("click",e=>{
-  const button=e.target.closest("[data-edit]");if(!button)return;
+  const button=e.target.closest("button[data-edit]");if(!button)return;
+  e.preventDefault();e.stopPropagation();
   const p=products.find(x=>x.recordId===button.dataset.edit);if(p)edit(p);
 });
 $("imageFile").addEventListener("change",async()=>{
@@ -128,18 +185,26 @@ $("imageFile").addEventListener("change",async()=>{
  catch(err){$("images").value=urls.join("\n");message($("formMsg"),err.message,true)}
  $("imageFile").value="";
 });
-$("productForm").addEventListener("submit",async e=>{
+$("productForm").addEventListener("submit",e=>{
   e.preventDefault();
-  const tags=[];if($("tagSale").checked)tags.push("מבצע");if($("tagNew").checked)tags.push("חדש");
-  const payload={
-    name:$("name").value,price:$("price").value,
-    stock:$("stock").value===""?null:$("stock").value,emoji:$("emoji").value,
-    images:$("images").value.split("\n").map(x=>x.trim()).filter(Boolean),description:$("description").value,tags,
-    onSale:$("onSale").checked,showZero:$("showZero").checked,hidden:$("hidden").checked
-  };
-  $("save").disabled=true;message($("formMsg"),"שומר...");
-  try{
-    await api("/api/admin/products",{method:editing?"PATCH":"POST",body:JSON.stringify(editing?{...payload,recordId:editing}:payload)});
+  const payload=readPayload();
+  if(editing&&String(editing).indexOf("draft-")===0){
+    const item=pendingNew.find(x=>x.tempId===editing);
+    if(item)item.payload=payload;
+    products=products.map(p=>p.recordId===editing?applyPayload(p,payload):p);
+  }else if(editing){
+    pending.set(editing,payload);
+    products=products.map(p=>p.recordId===editing?applyPayload(p,payload):p);
+  }else{
+    const tempId="draft-"+Date.now()+"-"+Math.random().toString(36).slice(2,7);
+    pendingNew.push({tempId,payload});
+    products.push(applyPayload({recordId:tempId},payload));
+  }
+  resetForm();render();message($("listMsg"),"השינוי נוסף לרשימת השמירה. אפשר לערוך מוצרים נוספים לפני השמירה.");
+});
+$("saveAll").addEventListener("click",saveAll);
+$("saveAllBottom").addEventListener("click",saveAll);
+
     await load();resetForm();message($("listMsg"),"המוצר נשמר בהצלחה. רענן את החנות כדי לראות את העדכון.");
   }catch(err){message($("formMsg"),err.message,true)}
   finally{$("save").disabled=false}
