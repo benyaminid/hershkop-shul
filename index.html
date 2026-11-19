@@ -287,6 +287,16 @@ html.winner-camera-open,html.winner-camera-open body{height:100%;overflow:hidden
 #winner-camera-fallback .camera-actions{width:100%}
 #winner-camera-fallback .camera-actions .btn{min-height:46px}
 
+
+/* Requested layout refinements */
+body:has(#fathers.on) footer,
+body:has(#shop.on) footer,
+body:has(#updates.on) footer{padding:6px 16px 8px!important}
+.ph .ribbons{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:3}
+.ph .ribbon{position:absolute;right:-29px;width:112px;height:23px;display:flex;align-items:center;justify-content:center;transform:rotate(45deg);color:#fff;font-size:.72rem;font-weight:800;line-height:1;letter-spacing:.2px;box-shadow:0 2px 5px rgba(0,0,0,.28)}
+.ph .ribbon.sale{top:13px;background:#c62828}
+.ph .ribbon.new{top:43px;background:#1769aa}
+
 </style>
 </head>
 <body>
@@ -386,7 +396,9 @@ function tier(p){return p<=100?"100":p<=250?"250":"over"}
 function fmt(n){return n+" הרשקלים"}
 function card(x){
   var q=cart[x.id]||0;
-  return '<div class="card"><div class="ph">'+pic(x)+(x.t?'<span class="bdg">מבצע</span>':'')+'</div><h3>'+em(x.n)+'</h3>'+(x.d?'<div class="stk">'+em(x.d)+'</div>':'')+'<div class="cb"><div class="price">'+fmt(x.p)+'</div><div class="purchase-row">'+stk(x)+'<div class="qty"><button data-a="plus" data-id="'+x.id+'" aria-label="הוסף">+</button><b>'+q+'</b><button data-a="minus" data-id="'+x.id+'" aria-label="הסר">−</button></div></div></div></div>';
+  var tags=Array.isArray(x.tags)?x.tags:[];
+  var ribbons=(x.t||tags.includes("מבצע")?'<span class="ribbon sale">מבצע</span>':'')+(tags.includes("חדש")?'<span class="ribbon new">חדש</span>':'');
+  return '<div class="card"><div class="ph">'+pic(x)+(ribbons?'<div class="ribbons">'+ribbons+'</div>':'')+'</div><h3>'+em(x.n)+'</h3>'+(x.d?'<div class="stk">'+em(x.d)+'</div>':'')+'<div class="cb"><div class="price">'+fmt(x.p)+'</div><div class="purchase-row">'+stk(x)+'<div class="qty"><button data-a="plus" data-id="'+x.id+'" aria-label="הוסף">+</button><b>'+q+'</b><button data-a="minus" data-id="'+x.id+'" aria-label="הסר">−</button></div></div></div></div>';
 }
 function list(t){return PRODUCTS.filter(function(x){return !x.h&&(x.s==null||x.s>0||x.z)&&(t==="all"||tier(x.p)===t)}).sort(function(a,b){return a.p-b.p}).map(card).join("")}
 function renderChips(){
@@ -645,6 +657,6 @@ init();
 })();
 
 </script>
-<script src="./popup.js?v=3" defer></script>
+<script src="./popup.js?v=4" defer></script>
 </body>
 </html>
