@@ -1,0 +1,28 @@
+[
+  {
+    "id": "shabbat-vayetze",
+    "type": "image",
+    "src": "img/banner-shabbat-vayetze.jpg",
+    "date": "2026-11-20",
+    "popup": true,
+    "w": 719,
+    "h": 405,
+    "alt": "זמני השבת – פרשת ויצא, י׳ כסלו, בית הכנסת הרשקופ שול"
+  },
+  {
+    "id": "yud-kislev",
+    "type": "image",
+    "src": "img/banner-10-kislev.jpg",
+    "date": "2026-11-19",
+    "popup": true,
+    "w": 720,
+    "h": 883,
+    "alt": "י׳ כסלו – התוועדות חסידית לרגל חג הגאולה ויום הולדת האדמו״ר האמצעי, בשעה 21:00 בבית הכנסת הרשקופ שול"
+  },
+  {
+    "id": "daughter",
+    "type": "card",
+    "date": "2026-11-18",
+    "popup": true
+  }
+]
