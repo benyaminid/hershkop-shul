@@ -13,10 +13,10 @@ function validBanner(b){
 export async function onRequest({request,env}){
   if(request.method==="GET"){
     if(env.PRODUCT_IMAGES){
-      try{const obj=await env.PRODUCT_IMAGES.get(KEY);if(obj){const data=JSON.parse(await obj.text());return json({banners:Array.isArray(data)?data:[]},{headers:{"Cache-Control":"no-store"}})}}
+      try{const obj=await env.PRODUCT_IMAGES.get(KEY);if(obj){const data=JSON.parse(await obj.text());return json({banners:Array.isArray(data)?data:[]})}}
       catch{return json({error:"לא ניתן לקרוא את המודעות"},502)}
     }
-    try{const url=new URL("/banners.json",request.url);const res=await fetch(url);if(res.ok){const data=await res.json();return json({banners:Array.isArray(data)?data:[]},{headers:{"Cache-Control":"no-store"}})}}
+    try{const url=new URL("/banners.json",request.url);const res=await fetch(url);if(res.ok){const data=await res.json();return json({banners:Array.isArray(data)?data:[]})}}
     catch{}
     return json({banners:[]});
   }
