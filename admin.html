@@ -160,7 +160,7 @@ function render(){
 }
 async function load(){
   message($("listMsg"),"טוען מוצרים...");
-  try{const data=await api("/api/admin/products");products=(data.products||[]).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0)||String(a.name||"").localeCompare(String(b.name||""),"he"));render();message($("listMsg"),"נטענו "+products.length+" מוצרים.");}await loadBanners();
+  try{const data=await api("/api/admin/products");products=(data.products||[]).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0)||String(a.name||"").localeCompare(String(b.name||""),"he"));render();message($("listMsg"),"נטענו "+products.length+" מוצרים.");await loadBanners();}
   catch(e){message($("listMsg"),e.message,true);if(e.status===401)throw e}
 }
 function resetForm(){
