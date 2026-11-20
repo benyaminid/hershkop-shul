@@ -60,8 +60,8 @@
   +'#mz-pop .hs-h{display:flex;align-items:center;justify-content:center;gap:8px;margin:14px 0 0;font-size:.92rem;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);cursor:pointer;user-select:none;-webkit-user-select:none}'
   +'#mz-pop .hs-h input{width:20px;height:20px;margin:0;padding:0;accent-color:#d81b78;cursor:pointer;flex:none}'
   +'#mz-cf{position:fixed;inset:0;z-index:2001;pointer-events:none}'
-  +'#updates .hs-pg{max-width:420px;margin:0 auto 28px}'
-  +'#updates .hs-img img{max-height:none;width:100%;height:auto}'
+  +'#updates .hs-updates-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),420px));justify-content:start;direction:rtl;gap:20px;align-items:start}'+'#updates .hs-pg{width:100%;max-width:420px;margin:0}'
+  +'#updates .hs-img img{max-height:none;width:100%;height:auto}'+'@media(max-width:650px){#updates .hs-updates-grid{grid-template-columns:1fr;justify-content:center}#updates .hs-pg{margin:0 auto}}'
   +'@keyframes hsfloat{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-8px) rotate(4deg)}}'
   +'@media (prefers-reduced-motion:reduce){.hs-pulse,.hs-bow{animation:none!important}#mz-pop .hs-wrap{transition:none}}';
   var st=document.createElement('style');
@@ -112,9 +112,9 @@
     sec.className='sec';
     sec.id='updates';
     var sorted=BANNERS.slice().sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:0});
-    sec.innerHTML='<h1>מודעות ועדכונים</h1>'+sorted.map(function(b){
+    sec.innerHTML='<h1>מודעות ועדכונים</h1><div class="hs-updates-grid">'+sorted.map(function(b){
       return '<div class="hs-frame hs-pulse hs-pg" data-bid="'+esc(b.id)+'"><div class="hs-slide">'+bodyHtml(b,false)+'</div></div>';
-    }).join('');
+    }).join('')+'</div>';
     main.appendChild(sec);
     [].forEach.call(sec.querySelectorAll('.hs-img img'),function(im){
       im.addEventListener('error',function(){var f=im.closest('.hs-pg');if(f&&f.parentNode)f.parentNode.removeChild(f)});
@@ -289,7 +289,7 @@
       injectPage();
       injectHomeBtn();
       if(!showPopup)return;
-      var popupList=BANNERS.filter(function(b){return b.popup&&!isHidden(b.id)}).sort(function(x,y){return x.date<y.date?-1:x.date>y.date?1:0});
+      var popupList=BANNERS.filter(function(b){return b.popup&&!isHidden(b.id)}).sort(function(x,y){return x.date<y.date?1:x.date>y.date?-1:0});
       return Promise.all(popupList.map(function(b){return b.type==='image'?loadOk(b.src):Promise.resolve(true)})).then(function(oks){
         var list=popupList.filter(function(b,i){return oks[i]});
         if(list.length)setTimeout(function(){openPopup(list)},350);
