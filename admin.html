@@ -188,6 +188,7 @@ function resetForm(){
   $("editorHome").appendChild($("editor"));
 }
 function edit(p){
+  setAdminTab("products");
   editing=p?p.recordId:null;
   $("editorTitle").textContent=p?"עריכת מוצר":"מוצר חדש";
   $("save").textContent="הוסף לרשימת השמירה";
