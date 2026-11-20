@@ -86,7 +86,7 @@ function renderBanners(){
   const root=$("bannerList");
   if(!banners.length){root.innerHTML='<div class="empty">אין מודעות כרגע.</div>';return}
   root.innerHTML=banners.map((b,i)=>'<div class="item" style="cursor:default;align-items:flex-start">'+
-    '<img class="thumb" src="'+escapeHtml(b.src||"")+'" alt="">'+
+    (b.type==="image"?'<img class="thumb" src="'+escapeHtml(b.src||"")+'" alt="">':'<div class="thumb" style="display:grid;place-items:center">🎀</div>')+
     '<div class="itemmain"><strong>'+escapeHtml(b.alt||"מודעה")+'</strong><small>'+escapeHtml(b.date||"")+(b.popup?" · מוצג כ-Popup":" · מופיע רק בעמוד מודעות ועדכונים")+'</small>'+
     '<div class="checks" style="margin:6px 0"><label><input type="checkbox" data-banner-popup="'+i+'" '+(b.popup?"checked":"")+'> הצג כ-Popup</label></div></div>'+
     '<button type="button" class="danger" data-banner-delete="'+i+'">מחיקה</button></div>').join("");
