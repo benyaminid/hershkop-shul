@@ -6,7 +6,7 @@ function validBanner(b){
   if(!b||typeof b!=="object"||Array.isArray(b))return false;
   if(typeof b.id!=="string"||!b.id||b.id.length>100)return false;
   if(b.type==="card")return b.id==="daughter";
-  return b.type==="image"&&typeof b.src==="string"&&/^\/api\/images\/[a-f0-9-]{36}\.(jpg|png|webp|gif)$/i.test(b.src)
+  return b.type==="image"&&typeof b.src==="string"&&( /^\/api\/images\/[a-f0-9-]{36}\.(jpg|png|webp|gif)$/i.test(b.src)||/^\/?img\/[A-Za-z0-9._-]+$/.test(b.src))
     &&typeof b.date==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(b.date)
     &&(b.alt===undefined||typeof b.alt==="string")&&(b.popup===undefined||typeof b.popup==="boolean");
 }
