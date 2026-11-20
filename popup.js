@@ -1,6 +1,7 @@
 /*
  * Banners: popup carousel on entry + the "מודעות ועדכונים" page (#updates) + a home-page button to it.
- * To add a banner: put the image in img/ and add an entry to BANNERS below.
+ * The banner list lives in banners.json (loaded at runtime). To add a banner: put the image in img/
+ * and add an entry to banners.json: {id, type:'image'|'card', src, date:'YYYY-MM-DD', popup:true, w, h, alt}.
  *  - page "מודעות ועדכונים": all banners, newest (by date) on top.
  *  - popup: banners with popup:true, oldest first, slides right-to-left, dots at the bottom.
  *  - "אל תציג שוב": saved per banner (localStorage key hs-hide-<id>), per browser/device.
@@ -8,11 +9,7 @@
  * To take everything down: remove the <script src="./popup.js"> tag from index.html.
  */
 (function(){
-  var BANNERS=[
-    {id:'yud-kislev',type:'image',src:'img/banner-10-kislev.jpg',date:'2026-11-19',popup:true,
-     alt:'י׳ כסלו – התוועדות חסידית לרגל חג הגאולה ויום הולדת האדמו״ר האמצעי, בשעה 21:00 בבית הכנסת הרשקופ שול'},
-    {id:'daughter',type:'card',date:'2026-11-18',popup:true}
-  ];
+  var BANNERS=[];
   // הצגת המודעה רק בכניסה לעמוד הראשי, ולא בקישורי עמודים פנימיים.
   var initialHash=window.location.hash||'';
   var showPopup=(initialHash===''||initialHash==='#home');
@@ -83,7 +80,7 @@
   }
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
   function bodyHtml(b,withBtn){
-    if(b.type==='image')return '<div class="hs-img"><img src="'+esc(b.src)+'" alt="'+esc(b.alt||'')+'" width="720" height="883" draggable="false"></div>';
+    if(b.type==='image')return '<div class="hs-img"><img src="'+esc(b.src)+'" alt="'+esc(b.alt||'')+'" width="'+(+b.w||720)+'" height="'+(+b.h||883)+'" draggable="false"></div>';
     return cardHtml(withBtn);
   }
 
@@ -281,14 +278,22 @@
     var b=ov.querySelector('.hs-ok');if(b)try{b.focus({preventScroll:true})}catch(x){}
   }
 
+  function loadBanners(){
+    return fetch('banners.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():[]}).then(function(d){return Array.isArray(d)?d:[]}).catch(function(){return[]});
+  }
+
   function start(){
-    injectPage();
-    injectHomeBtn();
-    if(!showPopup)return;
-    var popupList=BANNERS.filter(function(b){return b.popup&&!isHidden(b.id)}).sort(function(x,y){return x.date<y.date?-1:x.date>y.date?1:0});
-    Promise.all(popupList.map(function(b){return b.type==='image'?loadOk(b.src):Promise.resolve(true)})).then(function(oks){
-      var list=popupList.filter(function(b,i){return oks[i]});
-      if(list.length)setTimeout(function(){openPopup(list)},350);
+    loadBanners().then(function(data){
+      BANNERS=data.filter(function(b){return b&&b.id&&b.date});
+      if(!BANNERS.length)return;
+      injectPage();
+      injectHomeBtn();
+      if(!showPopup)return;
+      var popupList=BANNERS.filter(function(b){return b.popup&&!isHidden(b.id)}).sort(function(x,y){return x.date<y.date?-1:x.date>y.date?1:0});
+      return Promise.all(popupList.map(function(b){return b.type==='image'?loadOk(b.src):Promise.resolve(true)})).then(function(oks){
+        var list=popupList.filter(function(b,i){return oks[i]});
+        if(list.length)setTimeout(function(){openPopup(list)},350);
+      });
     });
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
