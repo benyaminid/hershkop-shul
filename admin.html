@@ -37,6 +37,17 @@ button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}butto
 <div class="panel">
 <div class="topline"><div><h1>ניהול קטלוג המוצרים</h1><p class="muted">אפשר לערוך כמה מוצרים ברצף ולשמור את כל השינויים בפעולה אחת.</p></div><div class="actions"><button type="button" id="saveAll" hidden>שמירת כל השינויים</button><button id="add">＋ מוצר חדש</button></div></div>
 <div id="listMsg" class="notice" hidden></div><div id="editorHome"></div><div id="products"></div><div class="actions"><button type="button" id="saveAllBottom" hidden>שמירת כל השינויים</button></div>
+<section id="bannerManager" style="margin-top:26px;padding-top:20px;border-top:1px solid var(--line)">
+  <div class="topline"><div><h2>ניהול מודעות Popup</h2><p class="muted">העלאת תמונות שיופיעו בחלון קופץ בדף הבית ובעמוד מודעות ועדכונים.</p></div></div>
+  <div class="grid">
+    <div><label for="bannerDate">תאריך המודעה</label><input id="bannerDate" type="date"></div>
+    <div><label for="bannerAlt">תיאור התמונה (לנגישות)</label><input id="bannerAlt" maxlength="180" placeholder="לדוגמה: זמני שבת פרשת השבוע"></div>
+  </div>
+  <div class="checks"><label><input id="bannerPopup" type="checkbox" checked> הצג גם כ-Popup בכניסה לדף הבית</label></div>
+  <div class="actions"><label class="btn" for="bannerFiles" style="margin:0;cursor:pointer">＋ העלאת תמונות Popup</label><input id="bannerFiles" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple hidden></div>
+  <div id="bannerMsg" class="notice" hidden></div>
+  <div id="bannerList"></div>
+</section>
 </div>
 <section id="editor" class="panel" hidden>
 <h2 id="editorTitle">מוצר חדש</h2>
@@ -67,6 +78,58 @@ button.secondary{background:#eef1f7;color:#1f3a68;border:1px solid #d5ddeb}butto
 "use strict";
 const $=id=>document.getElementById(id);
 let products=[], editing=null, pending=new Map(), pendingNew=[];
+let banners=[];
+const bannerDateInput=$("bannerDate");
+function localDate(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function bannerMessage(text,error=false){message($("bannerMsg"),text,error)}
+function renderBanners(){
+  const root=$("bannerList");
+  if(!banners.length){root.innerHTML='<div class="empty">אין מודעות כרגע.</div>';return}
+  root.innerHTML=banners.map((b,i)=>'<div class="item" style="cursor:default;align-items:flex-start">'+
+    '<img class="thumb" src="'+escapeHtml(b.src||"")+'" alt="">'+
+    '<div class="itemmain"><strong>'+escapeHtml(b.alt||"מודעה")+'</strong><small>'+escapeHtml(b.date||"")+(b.popup?" · מוצג כ-Popup":" · מופיע רק בעמוד מודעות ועדכונים")+'</small>'+
+    '<div class="checks" style="margin:6px 0"><label><input type="checkbox" data-banner-popup="'+i+'" '+(b.popup?"checked":"")+'> הצג כ-Popup</label></div></div>'+
+    '<button type="button" class="danger" data-banner-delete="'+i+'">מחיקה</button></div>').join("");
+}
+async function loadBanners(){
+  try{const data=await api("/api/banners");banners=Array.isArray(data.banners)?data.banners:[];renderBanners();bannerMessage("נטענו "+banners.length+" מודעות.")}
+  catch(e){bannerMessage("טעינת המודעות נכשלה: "+e.message,true)}
+}
+async function saveBanners(){
+  bannerMessage("שומר מודעות...");
+  try{await api("/api/banners",{method:"PUT",body:JSON.stringify({banners})});bannerMessage("המודעות נשמרו בהצלחה.");renderBanners()}
+  catch(e){bannerMessage("שמירת המודעות נכשלה: "+e.message,true);throw e}
+}
+$("bannerFiles").addEventListener("change",async()=>{
+  const files=Array.from($("bannerFiles").files||[]);if(!files.length)return;
+  if(files.some(f=>f.size>5*1024*1024)){bannerMessage("כל תמונה חייבת להיות עד 5MB.",true);$("bannerFiles").value="";return}
+  const date=$("bannerDate").value||localDate(),alt=$("bannerAlt").value.trim(),popup=$("bannerPopup").checked;
+  try{
+    for(let i=0;i<files.length;i++){
+      bannerMessage("מעלה תמונה "+(i+1)+" מתוך "+files.length+"...");
+      const form=new FormData();form.append("file",files[i]);
+      const response=await fetch("/api/admin/upload",{method:"POST",credentials:"same-origin",body:form});
+      const data=await response.json().catch(()=>({}));
+      if(!response.ok)throw new Error(data.error||"העלאת התמונה נכשלה");
+      banners.push({id:"banner-"+crypto.randomUUID(),type:"image",src:data.url,date,popup,w:0,h:0,alt:alt||files[i].name.replace(/\\.[^.]+$/,"")});
+    }
+    await saveBanners();
+    $("bannerFiles").value="";$("bannerAlt").value="";
+  }catch(e){bannerMessage(e.message,true)}
+});
+$("bannerList").addEventListener("change",async e=>{
+  const input=e.target.closest("input[data-banner-popup]");if(!input)return;
+  const i=Number(input.dataset.bannerPopup);if(!banners[i])return;
+  banners[i].popup=input.checked;try{await saveBanners()}catch{}
+});
+$("bannerList").addEventListener("click",async e=>{
+  const button=e.target.closest("button[data-banner-delete]");if(!button)return;
+  const i=Number(button.dataset.bannerDelete);if(!banners[i])return;
+  if(!confirm("למחוק את המודעה?"))return;
+  const old=banners.splice(i,1)[0];renderBanners();try{await saveBanners()}catch{banners.splice(i,0,old);renderBanners()}
+});
+bannerDateInput.value=localDate();
+
 async function api(url,options={}){
   const response=await fetch(url,{credentials:"same-origin",cache:"no-store",...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
   let data={};try{data=await response.json()}catch{}
@@ -97,7 +160,7 @@ function render(){
 }
 async function load(){
   message($("listMsg"),"טוען מוצרים...");
-  try{const data=await api("/api/admin/products");products=(data.products||[]).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0)||String(a.name||"").localeCompare(String(b.name||""),"he"));render();message($("listMsg"),"נטענו "+products.length+" מוצרים.");}
+  try{const data=await api("/api/admin/products");products=(data.products||[]).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0)||String(a.name||"").localeCompare(String(b.name||""),"he"));render();message($("listMsg"),"נטענו "+products.length+" מוצרים.");}await loadBanners();
   catch(e){message($("listMsg"),e.message,true);if(e.status===401)throw e}
 }
 function resetForm(){
