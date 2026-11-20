@@ -279,7 +279,7 @@
   }
 
   function loadBanners(){
-    return fetch('banners.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():[]}).then(function(d){return Array.isArray(d)?d:[]}).catch(function(){return[]});
+    return fetch('/api/banners',{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error('banners api');return r.json()}).then(function(d){return Array.isArray(d.banners)?d.banners:[]}).catch(function(){return fetch('banners.json',{cache:'no-store'}).then(function(r){return r.ok?r.json():[]}).then(function(d){return Array.isArray(d)?d:[]}).catch(function(){return[]})});
   }
 
   function start(){
