@@ -1,496 +1,4 @@
-<!DOCTYPE html>
-<html lang="he" dir="rtl">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0b1020">
-<meta name="application-name" content="הרשקופ-שול">
-<link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icons/icon.svg?v=4" type="image/png">
-<link rel="apple-touch-icon" href="./icons/icon-512.png?v=3">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="הרשקופ-שול">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<title>הרשקופ-שול</title>
-<style>
-:root{--bg:#f1f1f1;--surface:#fff;--text:#1d2433;--muted:#5d6678;--accent:#1f3a68;--accent2:#b8862b;--line:#e4dfd2;--onaccent:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161f;--surface:#1b2130;--text:#eef0f5;--muted:#a3abbd;--accent:#8fb0ec;--accent2:#e0b258;--line:#2c3447;--onaccent:#10151f}}
-:root[data-theme="dark"]{--bg:#12161f;--surface:#1b2130;--text:#eef0f5;--muted:#a3abbd;--accent:#8fb0ec;--accent2:#e0b258;--line:#2c3447;--onaccent:#10151f}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-*,*::before,*::after{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:"Heebo","Segoe UI",Arial,sans-serif;line-height:1.6}
-header{background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
-.bar{max-width:1000px;margin:auto;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{font-size:1.35rem;font-weight:700;color:var(--accent);text-decoration:none}
-nav{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
-nav a,.dd>button{color:var(--text);text-decoration:none;padding:8px 12px;border-radius:8px;font:inherit;background:none;border:0;cursor:pointer}
-nav a:hover,.dd>button:hover,nav a.on{background:var(--bg);color:var(--accent)}
-.dd{position:relative}
-.menu{display:none;position:absolute;inset-inline-start:0;top:100%;background:var(--surface);border:1px solid var(--line);border-radius:10px;min-width:190px;padding:6px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
-.dd.open .menu{display:block}
-.menu a{display:block}
-main{max-width:1000px;margin:auto;padding:20px 16px 90px}
-h1{font-size:1.8rem;margin:.2em 0 .3em;color:var(--accent)}
-.lead{color:var(--muted);margin:0 0 18px}
-.hero{background:var(--accent);color:var(--onaccent);border-radius:16px;padding:26px 22px;margin-bottom:22px}
-.hero h1{color:inherit;margin:0 0 6px}.hero p{margin:0;opacity:.9}
-.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.chip{border:1px solid var(--line);background:var(--surface);color:var(--text);padding:7px 14px;border-radius:999px;cursor:pointer;font:inherit}
-.chip.on{background:var(--accent);color:var(--onaccent);border-color:var(--accent)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
-.ph{height:110px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:2.6rem;position:relative;overflow:hidden}
-.card h3{margin:0;font-size:1.05rem}
-.price{color:var(--accent2);font-weight:700}
-.btn{background:var(--accent);color:var(--onaccent);border:0;border-radius:10px;padding:9px 14px;font:inherit;cursor:pointer}
-.btn.alt{background:none;color:var(--accent);border:1px solid var(--accent)}
-.qty{display:flex;align-items:center;gap:8px;margin-top:auto}
-.qty button{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--text);cursor:pointer;font-size:1.1rem}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-.panel h3{margin:0 0 6px}
-.list{list-style:none;padding:0;margin:0;display:grid;gap:10px}
-.list li{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-.list a{color:var(--accent);font-weight:600}
-#cartbar{position:fixed;inset-inline:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:none;z-index:6}
-#cartbar .in{max-width:1000px;margin:auto;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;z-index:9}
-.modal.show{display:flex}
-.sheet{background:var(--surface);width:100%;max-width:560px;max-height:90%;overflow:auto;border-radius:18px 18px 0 0;padding:18px}
-input,textarea{width:100%;font:inherit;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--text);margin:4px 0 10px}\n#nt::placeholder{color:#b8b8b8;opacity:1}
-.row{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}
-.sec{display:none}.sec.on{display:block}.ph img{width:100%;height:100%;object-fit:cover;border-radius:10px}.arow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.arow .ph{width:70px;height:60px;font-size:1.6rem;flex:none}.arow input:not([type=checkbox]){flex:1 1 120px;width:auto;margin:0}.arow label{display:inline-flex;align-items:center;gap:6px}.arow input[type=checkbox]{width:auto;margin:0}
-.fb{max-width:640px;margin:0 auto 14px;user-select:none;-webkit-user-select:none}.fbw{overflow:hidden;border-radius:8px}.fb.z .fbw{overflow:auto;max-height:78vh}.fb.z .fbs{width:230%}.fbs{position:relative;perspective:1800px;aspect-ratio:var(--ar,.67);touch-action:pan-y pinch-zoom}.fbp{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff;transform-origin:right center;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .7s ease;box-shadow:0 4px 14px rgba(0,0,0,.25)}.fbs{overflow:hidden;background:#222}.fbw{background:#222;padding:10px}.fbfw{position:absolute;inset:0;pointer-events:none;z-index:5;filter:drop-shadow(-4px 3px 6px rgba(0,0,0,.5))}.fbf{position:absolute;inset:0;transform-origin:0 0}#fbr{width:100%;margin-top:10px}.fbc{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:12px;flex-wrap:wrap}.fb:fullscreen{max-width:none;background:#111;padding:8px;display:flex;flex-direction:column;justify-content:center}.fb:fullscreen .fbs{margin:auto}.fb.z:fullscreen .fbs{width:230%}.fb:fullscreen{overflow:auto}.ph{position:relative}.bdg{position:absolute;top:6px;inset-inline-start:6px;background:#c0392b;color:#fff;font-size:.75rem;padding:2px 8px;border-radius:999px}.lnk{display:flex;align-items:center;justify-content:center;gap:8px;padding:15px 18px;border-radius:14px;background:linear-gradient(135deg,#1f3a68,#3f66a8);color:#fff!important;font-weight:700;font-size:1.1rem;text-decoration:none;box-shadow:0 4px 10px rgba(31,58,104,.35);transition:transform .15s,box-shadow .15s}.lnk::after{content:"↗";font-size:1.1rem;opacity:.85}.lnk:hover{transform:translateY(-2px);box-shadow:0 7px 14px rgba(31,58,104,.45)}.lnk:active{transform:scale(.98)}#links .panel{background:none;border:0;padding:0}#links .panel p{margin:0 0 12px}.ph{overflow:hidden}.ph img{position:absolute;inset:0;cursor:zoom-in}.win{text-align:center}.wn{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:8px}.wn span{background:linear-gradient(#f5d77a,#c9971c);color:#3a2a00;font-weight:700;font-size:1.3rem;border-radius:12px;padding:8px 14px;min-width:54px}.winner-item{display:flex;flex-direction:column;align-items:center;gap:5px}.wn .winner-num{background:linear-gradient(#f5d77a,#c9971c);color:#3a2a00;font-weight:700;font-size:1.3rem;border:0;border-radius:12px;padding:8px 14px;min-width:54px;cursor:pointer}.wn .winner-num:disabled{opacity:.7;cursor:default}.winner-status{display:block;width:132px;min-height:42px;padding:8px 10px;border:1px solid #d8c58a;border-radius:8px;background:rgba(245,215,122,.16);color:var(--muted);font:inherit;font-size:.82rem;line-height:1.25;cursor:pointer}.winner-status:hover{background:rgba(245,215,122,.28)}.winner-status:disabled{cursor:default;opacity:1}.winner-status.done{color:#247a3d;font-weight:700;background:rgba(36,122,61,.08);border-color:rgba(36,122,61,.3)}.shban{margin:0 0 12px;text-align:center;animation:fi .4s}.shban svg,.shban img{max-width:420px;width:100%;height:auto;border-radius:12px}@keyframes fi{from{opacity:0}to{opacity:1}}a.chip{text-decoration:none}.cb{margin-top:auto;display:flex;flex-direction:column;align-items:center;text-align:center;gap:4px}.cb .qty{margin-top:4px;justify-content:center}.stk{font-size:.9rem;color:var(--muted)}.stk.out{color:#c0392b;font-weight:600}
-.fb:fullscreen .fbc{color:#fff}
-.card .ph{height:auto;aspect-ratio:1/1;padding:0;overflow:hidden;position:relative;border-radius:14px}.product-gallery{position:absolute;inset:0;width:100%;height:100%;background:var(--bg);touch-action:pan-y;direction:rtl}.product-photo{display:none!important;position:absolute;inset:0;width:100%;height:100%;object-fit:contain!important;border-radius:0!important;cursor:zoom-in}.product-photo.active{display:block!important}.gallery-step{position:absolute;top:50%;transform:translateY(-50%);z-index:2;border:2px solid rgba(255,255,255,.9);border-radius:50%;width:40px;height:40px;padding:0;background:rgba(8,16,32,.88);color:#fff;font-size:1.7rem;font-weight:900;line-height:1;display:grid;place-items:center;box-shadow:0 3px 12px #000a}.gallery-step.prev{left:7px}.gallery-step.next{right:7px}.gallery-dots{position:absolute;bottom:7px;left:0;right:0;display:flex;justify-content:center;gap:5px;z-index:2}.gallery-dots button{width:7px;height:7px;min-width:7px;padding:0;border:0;border-radius:50%;background:#999;opacity:.75}.gallery-dots button.active{background:var(--accent2);opacity:1;transform:scale(1.25)}.purchase-row{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;direction:rtl}.purchase-row .stk{flex:1;text-align:right;min-width:0}.purchase-row .qty{margin-top:0;justify-content:flex-start;flex:none}.cb{width:100%}
-html.nosc,html.nosc body{overflow:hidden;height:100%;overscroll-behavior:none}html.nosc main{height:calc(100vh - var(--hh,64px));height:calc(100dvh - var(--hh,64px));padding:8px 16px 12px;display:flex;flex-direction:column}html.nosc #bulletin{flex:1;min-height:0;display:flex;flex-direction:column}html.nosc #bulletin>h1{order:-3;margin:0 0 6px;font-size:1.3rem;color:#fff}html.nosc #bulletin>p{order:-2;margin:0 0 6px}html.nosc .fb{flex:1;min-height:0;display:flex;flex-direction:column;width:100%;margin:0 auto}html.nosc .fbc{order:-1;margin:0 0 6px}html.nosc .fbw{flex:1;min-height:0;container-type:size;display:flex;align-items:center;justify-content:center;background:none;padding:0}html.nosc .fbs{flex:none;width:min(100cqw,calc(100cqh*var(--arn,.67)));touch-action:none;background:none}html.nosc .fb.z .fbs{width:230%;touch-action:auto}html.nosc .fb.z .fbw{align-items:flex-start;justify-content:flex-start}html.nosc [data-fb=prev],html.nosc [data-fb=next],html.nosc #fbr{display:none}html.nosc footer,html.nosc #cartbar{display:none!important}html.nosc .fbc{display:none}html.nosc main{padding:4px 0 0}html.nosc #bulletin>h1{margin:0 0 4px;font-size:1.1rem;text-align:center}html.nosc .fb{max-width:none}.fbe{position:absolute;top:0;bottom:0;width:20%;pointer-events:none;z-index:1500}.fbe-n{left:0;background:linear-gradient(90deg,rgba(0,0,0,.34),rgba(0,0,0,0))}.fbe-p{right:0;background:linear-gradient(270deg,rgba(0,0,0,.34),rgba(0,0,0,0))}.fbe::after{position:absolute;top:50%;margin-top:-1.4rem;font-size:2.8rem;line-height:1;color:#fff;text-shadow:0 0 8px rgba(0,0,0,.8)}.fbe-n::after{content:"›";left:6px;animation:nudgeR 1.6s ease-in-out infinite}.fbe-p::after{content:"‹";right:6px;animation:nudgeL 1.6s ease-in-out infinite}.fbe::before{content:"";position:absolute;bottom:0;width:44px;height:44px;clip-path:polygon(0 0,100% 100%,100% 0);background:linear-gradient(135deg,#fff 0,#bdbdbd 100%);animation:curl 2s ease-in-out infinite}.fbe-n::before{left:0;transform-origin:0 100%}.fbe-p::before{right:0;transform:scaleX(-1);transform-origin:100% 100%}.fbs.zm .fbe{display:none}@keyframes nudgeL{0%,100%{transform:translateX(0)}50%{transform:translateX(-8px)}}@keyframes nudgeR{0%,100%{transform:translateX(0)}50%{transform:translateX(8px)}}@keyframes curl{0%,100%{width:34px;height:34px}50%{width:58px;height:58px}}
-.fbn2{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.45);color:#fff;padding:2px 14px;border-radius:999px;font-size:.85rem;pointer-events:none;z-index:2000}
-html.nosc nav{position:absolute;top:100%;left:0;right:0;background:#000;z-index:30;padding:0 16px 12px}
-html.nosc body{background:radial-gradient(ellipse at 50% 40%,#3b3b3b,#161616) fixed}html.nosc .fbp{box-shadow:0 0 22px rgba(0,0,0,.75)}.fbc{background:rgba(0,0,0,.55);border-radius:999px;padding:4px 14px;align-self:center;color:#fff;gap:6px}.fbc .chip{background:none;border:0;color:#fff;font-size:1.25rem;padding:4px 10px}#fbn{font-size:.95rem;min-width:56px;text-align:center}.shg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}.shg a,.shg button{text-align:center;text-decoration:none;padding:12px 6px}.bull{display:block;width:100%;margin:0 0 14px;border-radius:10px;border:1px solid var(--line);background:#fff}object.bull{height:80vh;min-height:360px}.herob{margin:-20px -16px 0;background:#0c1224}.herob img{width:100%;display:block}.tile{display:block;margin:44px 0}.tile img{width:100%;display:block}.tile span{display:block;background:#000;color:#fff;padding:50px 16px;text-align:center;font-size:1.8rem;font-weight:700}hr{border:0;border-top:2px solid var(--line);margin:0}.newsbtn{display:block;max-width:480px;margin:46px auto 20px;background:#1a237e;color:#fff;text-align:center;padding:20px;border-radius:16px;font-size:1.25rem;font-weight:600;text-decoration:none;box-shadow:0 4px 10px rgba(0,0,0,.3)}header{background:#000;border-color:#000}.brand{color:#fff}#burger{background:none;border:0;color:#fff;font-size:1.8rem;cursor:pointer}nav{display:none;width:100%;flex-direction:column;align-items:stretch}header.open nav{display:flex}nav a,.dd>button{color:#fff;text-align:start}nav a:hover,.dd>button:hover,nav a.on{background:#222;color:#fff}.menu{position:static;box-shadow:none;background:#111;border:0}.menu a{color:#fff}
-footer{text-align:center;color:var(--muted);padding:24px 16px;font-size:.9rem}
-:root{--bg2:#e4e9f4;--gold:#c9971c;--gold2:#f3d58a;--navy:#1f3a68;--navy2:#3f66a8;--r:20px}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg2:#0a0d14}}
-:root[data-theme="dark"]{--bg2:#0a0d14}
-body{background:linear-gradient(180deg,var(--bg),var(--bg2)) fixed}
-header{background:rgba(8,10,16,.82);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);border-bottom:1px solid rgba(255,255,255,.08)}
-.bar{padding:12px 18px}.brand{font-size:1.4rem;font-weight:800;letter-spacing:.3px;background:linear-gradient(90deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-#burger{width:42px;height:42px;border-radius:12px;background:rgba(255,255,255,.08);font-size:1.4rem;line-height:1;transition:background .2s}#burger:hover{background:rgba(255,255,255,.16)}nav a,.dd>button{border-radius:12px;font-weight:600}
-.herob{border-radius:0 0 28px 28px;box-shadow:0 14px 34px rgba(0,0,0,.28);overflow:hidden}
-#tiles{display:grid;grid-template-columns:1fr;gap:20px;margin:26px 0 8px}@media(min-width:760px){#tiles{grid-template-columns:1fr 1fr;gap:24px}}#tiles hr{display:none}
-.tile{margin:0;border-radius:var(--r);overflow:hidden;background:#000;box-shadow:0 10px 26px rgba(15,25,55,.22);transition:transform .25s ease,box-shadow .25s ease;position:relative;animation:rise .55s ease both}.tile:hover{transform:translateY(-4px);box-shadow:0 16px 34px rgba(15,25,55,.3)}.tile:active{transform:scale(.985)}.tile::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 1px rgba(255,255,255,.12);pointer-events:none}
-#tiles a:nth-of-type(2){animation-delay:.08s}#tiles a:nth-of-type(3){animation-delay:.16s}#tiles a:nth-of-type(4){animation-delay:.24s}@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-.newsbtn{background:linear-gradient(135deg,#232f8f,#4a5fe0);border-radius:999px;box-shadow:0 12px 28px rgba(35,47,143,.45);max-width:520px;padding:18px 24px;margin:30px auto 10px;transition:transform .2s,box-shadow .2s}.newsbtn::before{content:"🔔";margin-inline-end:10px}.newsbtn:hover{transform:translateY(-2px);box-shadow:0 16px 34px rgba(35,47,143,.55)}
-h1{font-weight:800;letter-spacing:-.2px}h1::after{content:"";display:block;width:56px;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--gold),var(--gold2));margin-top:10px}html.nosc #bulletin>h1::after{display:none}
-.grid{gap:18px}.card{border-radius:var(--r);border-color:transparent;box-shadow:0 8px 22px rgba(20,30,60,.10);transition:transform .2s,box-shadow .2s;padding:16px}.card:hover{transform:translateY(-3px);box-shadow:0 14px 30px rgba(20,30,60,.16)}
-.card .ph{border-radius:14px;height:140px;background:linear-gradient(135deg,rgba(201,151,28,.12),rgba(63,102,168,.12))}.card h3{font-size:1.05rem;font-weight:700;line-height:1.35}.price{font-size:1.2rem;font-weight:800;color:#b8860b}
-.qty button{width:36px;height:36px;border-radius:50%;border:0;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;font-size:1.2rem;line-height:1;box-shadow:0 3px 8px rgba(31,58,104,.35);transition:transform .15s}.qty button:active{transform:scale(.9)}.qty b{min-width:26px;text-align:center;font-size:1.1rem}
-.chip{padding:8px 16px;font-weight:600;border-color:transparent;box-shadow:0 1px 4px rgba(20,30,60,.12)}.chip.on{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-color:transparent}
-.btn{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:12px;font-weight:700;padding:10px 16px;box-shadow:0 4px 12px rgba(31,58,104,.28)}.btn.alt{background:none;color:var(--accent);box-shadow:none;border:1px solid var(--accent)}
-.panel{border-radius:var(--r);border-color:transparent;box-shadow:0 6px 18px rgba(20,30,60,.08)}.win{border:1px solid rgba(201,151,28,.5);background:linear-gradient(180deg,rgba(243,213,138,.18),transparent)}.sheet{border-radius:26px 26px 0 0}.cart-actions{display:flex;flex-wrap:nowrap;gap:8px;align-items:stretch;margin-bottom:64px}.cart-actions>*{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:9px 4px;font-size:clamp(.68rem,3vw,.95rem);line-height:1.25;white-space:normal}
-#cartbar{box-shadow:0 -6px 20px rgba(0,0,0,.12);border-top:0;border-radius:22px 22px 0 0}#cartbar .btn{border-radius:999px}footer{padding:30px 16px 40px;font-size:.85rem}
-.tile{box-shadow:0 0 0 2px rgba(201,151,28,.8),0 12px 28px rgba(15,25,55,.3)}.tile:hover{box-shadow:0 0 0 3px #f3d58a,0 18px 38px rgba(15,25,55,.4)}#tiles{gap:22px}
-.tile .cta{display:inline-block;position:absolute;bottom:10px;left:10px;z-index:2;background:linear-gradient(135deg,#f3d58a,#c9971c);color:#2b1d00;padding:7px 18px;font-size:.98rem;font-weight:800;text-align:start;border-radius:999px;box-shadow:0 4px 12px rgba(0,0,0,.45);animation:pulse 2.2s ease-in-out infinite}
-.newsbtn{font-weight:800;font-size:1.3rem;animation:glow 2.4s ease-in-out infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}@keyframes glow{0%,100%{box-shadow:0 12px 28px rgba(35,47,143,.45)}50%{box-shadow:0 12px 40px rgba(74,95,224,.85)}}
-.tile{animation:rise .55s ease both,tilepulse 2.6s ease-in-out .7s infinite}
-#tiles a:nth-of-type(1){animation-delay:0s,.7s}#tiles a:nth-of-type(2){animation-delay:.08s,1s}#tiles a:nth-of-type(3){animation-delay:.16s,1.3s}#tiles a:nth-of-type(4){animation-delay:.24s,1.6s}.tile:hover{animation-play-state:paused,paused}
-@keyframes tilepulse{0%,100%{transform:scale(1);box-shadow:0 0 0 2px rgba(201,151,28,.8),0 12px 28px rgba(15,25,55,.3)}50%{transform:scale(1.025);box-shadow:0 0 0 3px #f3d58a,0 16px 40px rgba(201,151,28,.6)}}
-@keyframes glow{0%,100%{transform:scale(1);box-shadow:0 12px 28px rgba(35,47,143,.45)}50%{transform:scale(1.04);box-shadow:0 12px 40px rgba(74,95,224,.85)}}
-.lnk .li{flex:none}.lnk.ic::after{content:none}.newsbtn{animation:none;font-size:clamp(.8rem,3.9vw,1.15rem);white-space:nowrap;padding:16px 14px}.newsbtn::before{content:none}
-.win{position:relative;overflow:hidden;text-align:center;padding:24px 14px 22px;border:2px solid #d9a92b;border-radius:24px;color:#fff;background:radial-gradient(circle at 50% 0%,#33478a 0,#16204a 55%,#0b1130 100%);box-shadow:0 0 0 4px rgba(217,169,43,.18),0 14px 34px rgba(11,17,48,.55)}
-.win::before{content:"";position:absolute;top:-60%;left:-30%;width:60%;height:220%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.12),transparent);transform:rotate(12deg);animation:sweep 5s ease-in-out infinite;pointer-events:none}
-.win h3{margin:6px 0 4px;font-size:1.4rem;font-weight:800;background:linear-gradient(90deg,#f7dc6f,#fff3c4,#e1ad2c);-webkit-background-clip:text;background-clip:text;color:transparent}.win .sub{margin:0 0 14px;color:#cfd6ef;font-size:.95rem}
-.win .trophy{width:150px;height:auto;filter:drop-shadow(0 8px 14px rgba(0,0,0,.5));animation:floaty 3.2s ease-in-out infinite}.win .tw{transform-box:fill-box;transform-origin:center;animation:twinkle 1.8s ease-in-out infinite}.win .tw2{animation-delay:.6s}.win .tw3{animation-delay:1.1s}
-.wn{display:flex;flex-wrap:nowrap;gap:8px;justify-content:center;margin-top:6px;position:relative}.wn span{flex:1 1 0;min-width:0;max-width:68px;aspect-ratio:1/1;display:grid;place-items:center;padding:0;border-radius:50%;font-size:clamp(1rem,5.4vw,1.7rem);font-weight:800;color:#3a2600;background:radial-gradient(circle at 35% 30%,#fff3c4,#f3c64b 55%,#b8860b);box-shadow:0 5px 12px rgba(0,0,0,.45),inset 0 2px 2px rgba(255,255,255,.7)}
-@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}@keyframes twinkle{0%,100%{opacity:.25;transform:scale(.8)}50%{opacity:1;transform:scale(1.15)}}@keyframes sweep{0%,60%{left:-40%}100%{left:130%}}
-html.nosc #bulletin>.bh{order:-3;display:flex;align-items:center;justify-content:center;gap:14px;margin:0 0 8px;flex-wrap:nowrap}html.nosc .bh h1{margin:0;font-size:1.4rem;color:#fff}html.nosc .bh h1::after{margin-top:6px;width:44px;height:3px}.bp{background:linear-gradient(135deg,#f7dc6f,#c9971c);color:#3a2600;font-weight:800;font-size:.98rem;padding:6px 16px;border-radius:999px;box-shadow:0 3px 10px rgba(201,151,28,.45);white-space:nowrap}
-html.nosc body{background:linear-gradient(180deg,var(--bg),var(--bg2)) fixed}html.nosc .bh h1{color:var(--accent);font-size:1.8rem}html.nosc .bh h1::after{margin-top:8px;width:56px;height:4px}
-html.nosc #bulletin>.bh{background:var(--surface);border-radius:16px;padding:8px 18px;box-shadow:0 4px 14px rgba(0,0,0,.35)}html.nosc .bh h1{margin:0;font-size:1.8rem;color:var(--accent)}
-@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 
-/* Keep Netlify's fixed badge clear of every bottom-edge control. */
-main{padding-bottom:130px}
-footer{padding-bottom:120px}
-#cartbar{bottom:100px}
-.modal .sheet{padding-bottom:calc(110px + env(safe-area-inset-bottom,0px))}
-.cart-actions{margin-bottom:0}
-
-/* Lottery winner number buttons and compact status labels */
-.wn{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;align-items:start;width:100%;max-width:460px;margin:12px auto 0}
-.winner-item{width:100%;min-width:0;gap:6px}
-.wn .winner-num{width:clamp(46px,15vw,62px);height:clamp(46px,15vw,62px);min-width:0;padding:0;margin:0 auto;display:flex;align-items:center;justify-content:center;border-radius:50%;font-size:1.35rem;line-height:1;box-shadow:0 3px 8px rgba(0,0,0,.28);border:2px solid #ffe7a0}
-.wn .winner-num:focus-visible{outline:3px solid #fff;outline-offset:3px}
-.winner-status{display:flex;align-items:center;justify-content:center;width:100%;min-height:36px;padding:4px 3px;border:1px solid rgba(243,213,138,.65);border-radius:7px;background:rgba(255,255,255,.12);font-size:clamp(.56rem,2.35vw,.74rem);line-height:1.2;text-align:center;overflow-wrap:anywhere;white-space:normal}
-.winner-status.done{background:rgba(36,122,61,.2);border-color:rgba(100,210,130,.65);color:#a8f0b8}
-@media(max-width:360px){.wn{gap:5px}.winner-status{font-size:.54rem;padding:3px 1px}}
-/* Refined lottery winner display */
-.wn{gap:9px;max-width:500px;margin-top:16px}
-.winner-item{gap:7px}
-.wn .winner-num{
-  position:relative;isolation:isolate;overflow:hidden;
-  width:clamp(49px,15vw,68px);height:clamp(49px,15vw,68px);
-  border:2px solid #ffe9a6;
-  color:#493000;
-  background:radial-gradient(circle at 32% 24%,#fffbe5 0%,#ffe89a 23%,#e9b83f 58%,#a96d12 100%);
-  box-shadow:0 5px 0 #80530e,0 8px 15px rgba(0,0,0,.32),inset 0 2px 4px rgba(255,255,255,.9),inset 0 -4px 7px rgba(107,65,0,.24);
-  font-size:1.45rem;font-weight:900;text-shadow:0 1px 0 rgba(255,255,255,.55);
-  transition:transform .16s ease,box-shadow .16s ease,filter .16s ease
-}
-.wn .winner-num::before{
-  content:"";position:absolute;inset:4px;border:1px solid rgba(255,255,255,.62);
-  border-radius:50%;pointer-events:none;z-index:-1
-}
-.wn .winner-num:not(:disabled):active{transform:translateY(3px);box-shadow:0 2px 0 #80530e,0 4px 8px rgba(0,0,0,.25),inset 0 2px 4px rgba(255,255,255,.8)}
-.wn .winner-num:disabled{filter:saturate(.65);opacity:.82;box-shadow:0 4px 0 #52634f,0 7px 12px rgba(0,0,0,.2),inset 0 2px 4px rgba(255,255,255,.7)}
-.winner-status{
-  min-height:42px;padding:5px 4px;border:1px solid rgba(235,197,105,.8);
-  border-radius:9px;background:linear-gradient(145deg,rgba(255,255,255,.16),rgba(201,151,28,.12));
-  box-shadow:0 3px 8px rgba(0,0,0,.16),inset 0 1px rgba(255,255,255,.16);
-  color:var(--text);font-size:clamp(.62rem,2.7vw,.76rem);font-weight:700;
-  line-height:1.25;letter-spacing:0;overflow-wrap:normal;word-break:normal
-}
-.winner-status.done{
-  background:linear-gradient(145deg,rgba(36,122,61,.28),rgba(36,122,61,.12));
-  border-color:rgba(100,210,130,.75);color:#a8f0b8
-}
-@media(max-width:380px){
-  .wn{gap:6px}
-  .winner-status{font-size:.6rem;padding:4px 2px;min-height:40px}
-}
-
-/* Force winner status labels to remain compact rectangles, overriding generic .wn span styling */
-.wn .winner-item .winner-status{
-  display:flex;align-items:center;justify-content:center;
-  box-sizing:border-box;width:100%;min-width:0;min-height:44px;height:auto;
-  padding:4px 2px;border:1px solid rgba(235,197,105,.8);
-  border-radius:6px;
-  font-size:clamp(.5rem,2.15vw,.68rem);font-weight:700;
-  line-height:1.2;text-align:center;white-space:normal;
-  overflow-wrap:anywhere;word-break:normal;
-}
-.wn .winner-item .winner-status.done{border-radius:6px}
-@media(max-width:380px){
-  .wn .winner-item .winner-status{min-height:42px;font-size:clamp(.48rem,2.1vw,.6rem);padding:3px 1px}
-}
-
-
-/* Larger, clearly separated winner name lines */
-.wn .winner-item .winner-status{
-  min-height:64px;
-  padding:7px 4px;
-  font-size:1rem;
-  line-height:1.3;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:2px;
-}
-.wn .winner-item .winner-status strong{
-  display:block;
-  width:100%;
-  font-size:clamp(.95rem,4vw,1.15rem);
-  line-height:1.2;
-  font-weight:800;
-}
-
-
-/* Compact two-line winner names inside the status rectangle */
-.wn .winner-item .winner-status{box-sizing:border-box;height:48px;min-height:48px;padding:1px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;font-size:clamp(.56rem,2.35vw,.72rem);line-height:1.05;overflow:hidden}
-.wn .winner-item .winner-status strong{display:block;width:100%;margin:0;padding:0;font-size:inherit;line-height:1.05;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:clip}
-
-/* Cart bar now sits at the actual bottom edge; old Netlify watermark offset removed. */
-#cartbar{bottom:0!important}
-/* Keep winner first and last names on adjacent lines with almost no vertical gap. */
-.wn .winner-item .winner-status{gap:0!important;line-height:.82!important}
-.wn .winner-item .winner-status br{display:none}
-.wn .winner-item .winner-status strong{line-height:.82!important;margin:0!important;padding:0!important}
-
-/* Prevent transient edge/scroll indicators around the floating cart summary. */
-#cartbar,#cartbar .in{overscroll-behavior:none;scrollbar-width:none;-ms-overflow-style:none;-webkit-tap-highlight-color:transparent}
-#cartbar::-webkit-scrollbar,#cartbar .in::-webkit-scrollbar{display:none;width:0;height:0}
-#cartbar::before,#cartbar::after,#cartbar .in::before,#cartbar .in::after{content:none!important;display:none!important}
-\n/* Winner names: larger and tightly stacked inside their status area */\n.winner-item{gap:2px}.winner-status.done{font-size:1.02rem;line-height:.92;font-weight:800;letter-spacing:-.25px}\n
-/* Winner congratulations popup and lightweight confetti. */
-#winner-congrats{align-items:center;z-index:30;padding:16px}
-#winner-congrats .winner-celebrate{position:relative;overflow:hidden;width:100%;max-width:390px;max-height:none;border-radius:18px;text-align:center;padding:30px 22px 22px;box-shadow:0 16px 48px rgba(0,0,0,.25)}
-#winner-congrats h3{margin:4px 0 14px;color:#b17a08;font-size:1.45rem}
-#winner-congrats .winner-prize{font-size:1.18rem;font-weight:800;line-height:1.65;margin:0 0 12px}
-#winner-congrats .winner-pickup{font-size:.98rem;line-height:1.75;margin:0 0 18px}
-#winner-confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
-#winner-confetti i{position:absolute;top:-14px;left:var(--x);width:8px;height:13px;background:var(--c);opacity:0;transform:rotate(var(--r));animation:winner-confetti-fall 2.8s var(--d) ease-in forwards}
-@keyframes winner-confetti-fall{0%{opacity:1;transform:translate3d(0,-10px,0) rotate(0)}100%{opacity:.9;transform:translate3d(var(--drift),390px,0) rotate(760deg)}}
-@media(prefers-reduced-motion:reduce){#winner-confetti i{animation:none;display:none}}
-/* Reduce the oversized blank area below the homepage content only. */
-body:has(#home.on) main{padding-bottom:16px}
-body:has(#home.on) footer{padding:16px 16px 24px}
-
-.winner-week{display:inline-block;margin:8px auto 12px;padding:7px 16px;border:1px solid rgba(243,213,138,.7);border-radius:999px;background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(201,151,28,.18));box-shadow:0 3px 10px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.45);font-weight:800;color:var(--text)}
-.wn .winner-num{position:relative;isolation:isolate;overflow:hidden}
-.wn .winner-num::after{content:"";position:absolute;z-index:2;top:-35%;left:-65%;width:42%;height:170%;transform:rotate(28deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),rgba(255,255,255,.25),transparent);pointer-events:none;animation:lottery-ball-shine 3.2s ease-in-out infinite}
-@keyframes lottery-ball-shine{0%,58%{left:-65%;opacity:0}65%{opacity:1}88%,100%{left:130%;opacity:0}}
-@media(prefers-reduced-motion:reduce){.wn .winner-num::after{animation:none}}
-/* Final winner-ball and verification-camera layout overrides. */
-.wn .winner-num{box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:68px!important;height:68px!important;min-width:68px!important;min-height:68px!important;padding:0!important;border:2px solid #fff2b8!important;border-radius:50%!important;background:radial-gradient(circle at 32% 25%,#fff8d7 0%,#f8dc7c 18%,#d8a52b 58%,#8d610b 100%)!important;color:#382600!important;font-size:1.35rem!important;font-weight:800!important;line-height:1!important;box-shadow:inset 0 3px 7px rgba(255,255,255,.85),inset 0 -5px 9px rgba(91,54,0,.32),0 4px 9px rgba(0,0,0,.24)!important}
-.wn .winner-num:disabled{opacity:1!important;filter:saturate(.75)}
-/* Mobile menu update timestamp */
-.menu-updated{display:none}
-@media(max-width:759px){.menu-updated{display:block;margin-top:12px;padding:12px 10px 4px;border-top:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.68);font-size:.78rem;line-height:1.6;text-align:center}}
-
-/* Requested layout refinements */
-body:has(#fathers.on) footer,
-body:has(#shop.on) footer,
-body:has(#updates.on) footer{padding:6px 16px 8px!important}
-.ph .ribbons{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:3}
-.ph .ribbon{position:absolute;right:-29px;width:112px;height:23px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:nowrap;padding:0;box-sizing:border-box;transform:rotate(45deg);transform-origin:center;color:#fff;font-size:.72rem;font-weight:800;line-height:23px;letter-spacing:.2px;box-shadow:0 2px 5px rgba(0,0,0,.28)}
-.ph .ribbon.sale{top:7px;right:-29px;width:112px;height:23px;background:#c62828;text-align:center;text-indent:0;letter-spacing:0}.ph .ribbon.sale span{display:block;transform:translateX(8px)}
-.ph .ribbon.new span{display:block;transform:translateX(-8px)}
-.ph .ribbon.new{top:35px;right:-25px;width:112px;height:23px;background:#1769aa}
-.ph .ribbon.new::before{content:"";position:absolute;top:0;left:0;width:420px;height:100%;background:#1769aa;transform:translateX(-100%);pointer-events:none}
-
-</style>
-</head>
-<body>
-<header><div class="bar">
-<a class="brand" href="#home">הרשקופ שול</a><div style="display:flex;align-items:center;gap:8px"><button type="button" id="install-app" class="chip" style="font-size:.9rem;padding:7px 10px">התקנה</button><button type="button" id="burger" aria-label="תפריט">☰</button></div>
-<nav>
-<a href="#home" data-p="home">דף הבית</a>
-<div class="dd" id="dd"><button type="button" id="ddb">הרש-שופ ▾</button>
-<div class="menu">
-<a href="#shop-100" data-p="shop-100">מוצרים עד 100 הרשקלים</a>
-<a href="#shop-250" data-p="shop-250">מוצרים עד 250 הרשקלים</a>
-<a href="#shop-over" data-p="shop-over">מוצרים מעל 250 הרשקלים</a>
-<a href="#shop-all" data-p="shop-all">כל המוצרים</a>
-</div></div>
-<a href="#fathers" data-p="fathers">אבות ובנים</a>
-<a href="#bulletin" data-p="bulletin">עלון שבועי</a>
-<a href="#links" data-p="links">הרש-קישורים</a>
-<a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
-<a href="/admin.html">⚙ ניהול</a>
-<button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">19.11.26 20:11</span></div>
-</nav></div></header>
-
-<main>
-<section class="sec" id="home">
-<div class="herob" id="hero"></div>
-<div id="tiles"></div>
-<a class="newsbtn" id="newsbtn" href="#news"></a>
-</section>
-
-<section class="sec" id="shop">
-<h1 id="shoptitle"></h1><div id="shopedit"></div><div class="shban" id="shban"></div><div class="chips" id="schips"></div>
-<div class="grid" id="shopgrid"></div>
-</section>
-
-<section class="sec" id="fathers">
-<h1>אבות ובנים</h1><p class="lead">לימוד משותף של אבות ובנים.</p>
-<div class="panel"><h3>מועד הלימוד</h3><p>יום וזמן קבועים – מלאו כאן.</p></div>
-<div class="panel"><h3>הצטרפות</h3><p>מוזמנים להגיע, אין צורך בהרשמה מראש.</p></div>
-
-</section>
-
-<section class="sec" id="bulletin">
-<h1>עלון שבועי</h1><p class="lead">העלון האחרון של בית הכנסת.</p>
-<div class="panel"><h3>פרשת השבוע</h3><p>דבר תורה קצר, הודעות וזמנים.</p></div>
-<div class="panel"><h3>הודעות</h3><p>שמחות, שיעורים ואירועים קרובים.</p></div>
-</section>
-
-<section class="sec" id="links">
-<h1>הרש-קישורים</h1><p class="lead">קישורים שימושיים.</p>
-<ul class="list">
-<li><a href="#home">הזמנת מוצרים</a></li>
-<li><a href="#bulletin">העלון השבועי</a></li>
-<li><a href="#fathers">אבות ובנים</a></li>
-</ul>
-</section>
-<section class="sec" id="news"></section>
-<section class="sec" id="admin"><h1>ניהול האתר</h1><div class="chips" id="atabs"></div><p class="lead">ערכו שם, מחיר ותמונה, ולחצו שמירה.</p><div id="alist"></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn alt" id="addp">+ מוצר חדש</button><button class="btn" id="savep">שמירה</button><button class="btn alt" id="cnl" hidden>ביטול שינויים</button></div><p class="lead" id="amsg"></p></section>
-</main>
-
-<div id="cartbar"><div class="in"><span id="cartsum"></span><button class="btn" id="open">צפייה בעגלה והזמנה</button></div></div>
-
-<div class="modal" id="modal"><div class="sheet">
-<h2 style="margin-top:0">ההזמנה שלך</h2>
-<div id="lines"></div>
-<p><b>סה״כ: <span id="total"></span></b></p>
-<label>שם<input id="nm" placeholder="שם פרטי ושם משפחה"></label>
-<label>הערות<textarea id="nt" rows="2" placeholder="דגם / צבע / מקום השארת המוצר / זמן איסוף וכו'"></textarea></label>
-<div class="cart-actions">
-<a class="btn" id="wa" target="_blank" rel="noopener" href="#" style="text-decoration:none">שליחה בוואטסאפ</a>
-<button class="btn alt" id="close">סגירה</button>
-</div>
-<p id="msg" class="lead"></p>
-</div></div>
-
-<div class="modal" id="lbx" style="align-items:center"><img id="lbi" alt="" style="max-width:96vw;max-height:88vh;border-radius:10px;background:#fff"></div>
-<div class="modal" id="shm"><div class="sheet"><h3 style="margin:0 0 12px">שיתוף העלון</h3><div class="shg" id="shg"></div><p id="shmsg" class="lead"></p><button type="button" class="btn alt" id="shx">סגירה</button></div></div>
-<div class="modal" id="winner-modal"><div class="sheet"><button type="button" class="btn alt" id="winner-exit">סגירה ✕</button><h3>רישום זוכה</h3><p id="winner-picked" class="lead"></p><form id="winner-form"><label>שם הילד<input id="winner-first" name="firstName" maxlength="40" autocomplete="given-name" required></label><label>שם המשפחה<input id="winner-last" name="lastName" maxlength="50" autocomplete="family-name" required></label><div class="cart-actions"><button class="btn" type="submit" id="winner-submit">שליחת פרטים</button><button class="btn alt" type="button" id="winner-close">סגירה</button></div></form><p id="winner-msg" class="lead" aria-live="polite"></p></div></div>
-<div class="modal" id="winner-congrats" style="align-items:center"><div class="sheet winner-celebrate"><div id="winner-confetti" aria-hidden="true"></div><h3>🎉 מזל טוב! 🎉</h3><p class="winner-prize">מזל טוב! זכית ב-50 הרשקלים!<br>כל הכבוד על ההשקעה!</p><p class="winner-pickup">את ההרשקלים ניתן לאסוף מתיבת הדואר בגפן 6 דירה 4 (🔑2121), או מדניאל בשבת הבאה!</p><button type="button" class="btn" id="winner-congrats-close">סגירה</button></div></div>
-<footer>הרשקופ שול · כל הזכויות שמורות</footer>
-
-<script>
-var EMB={"products":[{"id":2000,"n":"כרטיספר - 100₪ זיכוי באור-החיים","p":270,"s":1,"e":"🎁","d":"30 הרשקלים הנחה ברכישה זו!","t":true,"z":true,"img":"3c4995a80def4b56f3268fbc310b6b12"},{"id":2001,"n":"דיאבלו - יויו סיני מקצועי (3 bearings)","p":130,"s":1,"e":"🎁","img":"e493763c560a5a20244f437642799a3a"},{"id":2002,"n":"פליימוביל - מכונית בנות","p":180,"s":1,"e":"🎁","img":"f9da4e717ae3bb1369e0fdfa3a457007"},{"id":2003,"n":"אמא ואבא של שבת","p":150,"s":1,"e":"🎁","img":"40b5be5c456cb44642f012dc6568bf56"},{"id":2004,"n":"כרטיספר - 50₪ זיכוי באור-החיים","p":135,"s":3,"e":"🎁","d":"15 הרשקלים הנחה ברכישה זו!","img":"db589eba6d4f051665338238ddc30fee"},{"id":2005,"n":"לוח רב פעילות","p":120,"s":2,"e":"🎁","d":"לוח ציור - כולל מגנטים גיר ותבליטים","img":"0f119ecee70f78f8afa180076e96cfe3"},{"id":2006,"n":"אלקטרו דע","p":100,"s":1,"e":"🎁","img":"60d0e9982885a85d9eff45cfe583d0ae"},{"id":2007,"n":"מתגלגלים","p":100,"s":1,"e":"🎁","d":"מכוניות מדבקות דפי צביעה ופאזל רצפה ענק - 28 חלקים","img":"3464bd5ffd40dde2c1523e4fc31aae19"},{"id":2008,"n":"כרטיספר - 30₪ זיכוי באור-החיים","p":90,"s":3,"e":"🎁","img":"17b6228e45ad44f150f9b8231804f16b"},{"id":2009,"n":"קולקציית תכשיטים ערכת יצירה","p":85,"s":1,"e":"🎁","img":"05d26dc9dccb56f1b8e6e18acdc70fe8"},{"id":2010,"n":"משפחת מגנטי","p":80,"s":2,"e":"🎁","img":"cfbe831d1e1e1e1549c7767181ef2d14"},{"id":2011,"n":"זיכוי - שובר לפיצה משפחתית למימוש באומן הפיצה","p":75,"s":7,"e":"🎁","img":"b54ad6d0d066339fab424566ec5abbc3"},{"id":2012,"n":"לוח ציור מואר","p":75,"s":3,"e":"🎁","img":"49b6185b1632d06eed1725701b26d821"},{"id":2013,"n":"חרוזי הקסם ערכת יצירת צורות סמלים מחרוזים","p":70,"s":2,"e":"🎁","img":"ce6e140200332e78b3ebb8e71c19c8ac"},{"id":2014,"n":"מבולבלונים","p":60,"s":1,"e":"🎁","img":"33f1127ca4cca2285de22ac342b50b1c"},{"id":2015,"n":"זיכוי - שובר פיצה אישית למימוש באומן הפיצה","p":60,"s":9,"e":"🎁","img":"feda686c2ba4dab2fc1a57c2054a931c"},{"id":2016,"n":"פליימוביל - כבאי","p":45,"s":1,"e":"🎁"},{"id":2017,"n":"המגדל הנופל","p":50,"s":2,"e":"🎁","img":"3538fe4f5b7c91b2941b78d11021e2f5"},{"id":2018,"n":"פאזל 99 חלקים","p":50,"s":1,"e":"🎁"},{"id":2019,"n":"פליימוביל - ערכת הצלה","p":45,"s":1,"e":"🎁"},{"id":2020,"n":"פליימוביל - מיחזור","p":45,"s":1,"e":"🎁"},{"id":2021,"n":"פליימוביל - ילדה עם אופניים","p":45,"s":1,"e":"🎁"},{"id":2022,"n":"מסוק רחפן","p":35,"s":1,"e":"🎁"},{"id":2023,"n":"סקווישי בדמות מאכלים","p":20,"s":8,"e":"🎁"},{"id":2024,"n":"עולם ומלואו - חבילת זהב עונה 15","p":15,"s":20,"e":"🎁","img":"578493ec8f26c72df0481c98c76966be"},{"id":2025,"n":"מגוון צעצועים קטנים","p":3,"s":99,"e":"🎁","d":"ארנקים/גומיות/קפיצים/עטים ומגוון צעצועים קטנים"},{"id":2026,"n":"לגו - מגוון נשקים","p":1,"s":10,"e":"🎁"},{"b":1,"id":3001,"n":"רחפן מטוס קרב","p":175,"s":2,"e":"🎁","img":"2302b774e3e8312fcad1fee35c203056"},{"b":1,"id":3002,"n":"מיני פנס עם אורות משטרה","p":35,"s":4,"e":"🎁","img":"62ee637a75feb815b8ff6c8dc784bf7b"},{"b":1,"id":3003,"n":"מיני פנס בקופסה","p":20,"s":10,"e":"🎁","img":"aa016bc57f640e54e4023753bba9f8fb"},{"b":1,"id":3004,"n":"לוח כתיבה דיגיטלי 10 אינצ'","p":35,"s":10,"e":"🎁","img":"4da926f68c169acf4ce2cda5b321ff39"},{"b":1,"id":3005,"n":"מכונית על שלט","p":65,"s":4,"e":"🎁","img":"50d6279632d309d206cb1a0a9bc87a9b"},{"b":1,"id":3006,"n":"מכונית רובוט על שלט","p":100,"s":2,"e":"🤖"},{"b":1,"id":3007,"n":"רובה בועות סבון","p":35,"s":2,"e":"🎁","img":"2b68d5c8e5b13e57499e50c1f81d975b"}],"pages":{"fathers":{"t":"אבות ובנים","l":"","b":"*מועד הלימוד:*\nבתקופת הקיץ - הלימוד יתקיים ביום שבת כשעה לפני תפילת מנחה. \nבתקופת החורף - הלימוד יתקיים ביום שישי בין תפילת מנחה לקבלת שבת.\n\n*חומר וזמן הלימוד:*\nאין מגבלה לחומר הנלמד וכן אין הכרח להשתתף בכל שעת הלימוד, באחריות כל הורה להעריך את יכולת ילדיו וללמוד איתם בהתאם.\n\n*פרסים:*\nבכל שבוע לאחר הסדר יחולקו למשתתפים הרשקלים, ארטיק / חטיף / ממתק וכן יוגרלו במוצאי שבת 5 שטרות של 50 הרשקלים!\n\n*תנאים נוספים:*\nהגיל המינימלי להשתתפות הוא גיל 6, ילדים מתחת לגיל זה יקבלו הרשקלים וממתק אך לא את כרטיס ההגרלה שנועד לתת תמריץ לילדים הגדולים יותר.\n*הלימוד מיועד לבנים ובנות!*"},"bulletin":{"t":"עלון שבועי – פרשת תולדות","l":"","b":"פרשת השבוע: דבר תורה קצר, הודעות וזמנים.\n\nהודעות: שמחות, שיעורים ואירועים קרובים."},"links":{"t":"הרש-קישורים","l":"","b":"טופס עדכון פרטי חברי קהילה | https://docs.google.com/forms/d/e/1FAIpQLSfflPfuiECzAHP0w1CCSNG9rzC067hSsiKjdoUGLhT6F-AU_A/viewform\n\nתשלום התחייבויות ותרומות | https://sites.google.com/view/harshkop-shul\n\nקישור לקבוצת הוואצאפ | https://chat.whatsapp.com/H6yzvYshqYYJS3uicREq2G"},"news":{"t":"נהלי חלוקה ומכירה","l":"","b":"*נהלי חלוקת הרשקלים:*\nחלוקת ההרשקלים תתבצע בבית הכנסת במהלך התפילות, בלימוד אבות ובנים, בפסוקים ובאירועים שונים.\nחלוקת ההרשקלים מתבצעת כדלהלן מתוך התחשבות במאמץ של הילד ועם מתן אטרקטיביות לילדים הבוגרים:\n1) בתחילת התפילה לילדים הבוגרים שהתחילו תפילה עם החזן - *5 הרשקלים*.\n2) באמצע התפילה לכל הילדים שיושבים יפה ומתפללים - *5 הרשקלים*.\n3) בסיום קריאת התורה לילדים שישבו יפה ונבחנו ע\"י ההורה על השאלות שבתחילת חוברת פרשת השבוע - *5/10 הרשקלים*. \n4) לילדים שיושבים יפה אך אינם מתפללים - *הרשקל 1* (לילדים אלו יש מנעד רחב של מתנות מוזלות בהרשקלים בודדים).\n5) במהלך הפסוקים לילדים המצטיינים - *1/5 הרשקלים*.\n6) במהלך *כל התפילה* בשבתות מברכים - *1/5 הרשקלים*. \n7) למשתתפים באבות ובנים - *5 הרשקלים*.\n8) לילדים הזוכים בהגרלת אבות ובנים - *50 הרשקלים*.\n9) הרשקלים נוספים יחולקו במועדים מיוחדים על פי הצורך ולפי השתדלות הילד.\n*במידה ויש ילד שלא קיבל במהלך החלוקה או ילד שעשה השתדלות מיוחדת על פי שיקול דעת ההורים - ההורים מוזמנים לפנות אלי לקבלת הרשקלים נוספים!*\n\n*נהלי מכירת המתנות:* \nמכירת המתנות תתבצע בשתי דרכים:\nא) מכירה מרוכזת בבית הכנסת שתתבצע בחגים ואחת לתקופה.\nב) הזמנת מתנות ישירות מהאתר ואיסוף עצמי מתיבת הדואר שלי בגפן 6 דירה 4 (לאחר אישור נוסף ממני שהמתנה מוכנה לאיסוף).\nלגבי מועד המכירה המרוכזת הבאה יש לעקוב אחרי ההודעות באתר ובקבוצת הוואצאפ. \nסכום מינימלי להזמנה באתר הינו 50 הרשקלים.\nאין להזמין מתנות ללא אפשרות רכישה.\nלא ניתן לשמור מתנות – כל הקודם זוכה.\nלא ניתן להחליף מתנות לאחר הקנייה. \nבמידה וקיימת בעיה במוצר שהתקבל - ניתן לפנות אלי לקבלת החזר.\nלא ניתן להזמין מתנה שאינה במלאי, אך במידה ואתם רוצים חידוש מלאי למתנה שאזלה או רכישת מתנה חדשה (ביחסיות של 4 הרשקלים ל-1₪~) - מוזמנים לפנות אלי לצורך הזמנה או רכישה נקודתית."}},"home":{"v":2,"hero":"379098887f35c7829d7c874b2af0a60a","btn":"נהלי חלוקת הרשקלים ומכירת משחקים","tiles":[{"t":"הרש-שופ","h":"#shop-100","img":"c3bcfa582c74dd293be993a88e1a16b4"},{"t":"אבות ובנים","h":"#fathers","img":"fa5a6ed53289eac37086f53cbdc4406d"},{"t":"עלון שבועי","h":"#bulletin","img":"55bee9a3b584d3d62859d68c6830237e"},{"t":"הרש-קישורים","h":"#links","img":"37e9afa59d40a1fad4735f21fc899741"}],"ban":{"100":"3f8a82a5a40e4e81669c4459d17b0a45","250":"315b3bfa98758add21befb6ac9e7f736","over":"353c8c991d36649373f2fdfb155c46ec","all":"1341a13aaf4ce8a81c46bea8acd793cd"}},"bull":[{"id":"ccce2bff948f1ae6f3c7a040324d06e2"},{"id":"b48345d660a92a91027dc41c697b333e"},{"id":"10f0968de19241392f7d0ffe2756590f"},{"id":"87d8b4edd4991bb920be521a149670ee"}],"bv":1,"bw":2,"pv":3,"ad":1};
-function A(i){return"img/"+i+".jpg"}
-
-var PRODUCTS=[];
-var TIERS={"100":"מוצרים עד 100 הרשקלים","250":"מוצרים עד 250 הרשקלים","over":"מוצרים מעל 250 הרשקלים","all":"כל המוצרים"};
-var cart={},filter="all";
-function tier(p){return p<=100?"100":p<=250?"250":"over"}
-function fmt(n){return n+" הרשקלים"}
-function card(x){
-  var q=cart[x.id]||0;
-  var tags=Array.isArray(x.tags)?x.tags:[];
-  var ribbons=(x.t||tags.includes("מבצע")?'<span class="ribbon sale"><span>מבצע</span></span>':'')+(tags.includes("חדש")?'<span class="ribbon new"><span>חדש</span></span>':'');
-  return '<div class="card"><div class="ph">'+pic(x)+(ribbons?'<div class="ribbons">'+ribbons+'</div>':'')+'</div><h3>'+em(x.n)+'</h3>'+(x.d?'<div class="stk">'+em(x.d)+'</div>':'')+'<div class="cb"><div class="price">'+fmt(x.p)+'</div><div class="purchase-row">'+stk(x)+'<div class="qty"><button data-a="plus" data-id="'+x.id+'" aria-label="הוסף">+</button><b>'+q+'</b><button data-a="minus" data-id="'+x.id+'" aria-label="הסר">−</button></div></div></div></div>';
-}
-function list(t){return PRODUCTS.filter(function(x){return !x.h&&(x.s==null||x.s>0||x.z)&&(t==="all"||tier(x.p)===t)}).sort(function(a,b){return a.p-b.p}).map(card).join("")}
-function renderChips(){
-  var h="";for(var k in TIERS){h+='<button class="chip'+(k===filter?' on':'')+'" data-f="'+k+'">'+TIERS[k].replace("מוצרים ","")+'</button>'}
-  document.getElementById("chips").innerHTML=h;
-}
-var page="home";
-function render(){
-  
-  if(page.indexOf("shop-")===0){document.getElementById("shopgrid").innerHTML=list(page.slice(5))}
-  var n=0,t=0;PRODUCTS.forEach(function(x){var q=cart[x.id]||0;n+=q;t+=q*x.p});
-  document.getElementById("cartbar").style.display=n?"block":"none";
-  document.getElementById("cartsum").textContent=n+" פריטים · "+fmt(t);
-  document.getElementById("total").textContent=fmt(t);
-  var L="";PRODUCTS.forEach(function(x){var q=cart[x.id]||0;if(q)L+='<div class="row"><span>'+x.n+' × '+q+'</span><span>'+fmt(q*x.p)+'</span></div>'});
-  document.getElementById("lines").innerHTML=L||"<p>העגלה ריקה.</p>";
-}
-function route(){
-  var h=(location.hash||"#home").slice(1);
-  page=h;var sec=h.indexOf("shop-")===0?"shop":h;
-  if(!document.getElementById(sec)){sec="home";page="home"}
-  document.querySelectorAll(".sec").forEach(function(s){s.classList.toggle("on",s.id===sec)});
-  document.querySelectorAll("nav a").forEach(function(a){a.classList.toggle("on",a.getAttribute("data-p")===page)});
-  if(sec==="shop")document.getElementById("shoptitle").textContent=TIERS[page.slice(5)]||TIERS.all;
-  document.getElementById("dd").classList.remove("open");
-  if(sec==="shop")document.getElementById("shban").innerHTML=banHtml(page.slice(5));
-if(sec==="shop")document.getElementById("schips").innerHTML=Object.keys(TIERS).map(function(k){return '<a class="chip'+(page==="shop-"+k?' on':'')+'" href="#shop-'+k+'">'+TIERS[k].replace("מוצרים ","")+'</a>'}).join("");
-document.getElementById("shopedit").innerHTML=cloud&&sec==="shop"?'<p><button class="btn alt" data-edit="shop">✏ ניהול מוצרים</button></p>':'';document.documentElement.classList.toggle("nosc",sec==="bulletin");document.documentElement.style.setProperty("--hh",document.querySelector("header").offsetHeight+"px");document.querySelector("header").classList.remove("open");window.scrollTo(0,0);if(sec==="admin")renderAdmin();if(PAGES[sec])pageRender(sec);if(sec==="home")homeRender();render();pgAnim(sec);
-}
-document.addEventListener("click",function(e){
-  var t=e.target;
-  if(t.id==="ddb"){document.getElementById("dd").classList.toggle("open");return}
-  if(t.dataset.f){filter=t.dataset.f;render();return}
-  if(t.dataset.galleryStep||t.dataset.galleryIndex!==undefined){var g=t.closest("[data-gallery]");if(g){var photos=[].slice.call(g.querySelectorAll(".product-photo")),dots=[].slice.call(g.querySelectorAll("[data-gallery-index]"));var current=photos.findIndex(function(p){return p.classList.contains("active")});var next=t.dataset.galleryIndex!==undefined?Number(t.dataset.galleryIndex):(current+Number(t.dataset.galleryStep)+photos.length)%photos.length;photos.forEach(function(p,i){p.classList.toggle("active",i===next)});dots.forEach(function(d,i){d.classList.toggle("active",i===next)})}return}
-  if(t.dataset.a){var id=t.dataset.id;var pr=PRODUCTS.filter(function(z){return String(z.id)===String(id)})[0],mx=pr&&pr.s!=null&&pr.s!==""?Math.max(0,+pr.s):1e9;cart[id]=Math.min(mx,Math.max(0,(cart[id]||0)+(t.dataset.a==="plus"?1:-1)));render();return}
-  if(t.id==="open")document.getElementById("modal").classList.add("show");
-  if(t.id==="close"||t.id==="modal")document.getElementById("modal").classList.remove("show");
-});
-
-document.addEventListener("pointerdown",function(e){
- var g=e.target.closest&&e.target.closest("[data-gallery]");
- if(!g||e.target.closest("button"))return;
- g._gallerySwipe={id:e.pointerId,x:e.clientX,y:e.clientY};
-});
-document.addEventListener("pointerup",function(e){
- var g=e.target.closest&&e.target.closest("[data-gallery]"),st=g&&g._gallerySwipe;
- if(!st||st.id!==e.pointerId)return;
- g._gallerySwipe=null;
- var dx=e.clientX-st.x,dy=e.clientY-st.y;
- if(Math.abs(dx)<38||Math.abs(dx)<Math.abs(dy)*1.2)return;
- var photos=[].slice.call(g.querySelectorAll(".product-photo")),dots=[].slice.call(g.querySelectorAll("[data-gallery-index]"));
- if(photos.length<2)return;
- var current=photos.findIndex(function(p){return p.classList.contains("active")});
- var next=(current+(dx<0?1:-1)+photos.length)%photos.length;
- photos.forEach(function(p,i){p.classList.toggle("active",i===next)});
- dots.forEach(function(d,i){d.classList.toggle("active",i===next)});
-});
-document.addEventListener("pointercancel",function(e){
- var g=e.target.closest&&e.target.closest("[data-gallery]");if(g)g._gallerySwipe=null;
-});
-
-window.addEventListener("hashchange",route);
-var cloud=null,asset=null,tab="p",ek=null,FB=0,BULL=[{id:"ccce2bff948f1ae6f3c7a040324d06e2"},{id:"b48345d660a92a91027dc41c697b333e"},{id:"10f0968de19241392f7d0ffe2756590f"},{id:"87d8b4edd4991bb920be521a149670ee"}],BW=2,BT="עלון שבועי – פרשת תולדות";
-function bullHtml(){var im=BULL.filter(function(f){return!f.pdf}),pd=BULL.filter(function(f){return f.pdf}),h='';
-if(im.length)h+='<div class="fb" id="fb"><div class="fbw"><div class="fbs" id="fbs">'+im.map(function(f,i){return '<img class="fbp" src="'+A(f.id)+'" alt="עמוד '+(i+1)+'" draggable="false">'}).join("")+'</div></div><div class="fbc"><button type="button" class="chip" data-fb="prev">› הקודם</button><span id="fbn"></span><button type="button" class="chip" data-fb="next">הבא ‹</button><button type="button" class="chip" data-fb="zoom" aria-label="הגדלה">🔍</button><button type="button" class="chip" data-fb="full" id="fbf" aria-label="מסך מלא">⛶</button></div></div>';
-pd.forEach(function(f){h+='<object class="bull" data="'+A(f.id)+'" type="application/pdf"><a class="btn" href="'+A(f.id)+'" target="_blank" rel="noopener">פתיחת העלון (PDF)</a></object>'});
-return h||'<p class="lead">העלון יעלה בקרוב.</p>'}
-function fbShow(n){var s=document.getElementById("fbs");if(!s)return;var p=s.children,c=p.length;FB=Math.max(0,Math.min(c-1,n));for(var i=0;i<c;i++){p[i].style.transform=i<FB?"rotateY(180deg)":"none";p[i].style.zIndex=i<FB?i:1000-i}document.getElementById("fbn").textContent=(FB+1)+" / "+c}
-function fbInit(){var s=document.getElementById("fbs");if(!s)return;var f=s.firstChild,ar=function(){if(f.naturalWidth)s.style.setProperty("--ar",f.naturalWidth+"/"+f.naturalHeight)};if(f.complete)ar();else f.onload=ar;if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled))document.getElementById("fbf").hidden=true;fbShow(0)}
-document.addEventListener("click",function(e){var t=e.target,a=t.dataset&&t.dataset.fb,b=document.getElementById("fb");if(!b)return;
-if(a==="next")fbShow(FB+1);else if(a==="prev")fbShow(FB-1);else if(a==="zoom")pzSet(PZ.s>1.01?1:2.5);
-else if(a==="full"){try{if(document.fullscreenElement)document.exitFullscreen();else(b.requestFullscreen||b.webkitRequestFullscreen).call(b)}catch(x){}}
-else if(false){var r=document.getElementById("fbs").getBoundingClientRect();fbShow(e.clientX<r.left+r.width/2?FB+1:FB-1)}});
-var tx=null;document.addEventListener("touchstart",function(e){var b=document.getElementById("fb");tx=false&&b&&e.target.closest&&e.target.closest("#fbs")&&!b.classList.contains("z")?e.touches[0].clientX:null},{passive:true});
-document.addEventListener("touchend",function(e){if(tx==null)return;var d=e.changedTouches[0].clientX-tx;tx=null;if(Math.abs(d)>40)fbShow(d>0?FB+1:FB-1)},{passive:true});
-var FA=0,DR=null;
-function clipP(pts,keep,n,m){var out=[],k=keep?1:-1;for(var i=0;i<pts.length;i++){var a=pts[i],b=pts[(i+1)%pts.length],da=k*((a[0]-m[0])*n[0]+(a[1]-m[1])*n[1]),db=k*((b[0]-m[0])*n[0]+(b[1]-m[1])*n[1]);if(da>=0)out.push(a);if((da>=0)!==(db>=0)){var t=da/(da-db);out.push([a[0]+t*(b[0]-a[0]),a[1]+t*(b[1]-a[1])])}}return out}
-function bullHtml(){var im=BULL.filter(function(f){return!f.pdf}),pd=BULL.filter(function(f){return f.pdf}),h='';
-if(im.length)h+='<div class="fb" id="fb"><div class="fbw"><div class="fbs" id="fbs">'+im.map(function(f,i){return '<img class="fbp" src="'+A(f.id)+'" alt="עמוד '+(i+1)+'" draggable="false">'}).join("")+'<div class="fbfw" id="fbfw"><div class="fbf" id="fbf2"></div></div><span id="fbn" class="fbn2"></span><div class="fbe fbe-n" id="fbeN"></div><div class="fbe fbe-p" id="fbeP"></div></div></div><div class="fbc"><button type="button" class="chip" data-fb="prev">› הקודם</button><span id="fbn"></span><button type="button" class="chip" data-fb="next">הבא ‹</button><button type="button" class="chip" data-fb="zoom" aria-label="הגדלה">🔍</button><button type="button" class="chip" data-fb="full" id="fbf" aria-label="מסך מלא">⛶</button><button type="button" class="chip" data-fb="sharem" aria-label="שיתוף">⤴</button></div><input type="range" id="fbr" min="1" max="'+im.length+'" value="1" dir="rtl" aria-label="עמוד"></div>';
-pd.forEach(function(f){h+='<object class="bull" data="'+A(f.id)+'" type="application/pdf"><a class="btn" href="'+A(f.id)+'" target="_blank" rel="noopener">פתיחת העלון (PDF)</a></object>'});
-return h||'<p class="lead">העלון יעלה בקרוב.</p>'}
-function fbPg(){return document.getElementById("fbs").querySelectorAll(".fbp")}
-function fbIdle(){var p=fbPg();for(var i=0;i<p.length;i++){p[i].style.visibility=i===FB?"visible":"hidden";p[i].style.clipPath="none";p[i].style.zIndex=1}document.getElementById("fbfw").style.display="none";document.getElementById("fbn").textContent=(FB+1)+" / "+p.length;document.getElementById("fbr").value=FB+1;document.getElementById("fbeN").style.display=FB<p.length-1?"":"none";document.getElementById("fbeP").style.display=FB>0?"":"none"}
-function fbPaint(ti,bi,P){document.getElementById("fbeN").style.display="none";document.getElementById("fbeP").style.display="none";var s=document.getElementById("fbs"),p=fbPg(),W=s.clientWidth,H=s.clientHeight,C=[0,H],fw=document.getElementById("fbfw"),fl=document.getElementById("fbf2");
-for(var i=0;i<p.length;i++){p[i].style.visibility=(i===ti||i===bi)?"visible":"hidden";p[i].style.zIndex=i===ti?3:2;p[i].style.clipPath="none"}
-var dx=P[0]-C[0],dy=P[1]-C[1],L=Math.sqrt(dx*dx+dy*dy);if(L<1){fw.style.display="none";return}
-var n=[dx/L,dy/L],m=[(P[0]+C[0])/2,(P[1]+C[1])/2],rect=[[0,0],[W,0],[W,H],[0,H]],R=clipP(rect,1,n,m),Q=clipP(rect,0,n,m);
-function pg(a){return a.length>2?"polygon("+a.map(function(q){return q[0].toFixed(1)+"px "+q[1].toFixed(1)+"px"}).join(",")+")":"polygon(0 0,0 0,0 0)"}
-p[ti].style.clipPath=pg(R);var k=2*(m[0]*n[0]+m[1]*n[1]);fw.style.display="block";fl.style.clipPath=pg(Q);
-fl.style.transform="matrix("+(1-2*n[0]*n[0])+","+(-2*n[0]*n[1])+","+(-2*n[0]*n[1])+","+(1-2*n[1]*n[1])+","+k*n[0]+","+k*n[1]+")";
-var th=Math.atan2(n[0],-n[1]),ln=Math.abs(W*Math.sin(th))+Math.abs(H*Math.cos(th)),t0=ln/2+((m[0]-W/2)*n[0]+(m[1]-H/2)*n[1]);
-fl.style.background="linear-gradient("+th+"rad,#fff 0,#f2f2f2 "+Math.max(0,t0-70)+"px,#cfcfcf "+Math.max(0,t0-8)+"px,#9a9a9a "+t0+"px,#9a9a9a 100%)"}
-function fbRun(ti,bi,a,z,done){var s=document.getElementById("fbs"),st=performance.now(),du=Math.max(150,700*Math.abs(z-a));FA=1;
-function fr(now){var u=Math.min(1,(now-st)/du),e=u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2,t=a+(z-a)*e,W=s.clientWidth,H=s.clientHeight;if(u<1){fbPaint(ti,bi,[2*W*t,H-.28*H*Math.sin(Math.PI*t)]);requestAnimationFrame(fr)}else{FA=0;done()}}
-requestAnimationFrame(fr)}
-function fbShow(n){if(!document.getElementById("fbs")||FA)return;var c=fbPg().length;n=Math.max(0,Math.min(c-1,n));if(n===FB)return;
-if(n===FB+1)fbRun(FB,FB+1,0,1,function(){FB=n;fbIdle()});else if(n===FB-1)fbRun(FB-1,FB,1,0,function(){FB=n;fbIdle()});else{FB=n;fbIdle()}}
-function fbInit(){var s=document.getElementById("fbs");if(!s)return;var f=s.querySelector(".fbp"),ar=function(){if(f.naturalWidth){s.style.setProperty("--ar",f.naturalWidth+"/"+f.naturalHeight);s.style.setProperty("--arn",f.naturalWidth/f.naturalHeight)}};if(f.complete)ar();else f.onload=ar;if(!(document.fullscreenEnabled||document.webkitFullscreenEnabled))document.getElementById("fbf").hidden=true;FB=0;FA=0;PT={};G=null;pzSet(1);fbIdle()}
-document.addEventListener("pointerdown",function(e){var s=document.getElementById("fbs");if(!s||!e.target.closest||!e.target.closest("#fbs")||PZ.s>1.01||FA)return;var r=s.getBoundingClientRect(),x=e.clientX-r.left,W=r.width,c=fbPg().length,md=0;
-if(x<W*.22&&FB<c-1)md=1;else if(x>W*.78&&FB>0)md=-1;if(!md)return;DR={md:md,x0:e.clientX,y0:e.clientY,mv:0,P:null};try{s.setPointerCapture(e.pointerId)}catch(q){}});
-document.addEventListener("pointermove",function(e){if(!DR)return;var s=document.getElementById("fbs"),W=s.clientWidth,H=s.clientHeight,dx=e.clientX-DR.x0,dy=e.clientY-DR.y0;if(Math.abs(dx)+Math.abs(dy)>6)DR.mv=1;if(!DR.mv)return;
-var px=Math.max(0,Math.min(2*W,DR.md>0?2*dx:2*W+2*dx)),py=Math.max(H*.1,Math.min(H,H+dy));DR.P=[px,py];if(DR.md>0)fbPaint(FB,FB+1,DR.P);else fbPaint(FB-1,FB,DR.P)});
-function fbEnd(){if(!DR)return;var d=DR;DR=null;var W=document.getElementById("fbs").clientWidth;if(!d.mv)return;
-var t=d.P?d.P[0]/(2*W):(d.md>0?0:1);
-if(d.md>0){var go=t>.25;fbRun(FB,FB+1,t,go?1:0,function(){if(go)FB++;fbIdle()})}else{var go2=t<.75;fbRun(FB-1,FB,t,go2?0:1,function(){if(go2)FB--;fbIdle()})}}
-document.addEventListener("click",function(e){var t=e.target;if(!t.dataset||t.dataset.fb!=="share")return;var u="https://claude.ai/artifact/B1FsDmGbCj44WiAYfmNxsB#bulletin",n=document.getElementById("fbn"),o=n.textContent,say=function(m){n.textContent=m;setTimeout(function(){n.textContent=o},2500)},cp=function(){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){say("הקישור הועתק")},function(){say(u)});else say(u)};
-if(navigator.share)navigator.share({title:"עלון שבועי – הרשקופ שול",text:"העלון השבועי של קהילת הרשקופ שול",url:u}).catch(function(er){if(!er||er.name!=="AbortError")cp()});else cp()});
-document.addEventListener("pointerup",fbEnd);document.addEventListener("click",function(e){var t=e.target,l=document.getElementById("lbx");if(t.tagName==="IMG"&&t.closest&&t.closest(".card .ph")){document.getElementById("lbi").src=t.src;l.classList.add("show")}else if(t===l||t.id==="lbi")l.classList.remove("show")});
-var PZ={s:1,x:0,y:0},PT={},G=null;
-function pzApply(){var s=document.getElementById("fbs");if(!s)return;var mx=s.offsetWidth*(PZ.s-1)/2,my=s.offsetHeight*(PZ.s-1)/2;PZ.x=Math.max(-mx,Math.min(mx,PZ.x));PZ.y=Math.max(-my,Math.min(my,PZ.y));s.classList.toggle("zm",PZ.s>1.01);s.style.transform=PZ.s>1.001?"translate("+PZ.x+"px,"+PZ.y+"px) scale("+PZ.s+")":"none"}
-function pzSet(v){PZ.s=v;if(v<=1){PZ.x=0;PZ.y=0}pzApply()}
-document.addEventListener("pointerdown",function(e){var s=document.getElementById("fbs");if(!s||!e.target.closest||!e.target.closest("#fbs"))return;PT[e.pointerId]=[e.clientX,e.clientY];var k=Object.keys(PT);
-if(k.length===2){DR=null;if(!FA)fbIdle();var a=PT[k[0]],b=PT[k[1]],r=s.getBoundingClientRect(),mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,cx=r.left+r.width/2-PZ.x,cy=r.top+r.height/2-PZ.y;G={d:Math.hypot(a[0]-b[0],a[1]-b[1])||1,s:PZ.s,cx:cx,cy:cy,px:(mx-cx-PZ.x)/PZ.s,py:(my-cy-PZ.y)/PZ.s}}
-else if(k.length===1&&PZ.s>1.01)G={pan:1,x0:e.clientX,y0:e.clientY,tx:PZ.x,ty:PZ.y}});
-document.addEventListener("pointermove",function(e){if(!PT[e.pointerId])return;PT[e.pointerId]=[e.clientX,e.clientY];if(!G)return;var k=Object.keys(PT);
-if(G.pan){if(k.length===1){PZ.x=G.tx+e.clientX-G.x0;PZ.y=G.ty+e.clientY-G.y0;pzApply()}return}
-if(k.length>=2){var a=PT[k[0]],b=PT[k[1]],mx=(a[0]+b[0])/2,my=(a[1]+b[1])/2,s=Math.max(1,Math.min(4,G.s*Math.hypot(a[0]-b[0],a[1]-b[1])/G.d));PZ.s=s;PZ.x=mx-G.cx-G.px*s;PZ.y=my-G.cy-G.py*s;pzApply()}});
-function pzEnd(e){delete PT[e.pointerId];var k=Object.keys(PT);if(!k.length){G=null;if(PZ.s<1.05)pzSet(1)}else if(k.length<2&&G&&!G.pan)G=null}
-document.addEventListener("pointerup",pzEnd);document.addEventListener("pointercancel",pzEnd);
-var WIN={wk:"",nums:[331,337,342,343,350]};
-var winnerStatus={};
-function refreshWinnerStatus(){fetch("/api/winners",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("status");return r.json()}).then(function(d){(d.winners||[]).forEach(function(w){var n=String(w.number),registered=!!w.registered;winnerStatus[n]=registered;var st=document.querySelector('[data-status="'+n+'"]'),bt=document.querySelector('.winner-num[data-winner="'+n+'"]');if(st){st.textContent=registered?"נרשם זוכה":"ממתין לזכייה";st.hidden=false;st.classList.toggle("done",registered)}if(bt)bt.disabled=registered})}).catch(function(){})}
-function showWinnerCongrats(){var modal=document.getElementById("winner-congrats"),confetti=document.getElementById("winner-confetti");confetti.innerHTML="";var colors=["#f4c542","#e74c3c","#2ecc71","#3498db","#9b59b6","#ff8c42"];for(var i=0;i<48;i++){var piece=document.createElement("i");piece.style.setProperty("--x",Math.random()*100+"%");piece.style.setProperty("--c",colors[i%colors.length]);piece.style.setProperty("--d",(Math.random()*.9)+"s");piece.style.setProperty("--r",Math.random()*360+"deg");piece.style.setProperty("--drift",(Math.random()*150-75)+"px");confetti.appendChild(piece)}modal.classList.add("show")}
-document.getElementById("winner-congrats-close").addEventListener("click",function(){document.getElementById("winner-congrats").classList.remove("show")});
-document.getElementById("winner-congrats").addEventListener("click",function(e){if(e.target.id==="winner-congrats")e.currentTarget.classList.remove("show")});
-var winnerModalStatePushed=false;
-function closeWinnerModal(fromPopState){
- if(winnerModalStatePushed&&!fromPopState){winnerModalStatePushed=false;history.back()}
- else winnerModalStatePushed=false;
- document.getElementById("winner-modal").classList.remove("show");
-}
-var selectedWinner="";
-document.addEventListener("click",function(e){
- var b=e.target.closest&&e.target.closest("[data-winner]");
- if(b){
-  var n=String(b.dataset.winner);
-  if(winnerStatus[n])return;
-  selectedWinner=n;
-  document.getElementById("winner-picked").textContent="מספר זכייה: "+n;
-  document.getElementById("winner-msg").textContent="";
-  document.getElementById("winner-first").value="";
-  document.getElementById("winner-last").value="";
-  document.getElementById("winner-modal").classList.add("show");
-  if(!winnerModalStatePushed){history.pushState({winnerModal:true},"",location.href);winnerModalStatePushed=true}
-  document.getElementById("winner-first").focus();
- }
- if(e.target.id==="winner-close"||e.target.id==="winner-exit"||e.target.id==="winner-modal")closeWinnerModal();
-});
-window.addEventListener("popstate",function(){if(winnerModalStatePushed)closeWinnerModal(true)});
 document.getElementById("winner-form").addEventListener("submit",function(e){
  e.preventDefault();
  var first=document.getElementById("winner-first").value.trim();
@@ -539,7 +47,139 @@ var PAGES={fathers:{t:"אבות ובנים",l:"לימוד משותף של אבו
 var HOME={v:2,hero:"379098887f35c7829d7c874b2af0a60a",btn:"הודעות ועדכונים",tiles:[{t:"הרש-שופ",h:"#shop-100",img:"c3bcfa582c74dd293be993a88e1a16b4"},{t:"אבות ובנים",h:"#fathers",img:"fa5a6ed53289eac37086f53cbdc4406d"},{t:"עלון שבועי",h:"#bulletin",img:"55bee9a3b584d3d62859d68c6830237e"},{t:"הרש-קישורים",h:"#links",img:"37e9afa59d40a1fad4735f21fc899741"}]};
 function stk(x){return x.s==null||x.s===""?'':'<div class="stk'+(x.s<=0?' out':'')+'">'+(x.s>0?'כמות במלאי: '+x.s:'אזל מהמלאי')+'</div>'}
 function em(s){return esc(s).replace(/\*([^*\n]+)\*/g,"<strong>$1</strong>")}
-function pageRender(k){var p=PAGES[k];if(k==="fathers")setTimeout(refreshWinnerStatus,0);if(k==="bulletin"){var pt=String(p.t).split(" – ");document.getElementById(k).innerHTML='<div class="bh"><h1>'+em(pt[0])+'</h1>'+(pt[1]?'<span class="bp">'+em(pt.slice(1).join(" – "))+'</span>':'')+'</div>'+bullHtml()+(cloud?'<p><button class="btn alt" data-edit="bulletin">✏ עריכת העלון</button></p>':'');fbInit();return}document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+(k==="fathers"?winHtml():'')+(p.l?'<p class="lead">'+em(p.l)+'</p>':'')+p.b.split(/\n\s*\n/).filter(Boolean).map(function(s){return '<div class="panel">'+s.split("\n").map(function(l){var m=l.match(/^(.+?)\s*\|\s*(https?:\/\/\S+)$/);return m?'<p><a class="lnk'+(lic(m[1],m[2])?' ic':'')+'" href="'+esc(m[2])+'" target="_blank" rel="noopener">'+lic(m[1],m[2])+em(m[1])+'</a></p>':'<p>'+em(l)+'</p>'}).join("")+'</div>'}).join("")+(cloud?'<p><button class="btn alt" data-edit="'+k+'">✏ עריכת העמוד</button></p>':'')}
+function pageRender(k){var p=PAGES[k];if(k==="fathers")setTimeout(refreshWinnerStatus,0);if(k==="bulletin"){var pt=String(p.t).split(" – ");document.getElementById(k).innerHTML='<div class="bh"><h1>'+em(pt[0])+'</h1>'+(pt[1]?'<span class="bp">'+em(pt.slice(1).join(" – "))+'</span>':'')+'</div>'+bullHtml()+(cloud?'<p><button class="btn alt" data-edit="bulletin">✏ עריכת העלון</button></p>':'');fbInit();return}document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+(k==="fathers"?winHtml()+'<div class="panel"><h3>בדיקת זכייה לפי מספר</h3><p class="lead">אפשר להזין מספר כרטיס כדי לבדוק אם זכה בהגרלות של 30 הימים האחרונים.</p><div style="display:flex;gap:8px;align-items:center"><input id="history-manual-number" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="הזן מספר כרטיס" style="margin:0;min-width:0"><button type="button" class="btn" id="history-manual-check">בדיקה</button></div><div id="history-manual-result" hidden aria-live="polite" style="margin-top:10px;text-align:center;font-weight:700"></div></div>':'')+(p.l?'<p class="lead">'+em(p.l)+'</p>':'')+p.b.split(/\n\s*\n/).filter(Boolean).map(function(s){return '<div class="panel">'+s.split("\n").map(function(l){var m=l.match(/^(.+?)\s*\|\s*(https?:\/\/\S+)$/);return m?'<p><a class="lnk'+(lic(m[1],m[2])?' ic':'')+'" href="'+esc(m[2])+'" target="_blank" rel="noopener">'+lic(m[1],m[2])+em(m[1])+'</a></p>':'<p>'+em(l)+'</p>'}).join("")+'</div>'}).join("")+(cloud?'<p><button class="btn alt" data-edit="'+k+'">✏ עריכת העמוד</button></p>':'')}
+function lic(l,u){var s=l+" "+u,a='<svg class="li" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+if(/whatsapp|wa\.me|וואצאפ|וואטסאפ|ווצאפ|ווטסאפ/i.test(s))return '<svg class="li" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#25D366" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/><path fill="#fff" d="M16.6 14.2c-.2-.1-1.3-.6-1.5-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.1 6.1 0 0 1-3-2.6c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.3c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.7.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.1-.4-.2z"/></svg>';
+if(/תשלום|אשראי|תרומ/.test(l))return a+'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg>';
+if(/\/forms\/|טופס|עדכון/.test(s))return a+'<rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4h6v3H9z"/><path d="M8.5 12h7M8.5 16h5"/></svg>';
+return""}
+function pgAnim(k){var e=document.getElementById(k);if(!e||!e.animate||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))return;e.animate([{opacity:0,transform:"translateY(18px)"},{opacity:1,transform:"none"}],{duration:420,easing:"ease-out"})}
+function homeRender(){document.getElementById("hero").innerHTML=HOME.hero?'<img src="'+A(HOME.hero)+'" alt="הרשקופ שול">':'<h1>הרשקופ שול</h1>';document.getElementById("tiles").innerHTML=HOME.tiles.map(function(x){return '<a class="tile" href="'+x.h+'">'+(x.img?'<img src="'+A(x.img)+'" alt="'+esc(x.t)+'">':'<span>'+esc(x.t)+'</span>')+'</a><hr>'}).join("");document.getElementById("newsbtn").textContent=HOME.btn;if(cloud)document.getElementById("tiles").insertAdjacentHTML("beforeend",'<button class="btn alt" data-edit="home">✏ עריכת עמוד הבית</button>')}
+function TABS(){document.getElementById("atabs").innerHTML=[["p","מוצרים"],["h","עמוד הבית"],["g","דפים"]].map(function(x){return '<button class="chip'+(tab===x[0]?' on':'')+'" data-tab="'+x[0]+'">'+x[1]+'</button>'}).join("");document.getElementById("addp").hidden=tab!=="p";dirty()}
+function homeAdmin(){var im=function(i){return '<div class="ph">'+(i?'<img src="'+A(i)+'">':'')+'</div>'};return '<div class="panel arow">'+im(HOME.hero)+'<b>תמונת כותרת</b><label class="btn alt">החלפה<input type="file" accept="image/*" data-up="hero" hidden></label></div>'+HOME.tiles.map(function(x,i){return '<div class="panel arow">'+im(x.img)+'<input data-ti="'+i+'" value="'+esc(x.t)+'" aria-label="כותרת"><label class="btn alt">החלפת תמונה<input type="file" accept="image/*" data-up="'+i+'" hidden></label></div>'}).join("")+'<div class="panel arow"><b>טקסט הכפתור</b><input data-hb value="'+esc(HOME.btn)+'"></div>'+Object.keys(NV).map(function(k){return '<div class="panel arow"><div class="ph">'+(HOME.ban&&HOME.ban[k]?'<img src="'+A(HOME.ban[k])+'">':'')+'</div><b>באנר: '+TIERS[k]+'</b><label class="btn alt">החלפה<input type="file" accept="image/*" data-up="b:'+k+'" hidden></label></div>'}).join("")}
+function pagesAdmin(){return (ek?[ek]:Object.keys(PAGES)).map(function(k){var p=PAGES[k];if(k==="bulletin")return bullAdmin();return '<div class="panel"><h3>'+esc(p.t)+'</h3><input data-pg="'+k+'" data-f="t" value="'+esc(p.t)+'" aria-label="כותרת"><input data-pg="'+k+'" data-f="l" value="'+esc(p.l)+'" aria-label="משפט פתיחה"><textarea rows="6" data-pg="'+k+'" data-f="b" aria-label="תוכן">'+esc(p.b)+'</textarea></div>'}).join("")+'<p class="lead">שורה בצורה: טקסט | https://... הופכת לקישור. שורה ריקה מפרידה בין פסקאות. טקסט בין כוכביות, למשל *כך*, יודגש.</p>'}
+document.addEventListener("input",function(e){var t=e.target,d=t.dataset;if(d.pg)PAGES[d.pg][d.f]=t.value;else if(d.ti!=null)HOME.tiles[d.ti].t=t.value;else if(t.hasAttribute("data-hb"))HOME.btn=t.value});
+document.addEventListener("change",function(e){var t=e.target,u=t.dataset.up;if(u==null||!t.files[0])return;amsg("מעלה…");shrink(t.files[0],1400).then(function(b){return asset.upload(b)}).then(function(r){if(u==="hero")HOME.hero=r.id;else if(String(u).indexOf("b:")===0){HOME.ban=HOME.ban||{};HOME.ban[u.slice(2)]=r.id}else HOME.tiles[u].img=r.id;amsg("הועלה. לחצו שמירה.");renderAdmin()}).catch(function(){amsg("ההעלאה נכשלה.")})});
+document.addEventListener("click",function(e){var t=e.target;if(t.id==="burger")document.querySelector("header").classList.toggle("open");if(t.dataset.bdel!=null){BULL.splice(+t.dataset.bdel,1);renderAdmin()}if(t.dataset.tab){tab=t.dataset.tab;ek=null;renderAdmin()}if(t.dataset.edit){var q=t.dataset.edit;ek=(q==="home"||q==="shop")?null:q;tab=q==="home"?"h":q==="shop"?"p":"g";if(location.hash==="#admin")renderAdmin();else location.hash="#admin"}});
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function pic(x){var urls=Array.isArray(x.imgs)&&x.imgs.length?x.imgs:(x.img?[x.img]:[]);if(!urls.length)return x.e||"🎁";function src(v){return String(v).indexOf("http")===0||String(v).charAt(0)==="/"?v:A(v)}var h='<div class="product-gallery" data-gallery>';urls.forEach(function(u,i){h+='<img class="product-photo'+(i===0?" active":"")+'" src="'+esc(src(u))+'" alt="'+esc(x.n)+'" loading="lazy">'});if(urls.length>1){h+='<button type="button" class="gallery-step prev" data-gallery-step="-1" aria-label="תמונה קודמת">›</button><button type="button" class="gallery-step next" data-gallery-step="1" aria-label="תמונה הבאה">‹</button><div class="gallery-dots">';urls.forEach(function(u,i){h+='<button type="button" data-gallery-index="'+i+'" class="'+(i===0?"active":"")+'" aria-label="תמונה '+(i+1)+'"></button>'});h+='</div>'}return h+'</div>'}
+function orderText(){var items=[],sum=0;PRODUCTS.forEach(function(x){var q=cart[x.id]||0;if(q){items.push(x.n+" × "+q+" = "+(q*x.p)+" הרשקלים");sum+=q*x.p}});var msg="*הזמנת הרש-שופ*\n*מוצרים:*\n"+items.join("\n\n")+"\n\n*סה״כ:*\n"+sum;var name=document.getElementById("nm").value.trim(),notes=document.getElementById("nt").value.trim();if(name)msg+="\n\n*שם:*\n"+name;if(notes)msg+="\n\n*הערות:*\n"+notes;return msg}
+function renderAdmin(){var el=document.getElementById("alist");if(!cloud){el.innerHTML="<p>אין הרשאת ניהול.</p>";return}
+TABS();document.getElementById("savep").hidden=tab==="p";document.getElementById("addp").hidden=true;if(tab!=="p"){el.innerHTML=tab==="h"?homeAdmin():pagesAdmin();return}
+el.innerHTML='<div class="panel"><h3>ניהול המוצרים מתבצע ב-Airtable</h3><p>עדכוני שם, מחיר, מלאי, תמונה ותגיות יופיעו באתר לאחר רענון הנתונים.</p><a class="btn" href="https://airtable.com/app4Bzao9FxtOgAS8" target="_blank" rel="noopener">פתיחת מאגר המוצרים</a><p class="lead">מספר מוצרים במאגר: '+PRODUCTS.length+'</p></div>'+PRODUCTS.map(function(x){return '<div class="panel arow"><div class="ph">'+pic(x)+'</div><div><b>'+esc(x.n)+'</b><div class="lead">'+x.p+' הרשקלים · מלאי: '+(x.s==null?"לא מוגדר":x.s)+'</div></div></div>'}).join("")}
+function shrink(f,m){return createImageBitmap(f).then(function(b){var s=Math.min(1,(m||700)/Math.max(b.width,b.height)),c=document.createElement("canvas");c.width=Math.round(b.width*s);c.height=Math.round(b.height*s);c.getContext("2d").drawImage(b,0,0,c.width,c.height);return new Promise(function(r,j){c.toBlob(function(x){x?r(x):j()},"image/jpeg",.85)})})}
+function amsg(t){document.getElementById("amsg").textContent=t}
+document.addEventListener("input",function(e){var t=e.target,i=t.dataset.i;if(i==null||t.type==="checkbox"||t.type==="file")return;PRODUCTS[i][t.dataset.k]=t.dataset.k==="p"?(Number(t.value)||0):t.dataset.k==="s"?(t.value===""?null:Math.max(0,Math.floor(Number(t.value)||0))):t.value});
+document.addEventListener("change",function(e){var t=e.target,i=t.dataset.i;if(i==null)return;
+if(t.type==="checkbox"){PRODUCTS[i][t.dataset.k]=t.checked}
+else if(t.type==="file"&&t.files[0]){amsg("מעלה תמונה…");shrink(t.files[0]).then(function(b){return asset.upload(b)}).then(function(r){PRODUCTS[i].img=r.id;amsg("התמונה הועלתה. לחצו שמירה.");renderAdmin()}).catch(function(){amsg("העלאת התמונה נכשלה.")})}});
+document.addEventListener("click",function(e){var t=e.target;
+if(t.id==="adm")location.hash="#admin";
+if(t.id==="addp"){PRODUCTS.push({id:Date.now(),n:"מוצר חדש",p:50,e:"🎁"});renderAdmin()}
+if(t.dataset.del!=null){PRODUCTS.splice(+t.dataset.del,1);renderAdmin()}
+if(t.id==="wa")t.href="https://wa.me/972586796770?text="+encodeURIComponent(orderText());
+if(t.id==="savep"){amsg("שומר…");cloud.publish({"site.json":JSON.stringify({products:PRODUCTS,pages:PAGES,home:HOME,bull:BULL,winners:WIN,bv:1,bw:BW,pv:3,ad:ADV})}).then(function(){amsg("נשמר ✓");snap();dirty();render()},function(er){var c=er&&er.code;amsg(c==="not_writer"?"אין הרשאת עריכה.":c==="capability_disabled"?"השמירה לא זמינה בתצוגה הזו. פתחו את הדף מהחשבון שלכם.":"השמירה נכשלה, נסו שוב.")})}});
+function init(){
+fetch("site.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():EMB}).catch(function(){return EMB}).then(function(d){if(d){if(Array.isArray(d.products)){PRODUCTS=d.products}if(d.pages){PAGES=d.pages;if(PAGES.bulletin&&PAGES.bulletin.t==="עלון שבועי")PAGES.bulletin.t="עלון שבועי – פרשת חיי שרה"}if(d.bw===BW&&Array.isArray(d.bull))BULL=d.bull;else if(PAGES.bulletin)PAGES.bulletin.t=BT;if(d.winners&&Array.isArray(d.winners.nums))WIN={wk:d.winners.wk||"",nums:d.winners.nums};if(d.home){if(d.home.v!==2){d.home.v=2;d.home.hero=HOME.hero}HOME=d.home;HOME.tiles.forEach(function(t){if(t.h==="#shop-all")t.h="#shop-100"})}}}).catch(function(){}).then(function(){return fetch("/api/products").then(function(r){if(!r.ok)throw new Error("Airtable products request failed");return r.json()}).then(function(p){if(Array.isArray(p))PRODUCTS=p}).catch(function(err){console.warn("Using bundled product fallback:",err)})}).then(function(){snap();route()});
+if(window.claude&&claude.use){claude.use("user").then(function(u){if(!(u&&u.canEdit&&u.canEdit()))return;return Promise.all([claude.use("artifact"),claude.use("assets")]).then(function(a){cloud=a[0];asset=a[1];if(cloud){document.getElementById("adm").hidden=false;route()}})}).catch(function(){})}}
+init();
+
+(function(){
+  var installButton=document.getElementById("install-app");
+  var deferredInstall=null;
+  var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone=window.matchMedia("(display-mode: standalone)").matches||window.navigator.standalone===true;
+  if(isStandalone) installButton.hidden=true;
+  window.addEventListener("beforeinstallprompt",function(event){
+    event.preventDefault();
+    deferredInstall=event;
+    installButton.hidden=false;
+  });
+  installButton.addEventListener("click",function(){
+    if(deferredInstall){
+      deferredInstall.prompt();
+      deferredInstall.userChoice.then(function(){deferredInstall=null;installButton.hidden=true});
+    }else if(isIOS){
+      alert('להתקנה באייפון: פתח את תפריט השיתוף בדפדפן ובחר "הוספה למסך הבית".');
+    }else{
+      alert('אם אפשרות ההתקנה לא מופיעה, פתח את תפריט הדפדפן ובחר "התקנת אפליקציה" או "הוספה למסך הבית".');
+    }
+  });
+  window.addEventListener("appinstalled",function(){installButton.hidden=true});
+  if("serviceWorker" in navigator){
+    window.addEventListener("load",function(){
+      navigator.serviceWorker.register("./sw.js").catch(function(error){console.error("Service worker registration failed",error)});
+    });
+  }
+})();
+
+</script>
+<script src="./popup.js?v=6" defer></script>
+</body>
+</html>
+
+document.addEventListener("click",function(e){
+ var check=e.target.closest&&e.target.closest("#history-manual-check");
+ if(!check)return;
+ var input=document.getElementById("history-manual-number"),result=document.getElementById("history-manual-result"),number=input.value.trim();
+ if(!/^[0-9]{1,10}$/.test(number)){result.hidden=false;result.textContent="יש להזין מספר תקין בן 1 עד 10 ספרות.";return}
+ check.disabled=true;result.hidden=false;result.textContent="בודק את המספר…";
+ fetch("/api/winners/check",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({number:number})})
+ .then(function(r){return r.json().then(function(d){if(!r.ok)throw Error(d.error||"לא ניתן לבדוק");return d})})
+ .then(function(d){if(d.wins&&d.wins.length){result.innerHTML="<strong style=\"color:#247a3d\">🎉 המספר זכה!</strong>"+d.wins.map(function(w){return "<p>פרשת "+esc(w.parsha)+" · "+esc(w.date)+"</p>"}).join("")}else result.textContent="המספר לא זכה בהגרלות של 30 הימים האחרונים."})
+ .catch(function(err){result.textContent=err.message||"לא ניתן לבדוק כרגע."})
+ .finally(function(){check.disabled=false});
+});
+
+document.getElementById("winner-form").addEventListener("submit",function(e){
+ e.preventDefault();
+ var first=document.getElementById("winner-first").value.trim();
+ var last=document.getElementById("winner-last").value.trim();
+ var msg=document.getElementById("winner-msg"),btn=document.getElementById("winner-submit");
+ if(!selectedWinner||!first||!last)return;
+ btn.disabled=true;msg.textContent="שומר פרטים…";
+ fetch("/api/winners",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({number:selectedWinner,firstName:first,lastName:last})})
+ .then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||"לא ניתן לשמור את הפרטים");return d})})
+ .then(function(){
+  winnerStatus[selectedWinner]=true;
+  var st=document.querySelector('[data-status="'+selectedWinner+'"]'),bt=document.querySelector('[data-winner="'+selectedWinner+'"]');
+  if(st){st.textContent="נרשם זוכה";st.hidden=false;st.classList.add("done")}
+  if(bt)bt.disabled=true;
+  msg.textContent="הפרטים נשמרו בהצלחה";
+  closeWinnerModal();showWinnerCongrats();
+ })
+ .catch(function(err){msg.textContent=err.message||"אירעה שגיאה, נסו שוב"})
+ .finally(function(){btn.disabled=false});
+});
+
+function winHtml(){return '<div class="panel win"><svg class="trophy" viewBox="0 0 200 220" aria-hidden="true"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3c4"/><stop offset=".45" stop-color="#f3c64b"/><stop offset="1" stop-color="#a97806"/></linearGradient><linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7dc6f"/><stop offset="1" stop-color="#8a6209"/></linearGradient></defs><path d="M52 40H26c0 40 14 62 40 68" fill="none" stroke="url(#g2)" stroke-width="10" stroke-linecap="round"/><path d="M148 40h26c0 40-14 62-40 68" fill="none" stroke="url(#g2)" stroke-width="10" stroke-linecap="round"/><path d="M52 30h96v52c0 36-22 62-48 62S52 118 52 82z" fill="url(#g1)"/><rect x="46" y="22" width="108" height="16" rx="8" fill="url(#g2)"/><path d="M70 42h12v44c0 14 5 26 12 33-14-4-24-20-24-40z" fill="#fff" opacity=".4"/><path d="M100 60l8 17 19 2-14 13 4 19-17-10-17 10 4-19-14-13 19-2z" fill="#fff6d6" opacity=".92"/><path d="M90 143h20l6 22H84z" fill="url(#g2)"/><rect x="60" y="165" width="80" height="16" rx="5" fill="url(#g1)"/><rect x="46" y="181" width="108" height="20" rx="6" fill="url(#g2)"/><rect x="58" y="187" width="84" height="8" rx="3" fill="#fff" opacity=".18"/><path class="tw" d="M22 24l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#fff6c9"/><path class="tw tw2" d="M176 18l2.5 6.5 6.5 2.5-6.5 2.5-2.5 6.5-2.5-6.5-6.5-2.5 6.5-2.5z" fill="#fff6c9"/><path class="tw tw3" d="M170 120l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff6c9"/></svg><h3>הזוכים בהגרלה</h3><p class="winner-week">'+(WIN.wk?esc(WIN.wk):'של השבוע הקודם')+'</p>'+'<p class="sub">לחץ על המספר כדי לרשום זוכה</p>' +(WIN.nums.length?'<div class="wn">'+WIN.nums.map(function(n){return '<div class="winner-item"><button type="button" class="winner-num" data-winner="'+esc(n)+'">'+esc(n)+'</button><div class="winner-status" data-status="'+esc(n)+'">ממתין לזכייה</div></div>'}).join("")+'</div>':'<p class="sub">הזוכים יפורסמו בקרוב.</p>')+'</div>'}
+function winOld(){return '<div class="panel win"><svg viewBox="0 0 120 124" width="120" height="124" aria-hidden="true"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7dc6f"/><stop offset="1" stop-color="#c9971c"/></linearGradient></defs><path d="M30 8h60v30c0 24-14 38-30 38S30 62 30 38z" fill="url(#gg)"/><path d="M30 16H12c0 22 8 34 22 36M90 16h18c0 22-8 34-22 36" fill="none" stroke="#c9971c" stroke-width="7" stroke-linecap="round"/><rect x="53" y="74" width="14" height="22" fill="#c9971c"/><rect x="36" y="96" width="48" height="12" rx="3" fill="url(#gg)"/><rect x="28" y="108" width="64" height="12" rx="3" fill="#8a6a12"/><path d="M60 20l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="#fff6c9"/></svg><h3>הזוכים בהגרלה של השבוע הקודם</h3>'+(WIN.wk?'<p class="stk">'+esc(WIN.wk)+'</p>':'')+(WIN.nums.length?'<div class="wn">'+WIN.nums.map(function(n){return '<span>'+esc(n)+'</span>'}).join("")+'</div>':'<p class="lead">הזוכים יפורסמו בקרוב.</p>')+'</div>'}
+var NV={"100":1,"250":5,"over":10,"all":50},NC={1:["#8fc98e","#2d6a3a"],5:["#86bde0","#1b5a88"],10:["#e6bc72","#85571a"],50:["#cc92dc","#58277a"]};
+function note(v){var c=NC[v]||NC[1];return '<svg viewBox="0 0 400 160" role="img" aria-label="'+v+' הרשקלים"><rect x="4" y="4" width="392" height="152" rx="14" fill="'+c[0]+'" stroke="'+c[1]+'" stroke-width="6"/><rect x="16" y="16" width="368" height="128" rx="8" fill="none" stroke="'+c[1]+'" stroke-width="2" stroke-dasharray="6 4"/><circle cx="92" cy="80" r="52" fill="'+c[1]+'" opacity=".22"/><text x="92" y="100" font-size="58" font-weight="700" text-anchor="middle" fill="'+c[1]+'">'+v+'</text><text x="260" y="76" font-size="36" font-weight="700" text-anchor="middle" fill="'+c[1]+'">הרשקל</text><text x="260" y="114" font-size="22" text-anchor="middle" fill="'+c[1]+'">הרש-שופ</text></svg>'}
+function banHtml(k){var id=HOME.ban&&HOME.ban[k];return id?'<img src="'+A(id)+'" alt="">':note(NV[k]||1)}
+var ADV=1;
+var SNAP="";function cur(){return JSON.stringify({products:PRODUCTS,pages:PAGES,home:HOME,bull:BULL,winners:WIN})}function snap(){SNAP=cur()}
+function dirty(){var b=document.getElementById("cnl");if(b)b.hidden=!SNAP||cur()===SNAP}
+document.addEventListener("click",function(e){if(e.target.id!=="cnl"||!SNAP)return;var d=JSON.parse(SNAP);PRODUCTS=d.products;PAGES=d.pages;HOME=d.home;BULL=d.bull;WIN=d.winners||WIN;renderAdmin();render();amsg("השינויים בוטלו")});
+["input","change","click"].forEach(function(n){document.addEventListener(n,function(){setTimeout(dirty,60)})});
+var SHU=location.href.split("#")[0]+"#bulletin";
+document.addEventListener("click",function(e){var t=e.target,m=document.getElementById("shm"),g=function(i){return document.getElementById(i)};if(!m)return;
+if(t.dataset&&t.dataset.fb==="sharem"){var x=encodeURIComponent(SHU),w=encodeURIComponent("העלון השבועי של קהילת הרשקופ שול"),L=[["WhatsApp","https://wa.me/?text="+w+"%20"+x],["Telegram","https://t.me/share/url?url="+x+"&text="+w],["Facebook","https://www.facebook.com/sharer/sharer.php?u="+x],["X","https://twitter.com/intent/tweet?url="+x+"&text="+w],["LinkedIn","https://www.linkedin.com/sharing/share-offsite/?url="+x],["אימייל","mailto:?subject="+w+"&body="+x]];
+g("shg").innerHTML=L.map(function(a){return '<a class="chip" target="_blank" rel="noopener" href="'+a[1]+'">'+a[0]+'</a>'}).join("")+'<button type="button" class="chip" id="shc">העתקת קישור</button>'+(navigator.share?'<button type="button" class="chip" id="shd">במכשיר…</button>':'');g("shmsg").textContent="";m.classList.add("show");return}
+if(t.id==="shm"||t.id==="shx")m.classList.remove("show");
+if(t.id==="shc"){if(navigator.clipboard)navigator.clipboard.writeText(SHU).then(function(){g("shmsg").textContent="הקישור הועתק"},function(){g("shmsg").textContent=SHU});else g("shmsg").textContent=SHU}
+if(t.id==="shd")navigator.share({title:"עלון שבועי – הרשקופ שול",url:SHU}).catch(function(){})});
+document.addEventListener("pointercancel",fbEnd);
+document.addEventListener("input",function(e){if(e.target.id==="fbr"){FB=Math.max(0,+e.target.value-1);fbIdle()}});
+document.addEventListener("keydown",function(e){if(!document.getElementById("fbs")||!document.getElementById("bulletin").classList.contains("on"))return;if(e.key==="ArrowLeft")fbShow(FB+1);if(e.key==="ArrowRight")fbShow(FB-1)});
+function bullOld(){return BULL.length?BULL.map(function(f){return f.pdf?'<object class="bull" data="'+A(f.id)+'" type="application/pdf"><a class="btn" href="'+A(f.id)+'" target="_blank" rel="noopener">פתיחת העלון (PDF)</a></object>':'<img class="bull" src="'+A(f.id)+'" alt="עלון שבועי">'}).join(""):'<p class="lead">העלון יעלה בקרוב.</p>'}
+function bullAdmin(){var p=PAGES.bulletin;return '<div class="panel"><h3>עלון שבועי</h3><input data-pg="bulletin" data-f="t" value="'+esc(p.t)+'" aria-label="כותרת"><p class="lead">העלו את העלון כתמונות (מומלץ, עמוד אחד לכל תמונה) או כקובץ PDF.</p>'+BULL.map(function(f,i){return '<div class="arow">'+(f.pdf?'<div class="ph">📄</div>':'<div class="ph"><img src="'+A(f.id)+'"></div>')+'<b>'+(i+1)+'</b><button class="btn alt" data-bdel="'+i+'">מחיקה</button></div>'}).join("")+'<label class="btn alt">+ הוספת קבצים<input type="file" accept="image/*,application/pdf" multiple data-bup hidden></label></div>'}
+document.addEventListener("change",function(e){var t=e.target;if(!t.hasAttribute("data-bup"))return;amsg("מעלה…");Array.prototype.slice.call(t.files).reduce(function(pr,f){return pr.then(function(){var pdf=f.type==="application/pdf";return(pdf?Promise.resolve(f):shrink(f,2000)).then(function(b){return asset.upload(b)}).then(function(r){BULL.push({id:r.id,pdf:pdf})})})},Promise.resolve()).then(function(){amsg("הועלה. לחצו שמירה.");renderAdmin()}).catch(function(){amsg("ההעלאה נכשלה.");renderAdmin()})});
+var PAGES={fathers:{t:"אבות ובנים",l:"לימוד משותף של אבות ובנים.",b:"מועד הלימוד: יום וזמן קבועים – מלאו כאן.\n\nהצטרפות: מוזמנים להגיע, אין צורך בהרשמה מראש."},bulletin:{t:"עלון שבועי – פרשת תולדות",l:"העלון האחרון של בית הכנסת.",b:"פרשת השבוע: דבר תורה קצר, הודעות וזמנים.\n\nהודעות: שמחות, שיעורים ואירועים קרובים."},links:{t:"הרש-קישורים",l:"קישורים שימושיים.",b:"לדוגמה: אתר הקהילה | https://example.com"},news:{t:"הודעות ועדכונים",l:"",b:"אין הודעות כרגע."}};
+var HOME={v:2,hero:"379098887f35c7829d7c874b2af0a60a",btn:"הודעות ועדכונים",tiles:[{t:"הרש-שופ",h:"#shop-100",img:"c3bcfa582c74dd293be993a88e1a16b4"},{t:"אבות ובנים",h:"#fathers",img:"fa5a6ed53289eac37086f53cbdc4406d"},{t:"עלון שבועי",h:"#bulletin",img:"55bee9a3b584d3d62859d68c6830237e"},{t:"הרש-קישורים",h:"#links",img:"37e9afa59d40a1fad4735f21fc899741"}]};
+function stk(x){return x.s==null||x.s===""?'':'<div class="stk'+(x.s<=0?' out':'')+'">'+(x.s>0?'כמות במלאי: '+x.s:'אזל מהמלאי')+'</div>'}
+function em(s){return esc(s).replace(/\*([^*\n]+)\*/g,"<strong>$1</strong>")}
+function pageRender(k){var p=PAGES[k];if(k==="fathers")setTimeout(refreshWinnerStatus,0);if(k==="bulletin"){var pt=String(p.t).split(" – ");document.getElementById(k).innerHTML='<div class="bh"><h1>'+em(pt[0])+'</h1>'+(pt[1]?'<span class="bp">'+em(pt.slice(1).join(" – "))+'</span>':'')+'</div>'+bullHtml()+(cloud?'<p><button class="btn alt" data-edit="bulletin">✏ עריכת העלון</button></p>':'');fbInit();return}document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+(k==="fathers"?winHtml()+'<div class="panel"><h3>בדיקת זכייה לפי מספר</h3><p class="lead">אפשר להזין מספר כרטיס כדי לבדוק אם זכה בהגרלות של 30 הימים האחרונים.</p><div style="display:flex;gap:8px;align-items:center"><input id="history-manual-number" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="10" placeholder="הזן מספר כרטיס" style="margin:0;min-width:0"><button type="button" class="btn" id="history-manual-check">בדיקה</button></div><div id="history-manual-result" hidden aria-live="polite" style="margin-top:10px;text-align:center;font-weight:700"></div></div>':'')+(p.l?'<p class="lead">'+em(p.l)+'</p>':'')+p.b.split(/\n\s*\n/).filter(Boolean).map(function(s){return '<div class="panel">'+s.split("\n").map(function(l){var m=l.match(/^(.+?)\s*\|\s*(https?:\/\/\S+)$/);return m?'<p><a class="lnk'+(lic(m[1],m[2])?' ic':'')+'" href="'+esc(m[2])+'" target="_blank" rel="noopener">'+lic(m[1],m[2])+em(m[1])+'</a></p>':'<p>'+em(l)+'</p>'}).join("")+'</div>'}).join("")+(cloud?'<p><button class="btn alt" data-edit="'+k+'">✏ עריכת העמוד</button></p>':'')}
 function lic(l,u){var s=l+" "+u,a='<svg class="li" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
 if(/whatsapp|wa\.me|וואצאפ|וואטסאפ|ווצאפ|ווטסאפ/i.test(s))return '<svg class="li" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#25D366" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/><path fill="#fff" d="M16.6 14.2c-.2-.1-1.3-.6-1.5-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.1 6.1 0 0 1-3-2.6c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.3c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.7.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.1-.4-.2z"/></svg>';
 if(/תשלום|אשראי|תרומ/.test(l))return a+'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg>';
