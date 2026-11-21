@@ -89,7 +89,6 @@ export async function onRequest({ request, env }) {
     const nums = drawUnique(pool, WINNER_COUNT);
     const previous = await readLottery(request, env);
     const date = israelDate();
-    const parsha = wk.replace(/^של שבת\s*/u, "").replace(/^פרשת\s*/u, "");
     const history = [{ date, parsha, wk, nums, poolSize: pool.length }, ...(Array.isArray(previous.history) ? previous.history : [])];
     const lottery = { wk, parsha, input: input.trim(), nums, date, poolSize: pool.length, history, registrations: {}, drawnAt: new Date().toISOString() };
     await env.PRODUCT_IMAGES.put(KEY, JSON.stringify(lottery), {
