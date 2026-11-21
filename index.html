@@ -224,70 +224,14 @@ footer{padding-bottom:120px}
 body:has(#home.on) main{padding-bottom:16px}
 body:has(#home.on) footer{padding:16px 16px 24px}
 
-/* Camera-based lottery ticket verification. */
-#winner-modal{align-items:stretch;overflow:hidden}
-#winner-modal .sheet{width:100%;max-width:none;height:100%;max-height:100%;overflow:hidden;border-radius:0;padding:calc(12px + env(safe-area-inset-top,0px)) 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px}
-#winner-camera{display:flex;flex:1;min-height:0;flex-direction:column;gap:8px;margin:0;overflow:hidden}
-#winner-camera .winner-scan-view{position:relative;isolation:isolate;container-type:inline-size;flex:1;min-height:0;width:100%;overflow:hidden;border-radius:12px;background:#111;display:flex;align-items:center;justify-content:center}#winner-camera .winner-scan-view video,#winner-camera .winner-scan-view img{position:relative;z-index:1;display:block;width:100%;height:100%;min-height:0;object-fit:contain;background:#111}#winner-camera .winner-scan-view img[hidden]{display:none!important}#winner-camera .winner-scan-view.scanning:after{content:"";position:absolute;z-index:8;top:0;bottom:0;left:0;width:5px;background:linear-gradient(180deg,rgba(255,255,255,.95),#168bff 25%,#54c4ff 65%,rgba(255,255,255,.95));box-shadow:0 0 8px 3px rgba(35,155,255,.95),0 0 24px 9px rgba(35,155,255,.62);pointer-events:none;animation:history-blue-scan 1.65s ease-in-out infinite alternate}#winner-camera .winner-scan-view.scanning:before{content:"";position:absolute;z-index:7;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(35,155,255,.12) 48%,rgba(35,155,255,.24) 50%,rgba(35,155,255,.12) 52%,transparent 100%);pointer-events:none}#winner-camera .history-upload-label{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;min-height:44px;margin:0;padding:9px 12px;border:0;border-radius:10px;background:var(--accent);color:var(--onaccent);font:inherit;font-weight:600;text-align:center;white-space:nowrap;cursor:pointer}
-#winner-camera .camera-actions{display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0}
-#winner-camera .camera-actions .btn{flex:1}
-#winner-camera-note{font-size:.9rem;line-height:1.4;color:var(--muted,#777);margin:0;flex-shrink:0}
-#winner-camera .scan-help{margin:0;font-weight:700;text-align:center;flex-shrink:0}
-#winner-camera-fallback[hidden],#winner-camera-start[hidden],#winner-form[hidden],#winner-camera[hidden]{display:none!important}
-#winner-form{overflow:auto;min-height:0}
-#winner-exit{align-self:flex-end;flex-shrink:0}
-#winner-modal .sheet>h3{margin:0;text-align:center;flex-shrink:0}
-#winner-picked{margin:0;text-align:center;flex-shrink:0}
-html.winner-camera-open,html.winner-camera-open body{height:100%;overflow:hidden;overscroll-behavior:none}
-#history-check-modal{align-items:stretch;overflow:hidden}
-#history-check-modal .history-check-sheet{width:100%;max-width:none;height:100%;max-height:100%;overflow:hidden;border-radius:0;padding:calc(12px + env(safe-area-inset-top,0px)) 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
-#history-check-modal .history-scan-view{position:relative;flex:1;min-height:0;width:100%;overflow:hidden;border-radius:12px;background:#111;display:flex;align-items:center;justify-content:center}
-#history-check-modal .history-scan-view video,#history-check-modal .history-scan-view img{display:block;width:100%;height:100%;min-height:0;object-fit:contain;background:#111}
-#history-check-modal .history-scan-view img[hidden]{display:none!important}
-#history-check-modal .history-scan-view.scanning:after{content:"";position:absolute;top:0;bottom:0;left:0;width:3px;background:#46f5a0;box-shadow:0 0 8px 3px rgba(70,245,160,.85),0 0 24px 7px rgba(70,245,160,.45);pointer-events:none;animation:history-scan-sweep 1.8s ease-in-out infinite alternate}
-@keyframes history-scan-sweep{from{left:0}to{left:calc(100% - 3px)}}
-@media(prefers-reduced-motion:reduce){#history-check-modal .history-scan-view.scanning:after{animation-duration:3.5s}}
-#history-check-modal .camera-actions{display:flex;gap:8px;flex-shrink:0}
-#history-check-modal .camera-actions .btn{flex:1}
-#history-check-modal [hidden]{display:none!important}
-#history-check-exit{align-self:flex-end;flex-shrink:0}
-#history-check-modal h3,#history-check-modal .scan-help,#history-check-note{margin:0;text-align:center;flex-shrink:0}
-#history-check-result{overflow:auto;text-align:center;padding:14px;border-radius:12px;background:var(--bg);font-weight:700}
-
-
-/* Historical lottery scan overlay */
-#history-check-modal .history-scan-view{isolation:isolate;position:relative;container-type:inline-size}
-#history-check-modal .history-scan-view video,#history-check-modal .history-scan-view img{position:relative;z-index:1}
-#history-check-modal .history-scan-view.scanning::after{content:"";display:block;position:absolute;z-index:8;top:0;bottom:0;left:0;width:5px;background:linear-gradient(180deg,rgba(255,255,255,.95),#168bff 25%,#54c4ff 65%,rgba(255,255,255,.95));box-shadow:0 0 8px 3px rgba(35,155,255,.95),0 0 24px 9px rgba(35,155,255,.62);pointer-events:none;animation:history-blue-scan 1.65s ease-in-out infinite alternate}
-#history-check-modal .history-scan-view.scanning::before{content:"";position:absolute;z-index:7;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(35,155,255,.12) 48%,rgba(35,155,255,.24) 50%,rgba(35,155,255,.12) 52%,transparent 100%);pointer-events:none}
-@keyframes history-blue-scan{from{transform:translateX(0)}to{transform:translateX(calc(100cqw - 5px))}}
-#history-check-modal .camera-actions .history-upload-label{display:flex;align-items:center;justify-content:center;flex:1;min-width:0;min-height:44px;margin:0;padding:9px 12px;border:0;border-radius:10px;background:var(--accent);color:var(--onaccent);font:inherit;font-weight:600;text-align:center;white-space:nowrap;cursor:pointer}
-.history-check-actions{display:flex;gap:8px;flex-wrap:wrap}
-.history-check-actions .btn{flex:1;min-width:0}
-.history-manual-panel{margin-top:10px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
-.history-manual-panel[hidden]{display:none!important}
-.history-manual-panel>label{display:block;text-align:center;font-weight:700}
-.history-manual-row{display:flex;align-items:center;gap:8px}
-.history-manual-row input{min-width:0;flex:1;margin:0;text-align:center;direction:ltr}
-.history-manual-row .btn{flex:0 0 auto}
-#history-manual-result{margin-top:10px;text-align:center;font-weight:700}
 .winner-week{display:inline-block;margin:8px auto 12px;padding:7px 16px;border:1px solid rgba(243,213,138,.7);border-radius:999px;background:linear-gradient(135deg,rgba(255,255,255,.18),rgba(201,151,28,.18));box-shadow:0 3px 10px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.45);font-weight:800;color:var(--text)}
-.wn .winner-name{min-height:1.2em;margin-top:5px;text-align:center;font-size:.82rem;font-weight:700;line-height:1.25;color:var(--text)}
-.wn .winner-name[hidden]{display:none!important}
 .wn .winner-num{position:relative;isolation:isolate;overflow:hidden}
 .wn .winner-num::after{content:"";position:absolute;z-index:2;top:-35%;left:-65%;width:42%;height:170%;transform:rotate(28deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.95),rgba(255,255,255,.25),transparent);pointer-events:none;animation:lottery-ball-shine 3.2s ease-in-out infinite}
 @keyframes lottery-ball-shine{0%,58%{left:-65%;opacity:0}65%{opacity:1}88%,100%{left:130%;opacity:0}}
-@media(prefers-reduced-motion:reduce){#history-check-modal .history-scan-view.scanning::after,.wn .winner-num::after{animation:none}}
+@media(prefers-reduced-motion:reduce){.wn .winner-num::after{animation:none}}
 /* Final winner-ball and verification-camera layout overrides. */
 .wn .winner-num{box-sizing:border-box!important;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:68px!important;height:68px!important;min-width:68px!important;min-height:68px!important;padding:0!important;border:2px solid #fff2b8!important;border-radius:50%!important;background:radial-gradient(circle at 32% 25%,#fff8d7 0%,#f8dc7c 18%,#d8a52b 58%,#8d610b 100%)!important;color:#382600!important;font-size:1.35rem!important;font-weight:800!important;line-height:1!important;box-shadow:inset 0 3px 7px rgba(255,255,255,.85),inset 0 -5px 9px rgba(91,54,0,.32),0 4px 9px rgba(0,0,0,.24)!important}
 .wn .winner-num:disabled{opacity:1!important;filter:saturate(.75)}
-#winner-camera .winner-scan-view{flex:1 1 0!important;min-height:0!important;height:auto!important;max-height:100%!important}
-#winner-camera .winner-scan-view img{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:contain!important}#winner-camera{height:100%!important;min-height:0!important}#winner-modal .sheet{min-height:100dvh!important}
-#winner-camera-fallback[hidden]{display:none!important}
-#winner-camera-fallback .camera-actions{width:100%}
-#winner-camera-fallback .camera-actions .btn{min-height:46px}
-
-
 /* Mobile menu update timestamp */
 .menu-updated{display:none}
 @media(max-width:759px){.menu-updated{display:block;margin-top:12px;padding:12px 10px 4px;border-top:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.68);font-size:.78rem;line-height:1.6;text-align:center}}
