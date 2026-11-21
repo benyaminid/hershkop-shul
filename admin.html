@@ -70,8 +70,9 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
 <section id="lotteryTab" class="admin-tab-panel" hidden>
 <div class="panel">
   <div class="topline"><div><h2>הגרלה שבועית</h2><p class="muted">הזן את מספרי הכרטיסים שייכנסו להגרלה. ייבחרו חמישה מספרים שונים, בסיכוי שווה לכל מספר.</p></div></div>
-  <label for="lotteryWeek">שם ההגרלה / פרשה</label>
-  <input id="lotteryWeek" maxlength="100" placeholder="לדוגמה: של שבת פרשת וישב">
+  <label for="lotteryParsha">שם הפרשה</label>
+  <input id="lotteryParsha" maxlength="80" placeholder="לדוגמה: ויצא">
+  <p class="muted" id="lotteryParshaSource">שם הפרשה יילקח אוטומטית מהעלון השבועי. אפשר לשנות אותו לפני ההגרלה.</p>
   <label for="lotteryNumbers">מספרי הכרטיסים</label>
   <textarea id="lotteryNumbers" rows="3" maxlength="2000" dir="ltr" style="text-align:left" placeholder="לדוגמה: 100-150,200,250-260"></textarea>
   <p class="muted">מקף (-) מרחיב טווח כולל, למשל 100-150. פסיק (,) מפריד מספרים בודדים, למשל 100,105,110. אפשר לשלב בין הצורות.</p>
@@ -265,20 +266,38 @@ function renderLottery(){
  const past=Array.isArray(lotteryState.history)?lotteryState.history:[];
  history.innerHTML=past.length?'<h2 style="margin-top:22px">היסטוריית הגרלות</h2>'+past.slice(0,10).map(h=>'<div class="item" style="cursor:default"><div class="itemmain"><strong>'+escapeHtml(h.parsha||h.wk||"הגרלה")+'</strong><small>'+escapeHtml(h.date||"")+' · '+(h.nums||[]).map(escapeHtml).join(", ")+'</small></div></div>').join(""):"";
 }
+function parshaFromTitle(title){
+ const value=String(title||"").trim();
+ const match=value.match(/פרשת\\s+(.+?)(?:\\s*[–—-]\\s*|$)/u);
+ return (match?match[1]:value.replace(/^עלון שבועי\\s*[–—-]?\\s*/u,"").replace(/^פרשת\\s*/u,"")).trim();
+}
+async function defaultLotteryParsha(){
+ if(bulletinState&&bulletinState.parsha)return String(bulletinState.parsha).trim();
+ try{
+  const response=await fetch("/site.json",{cache:"no-store"});
+  if(response.ok){const site=await response.json();const title=site&&site.pages&&site.pages.bulletin&&site.pages.bulletin.t;const found=parshaFromTitle(title);if(found)return found}
+ }catch{}
+ return lotteryState&&lotteryState.parsha?String(lotteryState.parsha):parshaFromTitle(lotteryState&&lotteryState.wk);
+}
 async function loadLottery(){
- try{const data=await api("/api/lottery");lotteryState=data.lottery||null;if(lotteryState){$("lotteryWeek").value=lotteryState.wk||"";$("lotteryNumbers").value=lotteryState.input||""}renderLottery();updateLotteryPreview()}
- catch(e){lotteryMessage("טעינת נתוני ההגרלה נכשלה: "+e.message,true)}
+ try{
+  const data=await api("/api/lottery");lotteryState=data.lottery||null;
+  $("lotteryParsha").value=await defaultLotteryParsha();
+  $("lotteryNumbers").value=lotteryState&&lotteryState.input||"";
+  $("lotteryParshaSource").textContent=$("lotteryParsha").value?"ברירת המחדל נלקחה מהעלון השבועי. אפשר לשנות לפני ההגרלה.":"לא נמצא שם פרשה בעלון. יש להזין אותו ידנית.";
+  renderLottery();updateLotteryPreview();
+ }catch(e){lotteryMessage("טעינת נתוני ההגרלה נכשלה: "+e.message,true)}
 }
 $("lotteryNumbers").addEventListener("input",updateLotteryPreview);
 $("lotteryDraw").addEventListener("click",async()=>{
  let values;
  try{values=parseLotteryInput($("lotteryNumbers").value)}catch(e){lotteryMessage(e.message,true);return}
- const wk=$("lotteryWeek").value.trim();
- if(!wk){lotteryMessage("יש להזין את שם ההגרלה או הפרשה.",true);return}
+ const parsha=$("lotteryParsha").value.trim().replace(/^פרשת\\s*/u,"");
+ if(!parsha){lotteryMessage("יש להזין את שם הפרשה.",true);return}
  if(!confirm("להגריל חמישה מספרים מתוך "+values.length+" מספרים? התוצאות יחליפו את רשימת הזוכים הפעילה באתר."))return;
  const button=$("lotteryDraw");button.disabled=true;lotteryMessage("מנוע ההגרלה מבצע בחירה אקראית...");
  try{
-  const data=await api("/api/lottery",{method:"POST",body:JSON.stringify({input:$("lotteryNumbers").value,wk})});
+  const data=await api("/api/lottery",{method:"POST",body:JSON.stringify({input:$("lotteryNumbers").value,parsha})});
   lotteryState=data.lottery;renderLottery();lotteryMessage("ההגרלה הושלמה ונשמרה. חמשת המספרים פורסמו באתר.");
  }catch(e){lotteryMessage("ההגרלה לא נשמרה: "+e.message,true)}
  finally{button.disabled=false}
@@ -385,8 +404,7 @@ function edit(p){
   $("save").textContent="הוסף לרשימת השמירה";
   $("name").value=p?.name||"";$("price").value=p?.price??"";
   $("stock").value=p?.stock??"";$("emoji").value=p?.emoji||"🎁";
-  $("images").value=(p?.images&&p.images.length?p.images:(p?.image?[p.image]:[])).join("
-");
+  $("images").value=(p?.images&&p.images.length?p.images:(p?.image?[p.image]:[])).join("\n");
   $("imageFile").value="";$("description").value=p?.description||"";
   $("tagSale").checked=(p?.tags||[]).includes("מבצע");$("tagNew").checked=(p?.tags||[]).includes("חדש");
   $("showZero").checked=!!p?.showZero;$("hidden").checked=!!p?.hidden;
@@ -398,8 +416,7 @@ function readPayload(){
   return {
     name:$("name").value,price:$("price").value,
     stock:$("stock").value===""?null:$("stock").value,emoji:$("emoji").value,
-    images:$("images").value.split("
-").map(x=>x.trim()).filter(Boolean),
+    images:$("images").value.split("\n").map(x=>x.trim()).filter(Boolean),
     description:$("description").value,tags,
     showZero:$("showZero").checked,hidden:$("hidden").checked
   };
@@ -460,12 +477,9 @@ $("products").addEventListener("click",e=>{
 $("imageFile").addEventListener("change",async()=>{
  const files=Array.from($("imageFile").files||[]);if(!files.length)return;
  if(files.some(file=>file.size>5*1024*1024)){message($("formMsg"),"כל תמונה חייבת להיות עד 5MB",true);$("imageFile").value="";return}
- const urls=$("images").value.split("
-").map(x=>x.trim()).filter(Boolean);
- try{for(let i=0;i<files.length;i++){message($("formMsg"),"מעלה תמונה "+(i+1)+" מתוך "+files.length+"...");const form=new FormData();form.append("file",files[i]);const response=await fetch("/api/admin/upload",{method:"POST",credentials:"same-origin",body:form});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"העלאת התמונה נכשלה");urls.push(data.url)}$("images").value=Array.from(new Set(urls)).join("
-");message($("formMsg"),"התמונות הועלו. שמור את המוצר כדי לקשר אותן אליו.");}
- catch(err){$("images").value=urls.join("
-");message($("formMsg"),err.message,true)}
+ const urls=$("images").value.split("\n").map(x=>x.trim()).filter(Boolean);
+ try{for(let i=0;i<files.length;i++){message($("formMsg"),"מעלה תמונה "+(i+1)+" מתוך "+files.length+"...");const form=new FormData();form.append("file",files[i]);const response=await fetch("/api/admin/upload",{method:"POST",credentials:"same-origin",body:form});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"העלאת התמונה נכשלה");urls.push(data.url)}$("images").value=Array.from(new Set(urls)).join("\n");message($("formMsg"),"התמונות הועלו. שמור את המוצר כדי לקשר אותן אליו.");}
+ catch(err){$("images").value=urls.join("\n");message($("formMsg"),err.message,true)}
  $("imageFile").value="";
 });
 $("productForm").addEventListener("submit",e=>{
