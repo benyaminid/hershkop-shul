@@ -111,7 +111,8 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
 const $=id=>document.getElementById(id);
 let products=[], editing=null, pending=new Map(), pendingNew=[];
 let banners=[];
-let bulletinState=null;\nlet lotteryState=null;
+let bulletinState=null;
+let lotteryState=null;
 let selectedBulletinFile=null;
 let activeAdminTab="products";
 function setAdminTab(tab){
@@ -119,7 +120,8 @@ function setAdminTab(tab){
  $("productsTab").hidden=tab!=="products";
  $("editor").hidden=tab!=="products"||!editing;
  $("bannerTab").hidden=tab!=="banners";
- $("bulletinTab").hidden=tab!=="bulletin";\n $("lotteryTab").hidden=tab!=="lottery";
+ $("bulletinTab").hidden=tab!=="bulletin";
+ $("lotteryTab").hidden=tab!=="lottery";
  document.querySelectorAll("[data-admin-tab]").forEach(b=>b.classList.toggle("active",b.dataset.adminTab===tab));
  $("add").hidden=tab!=="products";
  $("saveAll").hidden=tab!=="products"||!(pending.size||pendingNew.length);
@@ -237,13 +239,13 @@ function parseLotteryInput(raw){
  if(parts.some(part=>!part.trim()))throw new Error("יש לבדוק שאין פסיקים ריקים.");
  for(const part of parts){
   const token=part.trim();
-  const range=token.match(/^(\\d{1,4})\\s*-\\s*(\\d{1,4})$/);
+  const range=token.match(/^(\d{1,4})\\s*-\\s*(\d{1,4})$/);
   if(range){
    const start=Number(range[1]),end=Number(range[2]);
    if(start>end)throw new Error("טווח מספרים חייב להיות בסדר עולה.");
    if(end-start>9999)throw new Error("טווח המספרים גדול מדי.");
    for(let n=start;n<=end;n++)values.add(n);
-  }else if(/^\\d{1,4}$/.test(token)){values.add(Number(token))}
+  }else if(/^\d{1,4}$/.test(token)){values.add(Number(token))}
   else throw new Error("פורמט לא תקין. השתמש במספרים, פסיקים וטווחים עם מקף בלבד.");
   if(values.size>10000)throw new Error("אפשר להזין עד 10,000 מספרים שונים.");
  }
@@ -382,7 +384,8 @@ function edit(p){
   $("save").textContent="הוסף לרשימת השמירה";
   $("name").value=p?.name||"";$("price").value=p?.price??"";
   $("stock").value=p?.stock??"";$("emoji").value=p?.emoji||"🎁";
-  $("images").value=(p?.images&&p.images.length?p.images:(p?.image?[p.image]:[])).join("\n");
+  $("images").value=(p?.images&&p.images.length?p.images:(p?.image?[p.image]:[])).join("
+");
   $("imageFile").value="";$("description").value=p?.description||"";
   $("tagSale").checked=(p?.tags||[]).includes("מבצע");$("tagNew").checked=(p?.tags||[]).includes("חדש");
   $("showZero").checked=!!p?.showZero;$("hidden").checked=!!p?.hidden;
@@ -394,7 +397,8 @@ function readPayload(){
   return {
     name:$("name").value,price:$("price").value,
     stock:$("stock").value===""?null:$("stock").value,emoji:$("emoji").value,
-    images:$("images").value.split("\n").map(x=>x.trim()).filter(Boolean),
+    images:$("images").value.split("
+").map(x=>x.trim()).filter(Boolean),
     description:$("description").value,tags,
     showZero:$("showZero").checked,hidden:$("hidden").checked
   };
@@ -455,9 +459,12 @@ $("products").addEventListener("click",e=>{
 $("imageFile").addEventListener("change",async()=>{
  const files=Array.from($("imageFile").files||[]);if(!files.length)return;
  if(files.some(file=>file.size>5*1024*1024)){message($("formMsg"),"כל תמונה חייבת להיות עד 5MB",true);$("imageFile").value="";return}
- const urls=$("images").value.split("\n").map(x=>x.trim()).filter(Boolean);
- try{for(let i=0;i<files.length;i++){message($("formMsg"),"מעלה תמונה "+(i+1)+" מתוך "+files.length+"...");const form=new FormData();form.append("file",files[i]);const response=await fetch("/api/admin/upload",{method:"POST",credentials:"same-origin",body:form});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"העלאת התמונה נכשלה");urls.push(data.url)}$("images").value=Array.from(new Set(urls)).join("\n");message($("formMsg"),"התמונות הועלו. שמור את המוצר כדי לקשר אותן אליו.");}
- catch(err){$("images").value=urls.join("\n");message($("formMsg"),err.message,true)}
+ const urls=$("images").value.split("
+").map(x=>x.trim()).filter(Boolean);
+ try{for(let i=0;i<files.length;i++){message($("formMsg"),"מעלה תמונה "+(i+1)+" מתוך "+files.length+"...");const form=new FormData();form.append("file",files[i]);const response=await fetch("/api/admin/upload",{method:"POST",credentials:"same-origin",body:form});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"העלאת התמונה נכשלה");urls.push(data.url)}$("images").value=Array.from(new Set(urls)).join("
+");message($("formMsg"),"התמונות הועלו. שמור את המוצר כדי לקשר אותן אליו.");}
+ catch(err){$("images").value=urls.join("
+");message($("formMsg"),err.message,true)}
  $("imageFile").value="";
 });
 $("productForm").addEventListener("submit",e=>{
