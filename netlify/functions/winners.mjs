@@ -51,7 +51,9 @@ export default async (request) => {
       const winners = records
         .map(({ fields }) => ({
           number: String(fields["Winning Number"] || ""),
-          registered: fields.Registered === true
+          registered: fields.Registered === true,
+          firstName: fields["Child First Name"] || "",
+          lastName: fields["Child Last Name"] || ""
         }))
         .filter((winner) => allowedNumbers.has(winner.number));
       return json({ winners });
