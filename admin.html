@@ -268,8 +268,8 @@ function renderLottery(){
 }
 function parshaFromTitle(title){
  const value=String(title||"").trim();
- const match=value.match(/פרשת\\s+(.+?)(?:\\s*[–—-]\\s*|$)/u);
- return (match?match[1]:value.replace(/^עלון שבועי\\s*[–—-]?\\s*/u,"").replace(/^פרשת\\s*/u,"")).trim();
+ const match=value.match(/פרשת\s+(.+?)(?:\s*[–—-]\s*|$)/u);
+ return (match?match[1]:value.replace(/^עלון שבועי\s*[–—-]?\s*/u,"").replace(/^פרשת\s*/u,"")).trim();
 }
 async function defaultLotteryParsha(){
  if(bulletinState&&bulletinState.parsha)return String(bulletinState.parsha).trim();
@@ -292,7 +292,7 @@ $("lotteryNumbers").addEventListener("input",updateLotteryPreview);
 $("lotteryDraw").addEventListener("click",async()=>{
  let values;
  try{values=parseLotteryInput($("lotteryNumbers").value)}catch(e){lotteryMessage(e.message,true);return}
- const parsha=$("lotteryParsha").value.trim().replace(/^פרשת\\s*/u,"");
+ const parsha=$("lotteryParsha").value.trim().replace(/^פרשת\s*/u,"");
  if(!parsha){lotteryMessage("יש להזין את שם הפרשה.",true);return}
  if(!confirm("להגריל חמישה מספרים מתוך "+values.length+" מספרים? התוצאות יחליפו את רשימת הזוכים הפעילה באתר."))return;
  const button=$("lotteryDraw");button.disabled=true;lotteryMessage("מנוע ההגרלה מבצע בחירה אקראית...");
