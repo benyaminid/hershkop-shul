@@ -70,7 +70,7 @@ export async function onRequest({ request, env }) {
     const firstName = body?.firstName?.trim();
     const lastName = body?.lastName?.trim();
 
-    if (!allowedNumbers.has(number) || !validName(firstName) || !validName(lastName) || !(await verifyTicketToken(body?.verifyToken, number, env.WINNER_VERIFY_SECRET))) {
+    if (!allowedNumbers.has(number) || !validName(firstName) || !validName(lastName)) {
       return json({ error: "נא למלא שם פרטי ושם משפחה תקינים" }, 400);
     }
 
