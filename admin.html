@@ -35,7 +35,7 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
 <div id="loginMsg" class="notice" hidden></div>
 </section>
 <section id="app" hidden>
-<nav class="admin-tabs"><button type="button" class="admin-tab active" data-admin-tab="products">🛍️ ניהול מוצרים</button><button type="button" class="admin-tab" data-admin-tab="banners">📢 ניהול מודעות</button><button type="button" class="admin-tab" data-admin-tab="bulletin">📰 עדכון העלון</button></nav>
+<nav class="admin-tabs"><button type="button" class="admin-tab active" data-admin-tab="products">🛍️ ניהול מוצרים</button><button type="button" class="admin-tab" data-admin-tab="banners">📢 ניהול מודעות</button><button type="button" class="admin-tab" data-admin-tab="bulletin">📰 עדכון העלון</button><button type="button" class="admin-tab" data-admin-tab="lottery">🎟️ הגרלה שבועית</button></nav>
 <div id="productsTab" class="admin-tab-panel">
 <div class="panel">
 <div class="topline"><div><h1>ניהול האתר</h1><p class="muted">ניהול מוצרים, תמונות ומודעות Popup במקום אחד.</p></div><div class="actions"><button type="button" id="saveAll" hidden>שמירת כל השינויים</button><button id="add">＋ מוצר חדש</button></div></div>
@@ -66,6 +66,21 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
   <div id="bulletinProgressWrap" hidden><progress id="bulletinProgress" max="100" value="0"></progress><p id="bulletinProgressText" class="muted"></p></div>
   <div id="bulletinMsg" class="notice" hidden></div>
 </div>
+
+<section id="lotteryTab" class="admin-tab-panel" hidden>
+<div class="panel">
+  <div class="topline"><div><h2>הגרלה שבועית</h2><p class="muted">הזן את מספרי הכרטיסים שייכנסו להגרלה. ייבחרו חמישה מספרים שונים, בסיכוי שווה לכל מספר.</p></div></div>
+  <label for="lotteryWeek">שם ההגרלה / פרשה</label>
+  <input id="lotteryWeek" maxlength="100" placeholder="לדוגמה: של שבת פרשת וישב">
+  <label for="lotteryNumbers">מספרי הכרטיסים</label>
+  <textarea id="lotteryNumbers" rows="3" maxlength="2000" dir="ltr" style="text-align:left" placeholder="לדוגמה: 100-150,200,250-260"></textarea>
+  <p class="muted" id="lotteryPreview">הזן מספרים כדי לראות כמה כרטיסים ישתתפו.</p>
+  <div class="actions"><button type="button" id="lotteryDraw">🎲 בצע הגרלה</button></div>
+  <div id="lotteryMsg" class="notice" hidden></div>
+  <div id="lotteryResults"></div>
+  <div id="lotteryHistory"></div>
+</div>
+</section>
 </section>
 <section id="editor" class="panel" hidden>
 <h2 id="editorTitle">מוצר חדש</h2>
@@ -97,7 +112,7 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
 const $=id=>document.getElementById(id);
 let products=[], editing=null, pending=new Map(), pendingNew=[];
 let banners=[];
-let bulletinState=null;
+let bulletinState=null;\nlet lotteryState=null;
 let selectedBulletinFile=null;
 let activeAdminTab="products";
 function setAdminTab(tab){
@@ -105,7 +120,7 @@ function setAdminTab(tab){
  $("productsTab").hidden=tab!=="products";
  $("editor").hidden=tab!=="products"||!editing;
  $("bannerTab").hidden=tab!=="banners";
- $("bulletinTab").hidden=tab!=="bulletin";
+ $("bulletinTab").hidden=tab!=="bulletin";\n $("lotteryTab").hidden=tab!=="lottery";
  document.querySelectorAll("[data-admin-tab]").forEach(b=>b.classList.toggle("active",b.dataset.adminTab===tab));
  $("add").hidden=tab!=="products";
  $("saveAll").hidden=tab!=="products"||!(pending.size||pendingNew.length);
@@ -214,6 +229,58 @@ async function uploadBulletin(file){
   $("bulletinProgressText").textContent="הושלמו "+pdf.numPages+" עמודים.";
   bulletinMessage("העלון עודכן בהצלחה. "+pdf.numPages+" עמודים נשמרו.");
 }
+
+function parseLotteryInput(raw){
+ const text=String(raw||"").trim();
+ if(!text)throw new Error("יש להזין מספרים להגרלה.");
+ const values=new Set();
+ const parts=text.split(",");
+ if(parts.some(part=>!part.trim()))throw new Error("יש לבדוק שאין פסיקים ריקים.");
+ for(const part of parts){
+  const token=part.trim();
+  const range=token.match(/^(\\d{1,4})\\s*-\\s*(\\d{1,4})$/);
+  if(range){
+   const start=Number(range[1]),end=Number(range[2]);
+   if(start>end)throw new Error("טווח מספרים חייב להיות בסדר עולה.");
+   if(end-start>9999)throw new Error("טווח המספרים גדול מדי.");
+   for(let n=start;n<=end;n++)values.add(n);
+  }else if(/^\\d{1,4}$/.test(token)){values.add(Number(token))}
+  else throw new Error("פורמט לא תקין. השתמש במספרים, פסיקים וטווחים עם מקף בלבד.");
+  if(values.size>10000)throw new Error("אפשר להזין עד 10,000 מספרים שונים.");
+ }
+ if(values.size<5)throw new Error("נדרשים לפחות חמישה מספרים שונים להגרלה.");
+ return Array.from(values);
+}
+function lotteryMessage(text,error=false){message($("lotteryMsg"),text,error)}
+function updateLotteryPreview(){
+ try{const values=parseLotteryInput($("lotteryNumbers").value);$("lotteryPreview").textContent="נמצאו "+values.length.toLocaleString("he-IL")+" מספרים שונים להשתתפות."}
+ catch(e){$("lotteryPreview").textContent=e.message}
+}
+function renderLottery(){
+ const root=$("lotteryResults"),history=$("lotteryHistory");
+ if(!lotteryState||!Array.isArray(lotteryState.nums)||!lotteryState.nums.length){root.innerHTML='<p class="muted">עדיין לא בוצעה הגרלה דרך המערכת החדשה.</p>';history.innerHTML="";return}
+ root.innerHTML='<h2>תוצאות ההגרלה האחרונה</h2><p class="muted">'+escapeHtml(lotteryState.wk||"")+'</p><div class="wn">'+lotteryState.nums.map(n=>'<span style="display:inline-grid;place-items:center;border-radius:50%;width:54px;height:54px;background:linear-gradient(#f5d77a,#c9971c);color:#3a2a00;font-weight:800;font-size:1.2rem">'+escapeHtml(n)+'</span>').join("")+'</div><p class="muted">תאריך: '+escapeHtml(lotteryState.date||"")+' · מספר משתתפים: '+escapeHtml(lotteryState.poolSize||"")+'</p>';
+ const past=Array.isArray(lotteryState.history)?lotteryState.history:[];
+ history.innerHTML=past.length?'<h2 style="margin-top:22px">היסטוריית הגרלות</h2>'+past.slice(0,10).map(h=>'<div class="item" style="cursor:default"><div class="itemmain"><strong>'+escapeHtml(h.parsha||h.wk||"הגרלה")+'</strong><small>'+escapeHtml(h.date||"")+' · '+(h.nums||[]).map(escapeHtml).join(", ")+'</small></div></div>').join(""):"";
+}
+async function loadLottery(){
+ try{const data=await api("/api/lottery");lotteryState=data.lottery||null;if(lotteryState){$("lotteryWeek").value=lotteryState.wk||"";$("lotteryNumbers").value=lotteryState.input||""}renderLottery();updateLotteryPreview()}
+ catch(e){lotteryMessage("טעינת נתוני ההגרלה נכשלה: "+e.message,true)}
+}
+$("lotteryNumbers").addEventListener("input",updateLotteryPreview);
+$("lotteryDraw").addEventListener("click",async()=>{
+ let values;
+ try{values=parseLotteryInput($("lotteryNumbers").value)}catch(e){lotteryMessage(e.message,true);return}
+ const wk=$("lotteryWeek").value.trim();
+ if(!wk){lotteryMessage("יש להזין את שם ההגרלה או הפרשה.",true);return}
+ if(!confirm("להגריל חמישה מספרים מתוך "+values.length+" מספרים? התוצאות יחליפו את רשימת הזוכים הפעילה באתר."))return;
+ const button=$("lotteryDraw");button.disabled=true;lotteryMessage("מנוע ההגרלה מבצע בחירה אקראית...");
+ try{
+  const data=await api("/api/lottery",{method:"POST",body:JSON.stringify({input:$("lotteryNumbers").value,wk})});
+  lotteryState=data.lottery;renderLottery();lotteryMessage("ההגרלה הושלמה ונשמרה. חמשת המספרים פורסמו באתר.");
+ }catch(e){lotteryMessage("ההגרלה לא נשמרה: "+e.message,true)}
+ finally{button.disabled=false}
+});
 async function saveBanners(){
   bannerMessage("שומר מודעות...");
   try{await api("/api/banners",{method:"PUT",body:JSON.stringify({banners})});bannerMessage("המודעות נשמרו בהצלחה.");renderBanners()}
@@ -300,7 +367,7 @@ function render(){
 }
 async function load(){
   message($("listMsg"),"טוען מוצרים...");
-  try{const data=await api("/api/admin/products");products=(data.products||[]).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0)||String(a.name||"").localeCompare(String(b.name||""),"he"));render();message($("listMsg"),"נטענו "+products.length+" מוצרים.");await loadBanners();await loadBulletin();}
+  try{const data=await api("/api/admin/products");products=(data.products||[]).sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0)||String(a.name||"").localeCompare(String(b.name||""),"he"));render();message($("listMsg"),"נטענו "+products.length+" מוצרים.");await loadBanners();await loadBulletin();await loadLottery();}
   catch(e){message($("listMsg"),e.message,true);if(e.status===401)throw e}
 }
 function resetForm(){
