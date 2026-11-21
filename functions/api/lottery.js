@@ -82,15 +82,16 @@ export async function onRequest({ request, env }) {
   try {
     const body = await request.json();
     const input = body?.input;
-    const wk = typeof body?.wk === "string" ? body.wk.trim() : "";
-    if (!wk || wk.length > 100) return json({ error: "יש להזין שם הגרלה תקין" }, 400);
+    const parsha = typeof body?.parsha === "string" ? body.parsha.trim().replace(/^פרשת\\s*/u, "") : "";
+    if (!parsha || parsha.length > 80 || !/^[\\u0590-\\u05FF\\s׳״'"-]+$/u.test(parsha)) return json({ error: "יש להזין שם פרשה תקין" }, 400);
+    const wk = "של שבת פרשת " + parsha;
     const pool = parseNumbers(input);
     const nums = drawUnique(pool, WINNER_COUNT);
     const previous = await readLottery(request, env);
     const date = israelDate();
     const parsha = wk.replace(/^של שבת\s*/u, "").replace(/^פרשת\s*/u, "");
     const history = [{ date, parsha, wk, nums, poolSize: pool.length }, ...(Array.isArray(previous.history) ? previous.history : [])];
-    const lottery = { wk, input: input.trim(), nums, date, poolSize: pool.length, history, registrations: {}, drawnAt: new Date().toISOString() };
+    const lottery = { wk, parsha, input: input.trim(), nums, date, poolSize: pool.length, history, registrations: {}, drawnAt: new Date().toISOString() };
     await env.PRODUCT_IMAGES.put(KEY, JSON.stringify(lottery), {
       httpMetadata: { contentType: "application/json; charset=utf-8", cacheControl: "no-store" }
     });
