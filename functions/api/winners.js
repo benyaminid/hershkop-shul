@@ -1,12 +1,22 @@
 const TABLE_ID = "tbl6n85XwiAZ1gXTk";
-async function getAllowedNumbers(request) {
-  const response = await fetch(new URL("/site.json", request.url), { cache: "no-store" });
-  if (!response.ok) throw new Error("LotteryConfigUnavailable");
-  const site = await response.json();
-  const values = site?.winners?.nums;
+async function getAllowedNumbers(request, env) {
+  let values = null;
+  if (env.PRODUCT_IMAGES) {
+    const object = await env.PRODUCT_IMAGES.get("weekly-lottery.json");
+    if (object) {
+      const lottery = JSON.parse(await object.text());
+      values = lottery?.nums;
+    }
+  }
+  if (!values) {
+    const response = await fetch(new URL("/site.json", request.url), { cache: "no-store" });
+    if (!response.ok) throw new Error("LotteryConfigUnavailable");
+    const site = await response.json();
+    values = site?.winners?.nums;
+  }
   if (!Array.isArray(values) || values.length !== 5) throw new Error("LotteryConfigInvalid");
   const numbers = values.map((value) => String(value));
-  if (numbers.some((value) => !/^[0-9]{1,10}$/.test(value)) || new Set(numbers).size !== 5) {
+  if (numbers.some((value) => !/^[0-9]{1,4}$/.test(value)) || new Set(numbers).size !== 5) {
     throw new Error("LotteryConfigInvalid");
   }
   return new Set(numbers);
@@ -44,7 +54,7 @@ function validName(value) {
 export async function onRequest({ request, env }) {
   if (request.method === "GET") {
     try {
-      const allowedNumbers = await getAllowedNumbers(request);
+      const allowedNumbers = await getAllowedNumbers(request, env);
       const records = await getRecords(env);
       const winners = records
         .map(({ fields }) => ({
@@ -66,7 +76,7 @@ export async function onRequest({ request, env }) {
   try {
     const body = await request.json();
     const number = String(body?.number ?? "");
-    const allowedNumbers = await getAllowedNumbers(request);
+    const allowedNumbers = await getAllowedNumbers(request, env);
     const firstName = body?.firstName?.trim();
     const lastName = body?.lastName?.trim();
 
@@ -74,23 +84,16 @@ export async function onRequest({ request, env }) {
       return json({ error: "נא למלא שם פרטי ושם משפחה תקינים" }, 400);
     }
 
-    const records = await getRecords(env);
-    const record = records.find(({ fields }) => String(fields["Winning Number"] || "") === number);
-
-    if (!record) return json({ error: "מספר הזכייה לא נמצא" }, 404);
-    if (record.fields.Registered === true || record.fields["Child First Name"] || record.fields["Child Last Name"]) {
-      return json({ error: "הזכייה במספר זה כבר נרשמה" }, 409);
-    }
-
-    const updateUrl = `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE_ID}/${record.id}`;
-    const update = await fetch(updateUrl, {
-      method: "PATCH",
+    const createUrl = `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE_ID}`;
+    const update = await fetch(createUrl, {
+      method: "POST",
       headers: {
         Authorization: `Bearer ${env.WINNERS_AIRTABLE_TOKEN}`,
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
         fields: {
+          "Winning Number": Number(number),
           "Child First Name": firstName,
           "Child Last Name": lastName,
           Registered: true
