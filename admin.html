@@ -61,6 +61,7 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
   <input id="bulletinFile" type="file" accept="application/pdf,.pdf" hidden>
   <label for="bulletinParsha">שם הפרשה שזוהה משם הקובץ</label>
   <input id="bulletinParsha" maxlength="80" placeholder="לדוגמה: ויצא">
+  <div class="actions"><button type="button" id="bulletinStart" hidden>המרה והעלאה</button></div>
   <div id="bulletinCurrent" class="notice">טוען את פרטי העלון...</div>
   <div id="bulletinProgressWrap" hidden><progress id="bulletinProgress" max="100" value="0"></progress><p id="bulletinProgressText" class="muted"></p></div>
   <div id="bulletinMsg" class="notice" hidden></div>
@@ -97,6 +98,7 @@ const $=id=>document.getElementById(id);
 let products=[], editing=null, pending=new Map(), pendingNew=[];
 let banners=[];
 let bulletinState=null;
+let selectedBulletinFile=null;
 let activeAdminTab="products";
 function setAdminTab(tab){
  activeAdminTab=tab;
@@ -246,14 +248,26 @@ $("bannerList").addEventListener("click",async e=>{
   const old=banners.splice(i,1)[0];renderBanners();try{await saveBanners()}catch{banners.splice(i,0,old);renderBanners()}
 });
 bannerDateInput.value=localDate();
-$("bulletinFile").addEventListener("change",async()=>{
+$("bulletinFile").addEventListener("change",()=>{
   const file=$("bulletinFile").files&&$("bulletinFile").files[0];if(!file)return;
+  selectedBulletinFile=file;
   $("bulletinParsha").value=detectParsha(file.name);
-  $("bulletinFile").disabled=true;
   $("bulletinProgressWrap").hidden=true;
-  try{await uploadBulletin(file)}
-  catch(error){bulletinMessage(error.message||"עדכון העלון נכשל.",true)}
-  finally{$("bulletinFile").disabled=false;$("bulletinFile").value="";}
+  $("bulletinStart").hidden=false;
+  $("bulletinStart").disabled=false;
+  bulletinMessage("נבחר הקובץ: "+file.name+". בדוק את שם הפרשה ולחץ על 'המרה והעלאה'.");
+});
+$("bulletinStart").addEventListener("click",async()=>{
+  if(!selectedBulletinFile)return;
+  const file=selectedBulletinFile;
+  $("bulletinFile").disabled=true;$("bulletinStart").disabled=true;
+  try{
+    await uploadBulletin(file);
+    selectedBulletinFile=null;
+    $("bulletinStart").hidden=true;
+    $("bulletinFile").value="";
+  }catch(error){bulletinMessage(error.message||"עדכון העלון נכשל.",true)}
+  finally{$("bulletinFile").disabled=false;$("bulletinStart").disabled=false;}
 });
 
 async function api(url,options={}){
