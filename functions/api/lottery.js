@@ -82,8 +82,8 @@ export async function onRequest({ request, env }) {
   try {
     const body = await request.json();
     const input = body?.input;
-    const parsha = typeof body?.parsha === "string" ? body.parsha.trim().replace(/^פרשת\\s*/u, "") : "";
-    if (!parsha || parsha.length > 80 || !/^[\\u0590-\\u05FF\\s׳״'"-]+$/u.test(parsha)) return json({ error: "יש להזין שם פרשה תקין" }, 400);
+    const parsha = typeof body?.parsha === "string" ? body.parsha.trim().replace(/^פרשת\s*/u, "") : "";
+    if (!parsha || parsha.length > 80 || !/^[\u0590-\u05FF\s׳״'"-]+$/u.test(parsha)) return json({ error: "יש להזין שם פרשה תקין" }, 400);
     const wk = "של שבת פרשת " + parsha;
     const pool = parseNumbers(input);
     const nums = drawUnique(pool, WINNER_COUNT);
