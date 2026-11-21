@@ -463,7 +463,7 @@ function pzEnd(e){delete PT[e.pointerId];var k=Object.keys(PT);if(!k.length){G=n
 document.addEventListener("pointerup",pzEnd);document.addEventListener("pointercancel",pzEnd);
 var WIN={wk:"",nums:[331,337,342,343,350],history:[]};
 var winnerStatus={};
-function refreshWinnerStatus(){fetch("/api/winners",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("status");return r.json()}).then(function(d){(d.winners||[]).forEach(function(w){var n=String(w.number),registered=!!w.registered;winnerStatus[n]=registered;var st=document.querySelector('[data-status="'+n+'"]'),bt=document.querySelector('.winner-num[data-winner="'+n+'"]');if(st){st.textContent=registered?"נרשם זוכה":"ממתין לזכייה";st.hidden=false;st.classList.toggle("done",registered)}if(bt)bt.disabled=registered})}).catch(function(){})}
+function refreshWinnerStatus(){fetch("/api/winners",{cache:"no-store"}).then(function(r){if(!r.ok)throw new Error("status");return r.json()}).then(function(d){(d.winners||[]).forEach(function(w){var n=String(w.number),registered=!!w.registered,fullName=[w.firstName,w.lastName].filter(Boolean).join(" ");winnerStatus[n]=registered;var st=document.querySelector('[data-status="'+n+'"]'),bt=document.querySelector('.winner-num[data-winner="'+n+'"]');if(st){st.textContent=registered?(fullName?"זוכה: "+fullName:"נרשם זוכה"):"ממתין לזכייה";st.hidden=false;st.classList.toggle("done",registered)}if(bt)bt.disabled=registered})}).catch(function(){})}
 function showWinnerCongrats(){var modal=document.getElementById("winner-congrats"),confetti=document.getElementById("winner-confetti");confetti.innerHTML="";var colors=["#f4c542","#e74c3c","#2ecc71","#3498db","#9b59b6","#ff8c42"];for(var i=0;i<48;i++){var piece=document.createElement("i");piece.style.setProperty("--x",Math.random()*100+"%");piece.style.setProperty("--c",colors[i%colors.length]);piece.style.setProperty("--d",(Math.random()*.9)+"s");piece.style.setProperty("--r",Math.random()*360+"deg");piece.style.setProperty("--drift",(Math.random()*150-75)+"px");confetti.appendChild(piece)}modal.classList.add("show")}
 document.getElementById("winner-congrats-close").addEventListener("click",function(){document.getElementById("winner-congrats").classList.remove("show")});
 document.getElementById("winner-congrats").addEventListener("click",function(e){if(e.target.id==="winner-congrats")e.currentTarget.classList.remove("show")});
@@ -504,7 +504,7 @@ document.getElementById("winner-form").addEventListener("submit",function(e){
  .then(function(){
   winnerStatus[selectedWinner]=true;
   var st=document.querySelector('[data-status="'+selectedWinner+'"]'),bt=document.querySelector('[data-winner="'+selectedWinner+'"]');
-  if(st){st.textContent="נרשם זוכה";st.hidden=false;st.classList.add("done")}
+  if(st){st.textContent="זוכה: "+first+" "+last;st.hidden=false;st.classList.add("done")}
   if(bt)bt.disabled=true;
   msg.textContent="הפרטים נשמרו בהצלחה";
   closeWinnerModal();showWinnerCongrats();
