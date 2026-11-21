@@ -239,7 +239,7 @@ function parseLotteryInput(raw){
  if(parts.some(part=>!part.trim()))throw new Error("יש לבדוק שאין פסיקים ריקים.");
  for(const part of parts){
   const token=part.trim();
-  const range=token.match(/^(\d{1,4})\\s*-\\s*(\d{1,4})$/);
+  const range=token.match(/^(\d{1,4})\s*-\s*(\d{1,4})$/);
   if(range){
    const start=Number(range[1]),end=Number(range[2]);
    if(start>end)throw new Error("טווח מספרים חייב להיות בסדר עולה.");
