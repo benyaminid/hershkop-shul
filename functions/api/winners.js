@@ -55,15 +55,36 @@ export async function onRequest({ request, env }) {
   if (request.method === "GET") {
     try {
       const allowedNumbers = await getAllowedNumbers(request, env);
+      if (env.PRODUCT_IMAGES) {
+        const object = await env.PRODUCT_IMAGES.get("weekly-lottery.json");
+        if (object) {
+          const lottery = JSON.parse(await object.text());
+          if (lottery && lottery.registrations && typeof lottery.registrations === "object") {
+            const winners = Array.from(allowedNumbers).map(number => {
+              const registration = lottery.registrations[number] || null;
+              return {
+                number,
+                registered: !!registration,
+                firstName: registration?.firstName || "",
+                lastName: registration?.lastName || ""
+              };
+            });
+            return json({ winners });
+          }
+        }
+      }
       const records = await getRecords(env);
-      const winners = records
-        .map(({ fields }) => ({
-          number: String(fields["Winning Number"] || ""),
-          registered: fields.Registered === true,
-          firstName: fields["Child First Name"] || "",
-          lastName: fields["Child Last Name"] || ""
-        }))
-        .filter((winner) => allowedNumbers.has(winner.number));
+      const latest = new Map();
+      records.forEach(record => {
+        const number = String(record.fields?.["Winning Number"] || "");
+        if (allowedNumbers.has(number)) latest.set(number, record.fields || {});
+      });
+      const winners = Array.from(latest, ([number, fields]) => ({
+        number,
+        registered: fields.Registered === true,
+        firstName: fields["Child First Name"] || "",
+        lastName: fields["Child Last Name"] || ""
+      }));
       return json({ winners });
     } catch (error) {
       console.error("Winner status lookup failed:", error?.message || "UnknownError");
@@ -84,6 +105,18 @@ export async function onRequest({ request, env }) {
       return json({ error: "נא למלא שם פרטי ושם משפחה תקינים" }, 400);
     }
 
+    let lottery = null;
+    let registrationKey = "";
+    if (env.PRODUCT_IMAGES) {
+      const object = await env.PRODUCT_IMAGES.get("weekly-lottery.json");
+      if (object) {
+        lottery = JSON.parse(await object.text());
+        if (lottery && lottery.registrations && typeof lottery.registrations === "object") {
+          if (lottery.registrations[number]) return json({ error: "הזכייה במספר זה כבר נרשמה" }, 409);
+          registrationKey = number;
+        }
+      }
+    }
     const createUrl = `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE_ID}`;
     const update = await fetch(createUrl, {
       method: "POST",
@@ -106,6 +139,12 @@ export async function onRequest({ request, env }) {
       return json({ error: "לא ניתן לשמור כרגע. נסו שוב מאוחר יותר" }, 503);
     }
 
+    if (registrationKey && lottery) {
+      lottery.registrations = { ...(lottery.registrations || {}), [registrationKey]: { firstName, lastName, registeredAt: new Date().toISOString() } };
+      await env.PRODUCT_IMAGES.put("weekly-lottery.json", JSON.stringify(lottery), {
+        httpMetadata: { contentType: "application/json; charset=utf-8", cacheControl: "no-store" }
+      });
+    }
     return json({ success: true });
   } catch (error) {
     console.error("Winner registration failed:", error?.message || "UnknownError");
