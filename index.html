@@ -37,6 +37,10 @@ h1{font-size:1.8rem;margin:.2em 0 .3em;color:var(--accent)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .chip{border:1px solid var(--line);background:var(--surface);color:var(--text);padding:7px 14px;border-radius:999px;cursor:pointer;font:inherit}
 .chip.on{background:var(--accent);color:var(--onaccent);border-color:var(--accent)}
+.shop-category-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.shop-category-filters .chip,.shop-tag-filters .chip{display:flex;align-items:center;justify-content:center;width:100%;min-height:42px;padding:8px 6px;text-align:center;white-space:normal}
+.shop-tag-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:-6px}
+@media(min-width:560px){.shop-category-filters{grid-template-columns:repeat(4,minmax(0,1fr))}}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
 .ph{height:110px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:2.6rem;position:relative;overflow:hidden}
@@ -267,7 +271,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">21.11.26 21:46</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">22.11.26 20:29</span></div>
 </nav></div></header>
 
 <main>
@@ -278,7 +282,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 </section>
 
 <section class="sec" id="shop">
-<h1 id="shoptitle"></h1><div id="shopedit"></div><div class="shban" id="shban"></div><div class="chips" id="schips"></div>
+<h1 id="shoptitle"></h1><div id="shopedit"></div><div class="shban" id="shban"></div><div class="chips shop-category-filters" id="schips"></div><div class="chips shop-tag-filters" id="tagfilters"></div>
 <div class="grid" id="shopgrid"></div>
 </section>
 
@@ -334,7 +338,7 @@ function A(i){i=String(i);return i.charAt(0)==="/"||/^https?:\/\//i.test(i)?i:"i
 
 var PRODUCTS=[];
 var TIERS={"100":"מוצרים עד 100 הרשקלים","250":"מוצרים עד 250 הרשקלים","over":"מוצרים מעל 250 הרשקלים","all":"כל המוצרים"};
-var cart={},filter="all";
+var cart={},filter="all",tagFilter="all";
 function tier(p){return p<=100?"100":p<=250?"250":"over"}
 function fmt(n){return n+" הרשקלים"}
 function card(x){
@@ -343,15 +347,16 @@ function card(x){
   var ribbons=(x.t||tags.includes("מבצע")?'<span class="ribbon sale"><span>מבצע</span></span>':'')+(tags.includes("חדש")?'<span class="ribbon new"><span>חדש</span></span>':'');
   return '<div class="card"><div class="ph">'+pic(x)+(ribbons?'<div class="ribbons">'+ribbons+'</div>':'')+'</div><h3>'+em(x.n)+'</h3>'+(x.d?'<div class="stk">'+em(x.d)+'</div>':'')+'<div class="cb"><div class="price">'+fmt(x.p)+'</div><div class="purchase-row">'+stk(x)+'<div class="qty"><button data-a="plus" data-id="'+x.id+'" aria-label="הוסף">+</button><b>'+q+'</b><button data-a="minus" data-id="'+x.id+'" aria-label="הסר">−</button></div></div></div></div>';
 }
-function list(t){return PRODUCTS.filter(function(x){return !x.h&&(x.s==null||x.s>0||x.z)&&(t==="all"||tier(x.p)===t)}).sort(function(a,b){return a.p-b.p}).map(card).join("")}
+function list(t,tag){return PRODUCTS.filter(function(x){var tags=Array.isArray(x.tags)?x.tags:[];var matchesTag=tag==="all"||(tag==="sale"&&(x.t||tags.includes("מבצע")))||(tag==="new"&&tags.includes("חדש"));return !x.h&&(x.s==null||x.s>0||x.z)&&(t==="all"||tier(x.p)===t)&&matchesTag}).sort(function(a,b){return a.p-b.p}).map(card).join("")}
 function renderChips(){
   var h="";for(var k in TIERS){h+='<button class="chip'+(k===filter?' on':'')+'" data-f="'+k+'">'+TIERS[k].replace("מוצרים ","")+'</button>'}
   document.getElementById("chips").innerHTML=h;
 }
+function renderTagFilters(){var choices=[["all","כל המוצרים"],["new","מוצרים חדשים"],["sale","מוצרים במבצע"]];document.getElementById("tagfilters").innerHTML=choices.map(function(c){return '<button type="button" class="chip'+(tagFilter===c[0]?" on":"")+'" data-tag="'+c[0]+'">'+c[1]+'</button>'}).join("");}
 var page="home";
 function render(){
   
-  if(page.indexOf("shop-")===0){document.getElementById("shopgrid").innerHTML=list(page.slice(5))}
+  if(page.indexOf("shop-")===0){document.getElementById("shopgrid").innerHTML=list(page.slice(5),tagFilter)}
   var n=0,t=0;PRODUCTS.forEach(function(x){var q=cart[x.id]||0;n+=q;t+=q*x.p});
   document.getElementById("cartbar").style.display=n?"block":"none";
   document.getElementById("cartsum").textContent=n+" פריטים · "+fmt(t);
@@ -368,13 +373,14 @@ function route(){
   if(sec==="shop")document.getElementById("shoptitle").textContent=TIERS[page.slice(5)]||TIERS.all;
   document.getElementById("dd").classList.remove("open");
   if(sec==="shop")document.getElementById("shban").innerHTML=banHtml(page.slice(5));
-if(sec==="shop")document.getElementById("schips").innerHTML=Object.keys(TIERS).map(function(k){return '<a class="chip'+(page==="shop-"+k?' on':'')+'" href="#shop-'+k+'">'+TIERS[k].replace("מוצרים ","")+'</a>'}).join("");
+if(sec==="shop"){document.getElementById("schips").innerHTML=Object.keys(TIERS).map(function(k){return '<a class="chip'+(page==="shop-"+k?' on':'')+'" href="#shop-'+k+'">'+TIERS[k].replace("מוצרים ","")+'</a>'}).join("");renderTagFilters();}
 document.getElementById("shopedit").innerHTML=cloud&&sec==="shop"?'<p><button class="btn alt" data-edit="shop">✏ ניהול מוצרים</button></p>':'';document.documentElement.classList.toggle("nosc",sec==="bulletin");document.documentElement.style.setProperty("--hh",document.querySelector("header").offsetHeight+"px");document.querySelector("header").classList.remove("open");window.scrollTo(0,0);if(sec==="admin")renderAdmin();if(PAGES[sec])pageRender(sec);if(sec==="home")homeRender();render();pgAnim(sec);
 }
 document.addEventListener("click",function(e){
   var t=e.target;
   if(t.id==="ddb"){document.getElementById("dd").classList.toggle("open");return}
   if(t.dataset.f){filter=t.dataset.f;render();return}
+  if(t.dataset.tag){tagFilter=t.dataset.tag;renderTagFilters();render();return}
   if(t.dataset.galleryStep||t.dataset.galleryIndex!==undefined){var g=t.closest("[data-gallery]");if(g){var photos=[].slice.call(g.querySelectorAll(".product-photo")),dots=[].slice.call(g.querySelectorAll("[data-gallery-index]"));var current=photos.findIndex(function(p){return p.classList.contains("active")});var next=t.dataset.galleryIndex!==undefined?Number(t.dataset.galleryIndex):(current+Number(t.dataset.galleryStep)+photos.length)%photos.length;photos.forEach(function(p,i){p.classList.toggle("active",i===next)});dots.forEach(function(d,i){d.classList.toggle("active",i===next)})}return}
   if(t.dataset.a){var id=t.dataset.id;var pr=PRODUCTS.filter(function(z){return String(z.id)===String(id)})[0],mx=pr&&pr.s!=null&&pr.s!==""?Math.max(0,+pr.s):1e9;cart[id]=Math.min(mx,Math.max(0,(cart[id]||0)+(t.dataset.a==="plus"?1:-1)));render();return}
   if(t.id==="open")document.getElementById("modal").classList.add("show");
