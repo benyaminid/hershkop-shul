@@ -274,7 +274,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">22.11.26 21:57</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">22.11.26 22:00</span></div>
 </nav></div></header>
 
 <main>
@@ -369,6 +369,7 @@ function render(){
 }
 function route(){
   var h=(location.hash||"#home").slice(1);
+  var previousPage=page||"";
   page=h;var sec=h.indexOf("shop-")===0?"shop":h;
   if(!document.getElementById(sec)){sec="home";page="home"}
   document.querySelectorAll(".sec").forEach(function(s){s.classList.toggle("on",s.id===sec)});
@@ -377,7 +378,7 @@ function route(){
   document.getElementById("dd").classList.remove("open");
   if(sec==="shop")document.getElementById("shban").innerHTML=banHtml(page.slice(5));
 if(sec==="shop"){document.getElementById("schips").innerHTML=["all","100","250","over"].map(function(k){return '<a class="chip'+(page==="shop-"+k?' on':'')+'" href="#shop-'+k+'">'+TIERS[k].replace("מוצרים ","")+'</a>'}).join("");renderTagFilters();}
-document.getElementById("shopedit").innerHTML=cloud&&sec==="shop"?'<p><button class="btn alt" data-edit="shop">✏ ניהול מוצרים</button></p>':'';document.documentElement.classList.toggle("nosc",sec==="bulletin");document.documentElement.style.setProperty("--hh",document.querySelector("header").offsetHeight+"px");document.querySelector("header").classList.remove("open");window.scrollTo(0,0);if(sec==="admin")renderAdmin();if(PAGES[sec])pageRender(sec);if(sec==="home")homeRender();render();pgAnim(sec);
+document.getElementById("shopedit").innerHTML=cloud&&sec==="shop"?'<p><button class="btn alt" data-edit="shop">✏ ניהול מוצרים</button></p>':'';document.documentElement.classList.toggle("nosc",sec==="bulletin");document.documentElement.style.setProperty("--hh",document.querySelector("header").offsetHeight+"px");document.querySelector("header").classList.remove("open");window.scrollTo(0,0);if(sec==="admin")renderAdmin();if(PAGES[sec])pageRender(sec);if(sec==="home")homeRender();render();if(!(sec==="shop"&&previousPage.indexOf("shop-")===0))pgAnim(sec);
 }
 document.addEventListener("click",function(e){
   var t=e.target;
