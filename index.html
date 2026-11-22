@@ -37,10 +37,9 @@ h1{font-size:1.8rem;margin:.2em 0 .3em;color:var(--accent)}
 .chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
 .chip{border:1px solid var(--line);background:var(--surface);color:var(--text);padding:7px 14px;border-radius:999px;cursor:pointer;font:inherit}
 .chip.on{background:var(--accent);color:var(--onaccent);border-color:var(--accent)}
-.shop-category-filters{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-.shop-category-filters .chip,.shop-tag-filters .chip{display:flex;align-items:center;justify-content:center;width:100%;min-height:42px;padding:8px 6px;text-align:center;white-space:normal}
-.shop-tag-filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:-6px}
-@media(min-width:560px){.shop-category-filters{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.shop-category-filters,.shop-tag-filters{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.shop-category-filters .chip,.shop-tag-filters .chip{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:auto;min-height:42px;padding:8px 16px;text-align:center;white-space:nowrap;line-height:1.25}
+.shop-tag-filters{margin-top:-6px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
 .ph{height:110px;border-radius:10px;background:var(--bg);display:grid;place-items:center;font-size:2.6rem;position:relative;overflow:hidden}
@@ -271,7 +270,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">22.11.26 20:29</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">22.11.26 21:00</span></div>
 </nav></div></header>
 
 <main>
@@ -352,7 +351,7 @@ function renderChips(){
   var h="";for(var k in TIERS){h+='<button class="chip'+(k===filter?' on':'')+'" data-f="'+k+'">'+TIERS[k].replace("מוצרים ","")+'</button>'}
   document.getElementById("chips").innerHTML=h;
 }
-function renderTagFilters(){var choices=[["all","כל המוצרים"],["new","מוצרים חדשים"],["sale","מוצרים במבצע"]];document.getElementById("tagfilters").innerHTML=choices.map(function(c){return '<button type="button" class="chip'+(tagFilter===c[0]?" on":"")+'" data-tag="'+c[0]+'">'+c[1]+'</button>'}).join("");}
+function renderTagFilters(){var choices=[["all","כל המחירים"],["new","מוצרים חדשים"],["sale","מוצרים במבצע"]];document.getElementById("tagfilters").innerHTML=choices.map(function(c){return '<button type="button" class="chip'+(tagFilter===c[0]?" on":"")+'" data-tag="'+c[0]+'">'+c[1]+'</button>'}).join("");}
 var page="home";
 function render(){
   
