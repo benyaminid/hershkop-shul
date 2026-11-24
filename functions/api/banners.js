@@ -1,5 +1,6 @@
 import { json, sameOrigin, isAdmin } from "../_lib/admin-auth.js";
 import { notifyEvent } from "../_lib/push.js";
+import { maybeFlush } from "../_lib/push-lazy.js";
 
 const KEY="site-banners.json";
 const MAX_BANNERS=100;
@@ -13,6 +14,7 @@ function validBanner(b){
 }
 export async function onRequest({request,env,waitUntil}){
   if(request.method==="GET"){
+    if(waitUntil)waitUntil(maybeFlush(env));
     if(env.PRODUCT_IMAGES){
       try{const obj=await env.PRODUCT_IMAGES.get(KEY);if(obj){const data=JSON.parse(await obj.text());return json({banners:Array.isArray(data)?data:[]})}}
       catch{return json({error:"לא ניתן לקרוא את המודעות"},502)}
