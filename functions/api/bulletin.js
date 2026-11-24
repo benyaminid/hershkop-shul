@@ -1,10 +1,11 @@
 import { json, sameOrigin, isAdmin } from "../_lib/admin-auth.js";
+import { notifyEvent } from "../_lib/push.js";
 
 const KEY = "weekly-bulletin.json";
 const MAX_PAGES = 250;
 const PAGE_URL = /^\/api\/images\/[a-f0-9-]{36}\.jpg$/i;
 
-export async function onRequest({ request, env }) {
+export async function onRequest({ request, env, waitUntil }) {
   if (request.method === "GET") {
     if (!env.PRODUCT_IMAGES) return json({ bulletin: null });
     try {
@@ -38,6 +39,7 @@ export async function onRequest({ request, env }) {
     await env.PRODUCT_IMAGES.put(KEY, JSON.stringify(bulletin), {
       httpMetadata: { contentType: "application/json; charset=utf-8", cacheControl: "no-store" }
     });
+    if (waitUntil) waitUntil(notifyEvent(env, { cat: "bulletin", title: "עלון שבועי חדש", body: "עלון פרשת " + parsha + " פורסם באתר", url: "/#bulletin" }));
     return json({ success: true, bulletin });
   } catch (error) {
     console.error("Bulletin save failed:", error?.message || "UnknownError");

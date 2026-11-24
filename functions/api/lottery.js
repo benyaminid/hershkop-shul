@@ -1,4 +1,5 @@
 import { json, sameOrigin, isAdmin } from "../_lib/admin-auth.js";
+import { notifyEvent } from "../_lib/push.js";
 
 const KEY = "weekly-lottery.json";
 const WINNER_COUNT = 5;
@@ -66,7 +67,7 @@ async function readLottery(request, env) {
   return { wk: winners.wk || "", nums: winners.nums, history: Array.isArray(winners.history) ? winners.history : [] };
 }
 
-export async function onRequest({ request, env }) {
+export async function onRequest({ request, env, waitUntil }) {
   if (request.method === "GET") {
     try { return json({ lottery: await readLottery(request, env) }); }
     catch (error) {
@@ -94,6 +95,7 @@ export async function onRequest({ request, env }) {
     await env.PRODUCT_IMAGES.put(KEY, JSON.stringify(lottery), {
       httpMetadata: { contentType: "application/json; charset=utf-8", cacheControl: "no-store" }
     });
+    if (waitUntil) waitUntil(notifyEvent(env, { cat: "lottery", title: "הגרלת אבות ובנים בוצעה", body: "ההגרלה " + wk + " בוצעה. כנסו לבדוק אם זכיתם!", url: "/#fathers" }));
     return json({ success: true, lottery });
   } catch (error) {
     const code = error?.message || "";
