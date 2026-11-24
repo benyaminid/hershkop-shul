@@ -1,5 +1,5 @@
-
 import { json, sameOrigin, isAdmin } from "../../_lib/admin-auth.js";
+import { queueProduct, delayedProductNotify } from "../../_lib/push.js";
 
 const TABLE_ID = "tblqCaAc3G8p2XjXO";
 async function airtable(env, path = "", options = {}) {
@@ -79,7 +79,7 @@ function present(record) {
   };
 }
 
-export async function onRequest({ request, env }) {
+export async function onRequest({ request, env, waitUntil }) {
   if (!(await isAdmin(request, env))) return json({ error: "נדרשת התחברות" }, 401);
   if (request.method === "GET") {
     try {
@@ -110,6 +110,7 @@ export async function onRequest({ request, env }) {
       const response = await airtable(env, "", { method: "POST", body: JSON.stringify({ fields }) });
       if (!response.ok) return json({ error: "לא ניתן להוסיף את המוצר" }, 502);
       const record = await response.json();
+      if (fields.Hidden !== true && waitUntil) waitUntil(queueProduct(env, fields.Name).then(() => delayedProductNotify(env)));
       return json({ success: true, product: present(record) }, 201);
     }
 
