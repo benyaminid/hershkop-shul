@@ -7,6 +7,7 @@
  *  - "אל תציג שוב": saved per banner (localStorage key hs-hide-<id>), per browser/device.
  * The nav link, the #updates section and the home button are injected here (index.html only loads this file).
  * To take everything down: remove the <script src="./popup.js"> tag from index.html.
+ * Also loads push.js (the "🔔 התראות" button and settings dialog) at the end of this file.
  */
 (function(){
   var BANNERS=[];
@@ -298,4 +299,7 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);
   else start();
+
+  /* push notifications UI (button + settings dialog), loaded separately */
+  try{var ps=document.createElement('script');ps.src='./push.js?v=1';ps.async=true;document.head.appendChild(ps)}catch(e){}
 })();
