@@ -10,29 +10,33 @@
     {k:'lottery',t:'הגרלה שבוצעה'},
     {k:'products',t:'מוצרים חדשים'},
     {k:'bulletin',t:'עלון חדש'},
-    {k:'news',t:'הודעות',note:'ההודעות נשלחות במקביל גם לקבוצת הוואטסאפ של הקהילה, ולכן ההתראה לא רלוונטית למי שעוקב אחרי הקבוצה.'}
+    {k:'news',t:'הודעות'}
   ];
   var supported=('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window);
   var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 
   var css=''
-  +'#hs-push{position:fixed;inset:0;z-index:2100;display:flex;padding:16px;overflow:auto;background:rgba(0,0,0,.6);direction:rtl;font-family:"Heebo","Segoe UI",Arial,sans-serif}'
-  +'#hs-push .pc{margin:auto;width:100%;max-width:420px;background:#fff;color:#222;border:3px solid #e2b04a;border-radius:22px;padding:20px 18px;box-shadow:0 20px 50px rgba(0,0,0,.5)}'
-  +'#hs-push h2{margin:0 0 6px;font-size:1.4rem}'
-  +'#hs-push p.sub{margin:0 0 14px;font-size:.92rem;color:#555;line-height:1.5}'
-  +'#hs-push .row{border-top:1px solid #eee;padding:10px 0}'
-  +'#hs-push label.ck{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.05rem;cursor:pointer}'
-  +'#hs-push input[type=checkbox]{width:22px;height:22px;accent-color:#b8860b;flex:none}'
-  +'#hs-push .opt{margin:8px 32px 0 0;display:none;font-size:.95rem}'
+  +'#hs-push{position:fixed;inset:0;z-index:2100;display:flex;padding:16px;overflow:auto;background:rgba(14,22,48,.78);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);direction:rtl;font-family:"Heebo","Segoe UI",Arial,sans-serif}'
+  +'#hs-push .pc{margin:auto;width:100%;max-width:420px;background:linear-gradient(180deg,#fffdf7 0%,#fcefcf 100%);color:#2b2112;border:2px solid #e2b04a;border-radius:26px;padding:22px 18px 18px;box-shadow:0 24px 60px rgba(0,0,0,.55)}'
+  +'#hs-push .hd{text-align:center;margin-bottom:14px}'
+  +'#hs-push h2{margin:0 0 4px;font-size:1.45rem;font-weight:800}'
+  +'#hs-push p.sub{margin:0;font-size:.93rem;color:#6b5a35;line-height:1.5}'
+  +'#hs-push .row{background:#fff;border:1.5px solid #efdca8;border-radius:16px;padding:12px 14px;margin:0 0 10px;transition:border-color .2s,background .2s}'
+  +'#hs-push .row.on{border-color:#b8860b;background:#fffaf0}'
+  +'#hs-push label.ck{display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.08rem;cursor:pointer}'
+  +'#hs-push input[type=checkbox]{width:22px;height:22px;accent-color:#b8860b;flex:none;margin:0}'
+  +'#hs-push .opt{display:none;margin:10px 0 0;padding:10px 0 0;border-top:1px dashed #e6cf94;font-size:.96rem}'
   +'#hs-push .row.on .opt{display:block}'
-  +'#hs-push .opt label{display:flex;align-items:center;gap:8px;margin:4px 0;cursor:pointer}'
-  +'#hs-push select{font:inherit;padding:2px 6px;border-radius:8px;border:1px solid #bbb}'
-  +'#hs-push .note{margin:8px 32px 0 0;font-size:.82rem;color:#7a5b00;line-height:1.4}'
-  +'#hs-push .msg{min-height:1.2em;margin:12px 0 0;font-size:.92rem;color:#333;line-height:1.5}'
+  +'#hs-push .opt label{display:flex;align-items:center;gap:10px;margin:6px 0;cursor:pointer}'
+  +'#hs-push .opt input[type=radio]{width:18px;height:18px;accent-color:#b8860b;flex:none;margin:0}'
+  +'#hs-push select{font:inherit;padding:3px 8px;border-radius:10px;border:1.5px solid #cdb26a;background:#fff;color:#2b2112}'
+  +'#hs-push .msg{min-height:1.3em;margin:6px 2px 0;font-size:.93rem;text-align:center;color:#2b2112;line-height:1.5}'
   +'#hs-push .msg.err{color:#b00020}'
-  +'#hs-push .btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}'
-  +'#hs-push button{font:inherit;font-weight:800;border-radius:999px;padding:11px 18px;cursor:pointer;border:2px solid #b8860b;background:#fff;color:#7a5b00;flex:1}'
-  +'#hs-push button.pri{background:#b8860b;color:#fff}'
+  +'#hs-push .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}'
+  +'#hs-push button{font:inherit;font-weight:800;border-radius:14px;padding:12px 10px;cursor:pointer;border:2px solid #b8860b;background:#fff;color:#7a5b00;min-height:48px}'
+  +'#hs-push button.pri{grid-column:1/-1;background:linear-gradient(135deg,#c9971c,#a87408);border-color:#a87408;color:#fff;font-size:1.05rem;box-shadow:0 6px 14px rgba(168,116,8,.35)}'
+  +'#hs-push button.off{border-color:#d9a3a3;color:#9b2c2c}'
+  +'#hs-push button:active{transform:scale(.98)}'
   +'#hs-push button:disabled{opacity:.5}';
   var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
 
@@ -47,8 +51,7 @@
     var rows=CATS.map(function(c){
       return '<div class="row" data-k="'+c.k+'"><label class="ck"><input type="checkbox" class="on"><span>'+esc(c.t)+'</span></label>'
         +'<div class="opt"><label><input type="radio" name="m-'+c.k+'" value="now" checked><span>מיד כשמתעדכן באתר</span></label>'
-        +'<label><input type="radio" name="m-'+c.k+'" value="daily"><span>פעם ביום בשעה</span><select class="hr">'+hours+'</select></label></div>'
-        +(c.note?'<div class="note" style="display:none">'+esc(c.note)+'</div>':'')+'</div>';
+        +'<label><input type="radio" name="m-'+c.k+'" value="daily"><span>פעם ביום בשעה</span><select class="hr">'+hours+'</select></label></div></div>';
     }).join('');
     var warn='';
     if(!supported){
@@ -58,17 +61,13 @@
     }
     var ov=document.createElement('div');
     ov.id='hs-push';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');
-    ov.innerHTML='<div class="pc"><h2>🔔 התראות מהאתר</h2><p class="sub">בחרו על מה לקבל התראה, ומתי.</p>'+rows
+    ov.innerHTML='<div class="pc"><div class="hd"><h2>🔔 התראות מהאתר</h2><p class="sub">בחרו על מה לקבל התראה, ומתי.</p></div>'+rows
       +'<div class="msg'+(warn?' err':'')+'">'+esc(warn)+'</div>'
-      +'<div class="btns"><button type="button" class="pri" id="hs-save">שמירה</button><button type="button" id="hs-off">כיבוי כל ההתראות</button><button type="button" id="hs-close">סגירה</button></div></div>';
+      +'<div class="btns"><button type="button" class="pri" id="hs-save">שמירה</button><button type="button" class="off" id="hs-off">כיבוי כל ההתראות</button><button type="button" id="hs-close">סגירה</button></div></div>';
     document.body.appendChild(ov);
     var msg=ov.querySelector('.msg');
     function say(t,err){msg.textContent=t;msg.className='msg'+(err?' err':'')}
-    function refreshRow(row){
-      var on=row.querySelector('.on').checked;
-      row.classList.toggle('on',on);
-      var n=row.querySelector('.note');if(n)n.style.display=on?'block':'none';
-    }
+    function refreshRow(row){row.classList.toggle('on',row.querySelector('.on').checked)}
     [].forEach.call(ov.querySelectorAll('.row'),function(r){r.querySelector('.on').addEventListener('change',function(){refreshRow(r)})});
     function collect(){
       var prefs={};
