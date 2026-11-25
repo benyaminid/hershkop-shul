@@ -64,20 +64,45 @@ export function nextOccurrence(hour, now) {
   return at;
 }
 
-// ---------- Shabbat quiet window (Israel time): Friday 14:00 until Saturday 21:00 ----------
-const SHABBAT_START_HOUR = 14;
-const SHABBAT_END_HOUR = 21;
+// ---------- Shabbat quiet window (Israel): from 40 minutes before Friday sunset until 50 minutes after Saturday sunset ----------
+// Sunset is computed (NOAA algorithm) for central Israel, so the window follows the seasons. Cities differ by only a few minutes.
+const SHABBAT_LAT = 32.0;
+const SHABBAT_LON = 34.85;
+const SHABBAT_BEFORE_MIN = 40;
+const SHABBAT_AFTER_MIN = 50;
 function ilWeekday(ms) {
   const name = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", weekday: "short" }).format(new Date(ms));
   return { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[name];
 }
+function sunsetUtc(y, m, d) {
+  const rad = x => x * Math.PI / 180, deg = x => x * 180 / Math.PI;
+  const n = Math.floor(275 * m / 9) - Math.floor((m + 9) / 12) * (1 + Math.floor((y - 4 * Math.floor(y / 4) + 2) / 3)) + d - 30;
+  const lngHour = SHABBAT_LON / 15;
+  const t = n + ((18 - lngHour) / 24);
+  const meanAnomaly = 0.9856 * t - 3.289;
+  let longitude = meanAnomaly + 1.916 * Math.sin(rad(meanAnomaly)) + 0.020 * Math.sin(rad(2 * meanAnomaly)) + 282.634;
+  longitude = ((longitude % 360) + 360) % 360;
+  let ra = deg(Math.atan(0.91764 * Math.tan(rad(longitude))));
+  ra = ((ra % 360) + 360) % 360;
+  ra = (ra + (Math.floor(longitude / 90) * 90 - Math.floor(ra / 90) * 90)) / 15;
+  const sinDec = 0.39782 * Math.sin(rad(longitude));
+  const cosDec = Math.cos(Math.asin(sinDec));
+  const cosH = (Math.cos(rad(90.833)) - sinDec * Math.sin(rad(SHABBAT_LAT))) / (cosDec * Math.cos(rad(SHABBAT_LAT)));
+  const h = deg(Math.acos(Math.max(-1, Math.min(1, cosH)))) / 15;
+  let ut = h + ra - 0.06571 * t - 6.622 - lngHour;
+  ut = ((ut % 24) + 24) % 24;
+  return Date.UTC(y, m - 1, d) + ut * 3600000;
+}
 // Returns the UTC time at which the quiet window ends if `ms` falls inside it, otherwise 0.
 export function shabbatEndIfActive(ms) {
-  const p = ilParts(ms);
   const day = ilWeekday(ms);
-  if (day === 5 && p.h >= SHABBAT_START_HOUR) return ilToUtc(p.y, p.m, p.d + 1, SHABBAT_END_HOUR);
-  if (day === 6 && p.h < SHABBAT_END_HOUR) return ilToUtc(p.y, p.m, p.d, SHABBAT_END_HOUR);
-  return 0;
+  if (day !== 5 && day !== 6) return 0;
+  const p = ilParts(ms);
+  const friday = new Date(Date.UTC(p.y, p.m - 1, p.d - (day === 6 ? 1 : 0)));
+  const saturday = new Date(friday.getTime() + 86400000);
+  const start = sunsetUtc(friday.getUTCFullYear(), friday.getUTCMonth() + 1, friday.getUTCDate()) - SHABBAT_BEFORE_MIN * 60000;
+  const end = sunsetUtc(saturday.getUTCFullYear(), saturday.getUTCMonth() + 1, saturday.getUTCDate()) + SHABBAT_AFTER_MIN * 60000;
+  return ms >= start && ms < end ? end : 0;
 }
 
 // ---------- VAPID (keys are generated once and kept privately in R2) ----------

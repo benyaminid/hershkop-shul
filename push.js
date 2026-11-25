@@ -68,7 +68,7 @@
     ov.innerHTML='<div class="pc"><div class="hd"><h2>🔔 התראות מהאתר</h2><p class="sub">בחרו על מה לקבל התראה, ומתי.</p></div>'+rows
       +'<div class="msg'+(warn?' err':'')+'">'+esc(warn)+'</div>'
       +'<div class="btns"><button type="button" class="pri" id="hs-save">שמירה</button><button type="button" class="off" id="hs-off">כיבוי כל ההתראות</button><button type="button" id="hs-close">סגירה</button></div>'
-      +'<p class="shab">בשבת לא יישלחו התראות (משישי אחר הצהריים עד מוצאי שבת). עדכונים שיתופרסמו בזמן זה יישלחו במוצאי שבת.</p></div>';
+      +'<p class="shab">בשבת לא יישלחו התראות, משישי אחר הצהריים ועד מוצאי שבת. עדכונים שיפורסמו בזמן זה יישלחו במוצאי שבת.</p></div>';
     document.body.appendChild(ov);
     var msg=ov.querySelector('.msg');
     function say(t,err){msg.textContent=t;msg.className='msg'+(err?' err':'')}
