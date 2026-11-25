@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>בדיקת התראות | הרשקופ-שול</title>
+<style>
+body{margin:0;padding:18px;font-family:"Heebo","Segoe UI",Arial,sans-serif;background:#f6f1e4;color:#222;line-height:1.6}
+.c{max-width:460px;margin:0 auto;background:#fff;border:3px solid #e2b04a;border-radius:20px;padding:18px}
+h1{margin:0 0 8px;font-size:1.4rem}
+button{font:inherit;font-weight:800;width:100%;margin:8px 0;padding:12px;border-radius:999px;border:2px solid #b8860b;background:#b8860b;color:#fff;cursor:pointer}
+button.sec{background:#fff;color:#7a5b00}
+button:disabled{opacity:.5}
+ul{padding:0;margin:10px 0;list-style:none}
+li{padding:6px 0;border-top:1px solid #eee;font-size:.95rem}
+.ok{color:#136f2c}.bad{color:#b00020}
+#out{margin-top:10px;font-weight:700}
+</style>
+</head>
+<body>
+<div class="c">
+<h1>🔔 בדיקת התראות</h1>
+<p>דף עזר למנהל. הבדיקה שולחת התראה אחת בלבד למכשיר הזה, ולא לאף מנוי אחר. יש להיות מחובר לניהול (<a href="/admin.html">admin.html</a>) באותו דפדפן.</p>
+<ul id="diag"></ul>
+<button id="go">הפעל התראות במכשיר ושלח בדיקה</button>
+<button id="re" class="sec">בדיקה מחדש של האבחון</button>
+<div id="out"></div>
+</div>
+<script>
+(function(){
+  var diag=document.getElementById('diag'),out=document.getElementById('out'),go=document.getElementById('go');
+  function line(ok,t){var li=document.createElement('li');li.className=ok?'ok':'bad';li.textContent=(ok?'✔ ':'✖ ')+t;diag.appendChild(li)}
+  function say(t,bad){out.textContent=t;out.className=bad?'bad':'ok'}
+  function b64(b){b=b.replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';var r=atob(b),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o}
+  function reg(){return Promise.race([navigator.serviceWorker.ready,new Promise(function(_,j){setTimeout(function(){j(new Error('האפליקציה לא מוכנה (Service Worker לא פעיל)'))},6000)})])}
+  function check(){
+    diag.innerHTML='';
+    var supported=('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window);
+    line(supported,supported?'הדפדפן תומך בהתראות':'הדפדפן לא תומך (באייפון: צריך התקנה למסך הבית, iOS 16.4+)');
+    if(window.Notification)line(Notification.permission!=='denied','הרשאת התראות: '+Notification.permission);
+    fetch('/push.js',{cache:'no-store'}).then(function(r){line(r.ok,'קובץ push.js נגיש ('+r.status+')')}).catch(function(){line(false,'push.js לא נגיש')});
+    fetch('/popup.js',{cache:'no-store'}).then(function(r){return r.text().then(function(t){line(r.ok&&t.indexOf('push.js')>-1,'popup.js העדכני טוען את push.js ('+r.status+')')})}).catch(function(){line(false,'popup.js לא נגיש')});
+    fetch('/sw.js',{cache:'no-store'}).then(function(r){return r.text().then(function(t){var m=t.match(/hershkop-shul-v(\d+)/);line(r.ok&&t.indexOf('"push"')>-1,'sw.js עם תמיכה בהתראות, גרסה '+(m?'v'+m[1]:'?'))})}).catch(function(){line(false,'sw.js לא נגיש')});
+    fetch('/api/push/config',{cache:'no-store'}).then(function(r){return r.json().then(function(d){line(r.ok&&!!d.publicKey,r.ok&&d.publicKey?'שרת ההתראות פעיל (מפתח ציבורי קיים)':'שרת ההתראות לא עונה: '+(d.error||r.status))})}).catch(function(){line(false,'/api/push/config לא נגיש')});
+    if(supported)reg().then(function(r){return r.pushManager.getSubscription()}).then(function(s){line(!!s,s?'המכשיר מנוי להתראות':'המכשיר עדיין לא מנוי (יירשם בלחיצה על הכפתור למעלה)')}).catch(function(e){line(false,e.message)});
+  }
+  check();
+  document.getElementById('re').addEventListener('click',function(){say('');check()});
+  go.addEventListener('click',function(){
+    if(!('serviceWorker' in navigator)||!('PushManager' in window)||!('Notification' in window)){say('הדפדפן לא תומך בהתראות.',true);return}
+    go.disabled=true;say('עובד...');
+    Notification.requestPermission().then(function(p){
+      if(p!=='granted')throw new Error('לא ניתנה הרשאה להתראות');
+      return reg();
+    }).then(function(r){
+      return r.pushManager.getSubscription().then(function(s){
+        if(s)return s;
+        return fetch('/api/push/config',{cache:'no-store'}).then(function(x){return x.json()}).then(function(d){
+          if(!d.publicKey)throw new Error(d.error||'שרת ההתראות לא זמין');
+          return r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(d.publicKey)});
+        });
+      });
+    }).then(function(s){
+      return fetch('/api/admin/push-test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({endpoint:s.endpoint})}).then(function(x){return x.json().then(function(d){return{ok:x.ok,d:d}})});
+    }).then(function(res){
+      if(res.ok&&res.d.success)say('נשלחה בדיקה (סטטוס '+res.d.status+'). אמורה להגיע תוך כמה שניות עם הכותרת "הרשקופ-שול".');
+      else if(res.d&&res.d.status)say('שירות הדחיפות דחה את הבקשה (סטטוס '+res.d.status+').',true);
+      else say((res.d&&res.d.error)||'שגיאה',true);
+    }).catch(function(e){say(e.message||'שגיאה',true)}).then(function(){go.disabled=false;check()});
+  });
+})();
+</script>
+</body>
+</html>
