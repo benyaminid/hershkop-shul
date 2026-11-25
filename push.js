@@ -28,8 +28,10 @@
   +'#hs-push .opt{display:none;margin:10px 0 0;padding:10px 0 0;border-top:1px dashed #e6cf94;font-size:.96rem}'
   +'#hs-push .row.on .opt{display:block}'
   +'#hs-push .opt label{display:flex;align-items:center;gap:10px;margin:6px 0;cursor:pointer}'
+  +'#hs-push .opt label span{white-space:nowrap}'
   +'#hs-push .opt input[type=radio]{width:18px;height:18px;accent-color:#b8860b;flex:none;margin:0}'
-  +'#hs-push select{font:inherit;padding:3px 8px;border-radius:10px;border:1.5px solid #cdb26a;background:#fff;color:#2b2112}'
+  +'#hs-push .hrw{margin:2px 28px 4px 0}'
+  +'#hs-push select{font:inherit;padding:5px 10px;border-radius:10px;border:1.5px solid #cdb26a;background:#fff;color:#2b2112;min-width:110px}'
   +'#hs-push .msg{min-height:1.3em;margin:6px 2px 0;font-size:.93rem;text-align:center;color:#2b2112;line-height:1.5}'
   +'#hs-push .msg.err{color:#b00020}'
   +'#hs-push .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}'
@@ -37,7 +39,8 @@
   +'#hs-push button.pri{grid-column:1/-1;background:linear-gradient(135deg,#c9971c,#a87408);border-color:#a87408;color:#fff;font-size:1.05rem;box-shadow:0 6px 14px rgba(168,116,8,.35)}'
   +'#hs-push button.off{border-color:#d9a3a3;color:#9b2c2c}'
   +'#hs-push button:active{transform:scale(.98)}'
-  +'#hs-push button:disabled{opacity:.5}';
+  +'#hs-push button:disabled{opacity:.5}'
+  +'#hs-push .shab{margin:14px 4px 0;font-size:.85rem;color:#6b5a35;text-align:center;line-height:1.5}';
   var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
 
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
@@ -51,7 +54,8 @@
     var rows=CATS.map(function(c){
       return '<div class="row" data-k="'+c.k+'"><label class="ck"><input type="checkbox" class="on"><span>'+esc(c.t)+'</span></label>'
         +'<div class="opt"><label><input type="radio" name="m-'+c.k+'" value="now" checked><span>מיד כשמתעדכן באתר</span></label>'
-        +'<label><input type="radio" name="m-'+c.k+'" value="daily"><span>פעם ביום בשעה</span><select class="hr">'+hours+'</select></label></div></div>';
+        +'<label><input type="radio" name="m-'+c.k+'" value="daily"><span>פעם ביום בשעה:</span></label>'
+        +'<div class="hrw"><select class="hr">'+hours+'</select></div></div></div>';
     }).join('');
     var warn='';
     if(!supported){
@@ -63,7 +67,8 @@
     ov.id='hs-push';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');
     ov.innerHTML='<div class="pc"><div class="hd"><h2>🔔 התראות מהאתר</h2><p class="sub">בחרו על מה לקבל התראה, ומתי.</p></div>'+rows
       +'<div class="msg'+(warn?' err':'')+'">'+esc(warn)+'</div>'
-      +'<div class="btns"><button type="button" class="pri" id="hs-save">שמירה</button><button type="button" class="off" id="hs-off">כיבוי כל ההתראות</button><button type="button" id="hs-close">סגירה</button></div></div>';
+      +'<div class="btns"><button type="button" class="pri" id="hs-save">שמירה</button><button type="button" class="off" id="hs-off">כיבוי כל ההתראות</button><button type="button" id="hs-close">סגירה</button></div>'
+      +'<p class="shab">בשבת לא יישלחו התראות (משישי אחר הצהריים עד מוצאי שבת). עדכונים שיתופרסמו בזמן זה יישלחו במוצאי שבת.</p></div>';
     document.body.appendChild(ov);
     var msg=ov.querySelector('.msg');
     function say(t,err){msg.textContent=t;msg.className='msg'+(err?' err':'')}

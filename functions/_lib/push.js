@@ -64,6 +64,22 @@ export function nextOccurrence(hour, now) {
   return at;
 }
 
+// ---------- Shabbat quiet window (Israel time): Friday 14:00 until Saturday 21:00 ----------
+const SHABBAT_START_HOUR = 14;
+const SHABBAT_END_HOUR = 21;
+function ilWeekday(ms) {
+  const name = new Intl.DateTimeFormat("en-US", { timeZone: "Asia/Jerusalem", weekday: "short" }).format(new Date(ms));
+  return { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 }[name];
+}
+// Returns the UTC time at which the quiet window ends if `ms` falls inside it, otherwise 0.
+export function shabbatEndIfActive(ms) {
+  const p = ilParts(ms);
+  const day = ilWeekday(ms);
+  if (day === 5 && p.h >= SHABBAT_START_HOUR) return ilToUtc(p.y, p.m, p.d + 1, SHABBAT_END_HOUR);
+  if (day === 6 && p.h < SHABBAT_END_HOUR) return ilToUtc(p.y, p.m, p.d, SHABBAT_END_HOUR);
+  return 0;
+}
+
 // ---------- VAPID (keys are generated once and kept privately in R2) ----------
 async function loadVapid(env) {
   if (vapidCache) return vapidCache;
@@ -174,6 +190,7 @@ async function deliver(env, data, hashes) {
 }
 
 // ---------- events ----------
+// During the Shabbat window nothing is sent: messages wait and are released after it ends.
 export async function notifyEvent(env, ev) {
   try {
     if (!env.PRODUCT_IMAGES || !CATS.includes(ev.cat)) return;
@@ -184,8 +201,11 @@ export async function notifyEvent(env, ev) {
     for (const [id, sub] of Object.entries(data.subs)) {
       const p = sub.prefs?.[ev.cat];
       if (!p || !p.on) continue;
-      if (p.mode === "daily") {
-        sub.pending = (sub.pending || []).concat({ ...msg, dueAt: nextOccurrence(p.hour, now) }).slice(-20);
+      const hold = shabbatEndIfActive(now);
+      if (p.mode === "daily" || hold) {
+        const wanted = p.mode === "daily" ? nextOccurrence(p.hour, now) : now;
+        const dueAt = shabbatEndIfActive(wanted) || wanted;
+        sub.pending = (sub.pending || []).concat({ ...msg, dueAt }).slice(-20);
       } else {
         sub.outbox = (sub.outbox || []).concat(msg).slice(-MAX_OUTBOX);
         targets.push(id);
@@ -235,9 +255,10 @@ export async function delayedProductNotify(env) {
   }
 }
 
-// Called every ~15 minutes: releases daily-digest messages whose hour has arrived.
+// Called every ~15 minutes: releases daily-digest messages whose hour has arrived. Does nothing during Shabbat.
 export async function flushDue(env) {
   const out = { moved: 0, pings: 0, batch: false };
+  if (shabbatEndIfActive(Date.now())) return { ...out, shabbat: true };
   const batch = await readJson(env, BATCH_KEY, {});
   if (batch.count && Date.now() - batch.lastAt > 60000) { await sendProductBatch(env); out.batch = true; }
   const data = await loadSubs(env);
