@@ -1,0 +1,11 @@
+name: Push notifications flush
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+jobs:
+  flush:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Release due daily notifications
+        run: curl -sS -m 30 -X POST https://hershkop-shul.pages.dev/api/push/flush || true
