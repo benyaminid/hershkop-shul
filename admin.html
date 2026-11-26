@@ -17,6 +17,7 @@ h1{font-size:1.55rem;margin:0 0 5px;color:#f3d58a}h2{font-size:1.2rem;margin:0 0
 label{display:block;font-weight:600;font-size:.94rem;margin:9px 0 4px}input,textarea,select{width:100%;font:inherit;color:var(--ink);background:#0c1526;border:1px solid #344765;border-radius:10px;padding:10px 12px}input:focus,textarea:focus,select:focus{outline:2px solid #6489c5;border-color:#8aaddf}textarea{min-height:90px;resize:vertical}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.checks{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}.checks label{display:flex;align-items:center;gap:7px;margin:0}.checks input{width:auto;accent-color:#e4b94f}
 button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradient(135deg,#294b7b,#3766a4);color:#fff;padding:10px 16px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px}button:hover,.btn:hover{filter:brightness(1.15)}button.secondary{background:#202e45;color:#d9e6fa;border-color:#3a4d6b}button.danger{background:#4b2029;color:#ffd9de;border-color:#8a3946}
+#loginForm .actions{display:block}#loginForm button[type="submit"]{width:100%}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.topline{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
 .item{display:flex;gap:12px;align-items:center;border:1px solid #344765;border-radius:14px;padding:12px;margin:9px 0;background:linear-gradient(120deg,#1b2a42,#172338);box-shadow:0 3px 12px #0002;cursor:pointer}.item:hover{border-color:#688bbd;background:#20314b}
 .thumb{width:76px;height:76px;border-radius:11px;object-fit:cover;background:#0b1424;border:1px solid #3b4d68;flex:none}.itemmain{min-width:0;flex:1}.itemmain strong{display:block;overflow-wrap:anywhere;color:#f2f5fc}.itemmain small{color:#a8b6cd}
@@ -130,7 +131,8 @@ let banners=[];
 let bulletinState=null;
 let lotteryState=null;
 let selectedBulletinFile=null;
-let catalogueProducts=[];\nlet catalogueExcluded=[];
+let catalogueProducts=[];
+let catalogueExcluded=[];
 let activeAdminTab="products";
 function setAdminTab(tab){
  activeAdminTab=tab;
@@ -565,11 +567,9 @@ $("loginForm").addEventListener("submit",async e=>{
   catch(err){message($("loginMsg"),err.message,true)}
 });
 $("logout").addEventListener("click",async()=>{
-  const returnTo=document.referrer&&new URL(document.referrer).origin===location.origin
-    ?document.referrer:"/";
   try{
     await api("/api/admin/logout",{method:"POST",body:"{}"});
-    pending.clear();pendingNew=[];location.replace(returnTo);
+    pending.clear();pendingNew=[];location.replace("/");
   }catch(err){
     message($("listMsg"),"היציאה נכשלה: "+err.message,true);
   }
