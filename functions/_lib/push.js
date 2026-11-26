@@ -105,6 +105,49 @@ export function shabbatEndIfActive(ms) {
   return ms >= start && ms < end ? end : 0;
 }
 
+// ---------- Holidays in Israel (no notifications, same as Shabbat) ----------
+// Hebrew-calendar days on which work is restricted. Chol HaMoed is not included.
+// Rosh Hashana 1-2, Yom Kippur 10, Sukkot 15-16, Shemini Atzeret/Simchat Torah 22 (Tishri); Pesach 15 and 21 (Nisan); Shavuot 6 (Sivan).
+const HOLIDAY_DAYS = { Tishri: [1, 2, 10, 15, 16, 22], Nisan: [15, 21], Sivan: [6] };
+const hebrewFmt = new Intl.DateTimeFormat("en-US", { calendar: "hebrew", timeZone: "Asia/Jerusalem", day: "numeric", month: "long" });
+const holidayRunCache = new Map();
+function holidayRuns(year) {
+  if (holidayRunCache.has(year)) return holidayRunCache.get(year);
+  const days = [];
+  for (let t = Date.UTC(year, 0, 1, 10); t < Date.UTC(year + 1, 0, 1, 10); t += 86400000) {
+    const parts = hebrewFmt.formatToParts(new Date(t));
+    const day = Number(parts.find(p => p.type === "day").value);
+    const month = parts.find(p => p.type === "month").value;
+    const key = Object.keys(HOLIDAY_DAYS).find(m => month.startsWith(m));
+    if (key && HOLIDAY_DAYS[key].includes(day)) days.push(t);
+  }
+  const runs = [];
+  for (const t of days) {
+    const last = runs[runs.length - 1];
+    if (last && last.last + 86400000 === t) last.last = t;
+    else runs.push({ first: t, last: t });
+  }
+  const out = runs.map(r => {
+    const prev = new Date(r.first - 86400000), end = new Date(r.last);
+    return {
+      start: sunsetUtc(prev.getUTCFullYear(), prev.getUTCMonth() + 1, prev.getUTCDate()) - SHABBAT_BEFORE_MIN * 60000,
+      end: sunsetUtc(end.getUTCFullYear(), end.getUTCMonth() + 1, end.getUTCDate()) + SHABBAT_AFTER_MIN * 60000
+    };
+  });
+  holidayRunCache.set(year, out);
+  return out;
+}
+// Returns the UTC time at which a holiday quiet period ends if `ms` falls inside it, otherwise 0.
+export function holidayEndIfActive(ms) {
+  const y = ilParts(ms).y;
+  for (const year of [y - 1, y]) for (const r of holidayRuns(year)) if (ms >= r.start && ms < r.end) return r.end;
+  return 0;
+}
+// Shabbat or holiday: the UTC time the quiet period ends, or 0 when notifications may be sent.
+export function quietEndIfActive(ms) {
+  return Math.max(shabbatEndIfActive(ms), holidayEndIfActive(ms));
+}
+
 // ---------- VAPID (keys are generated once and kept privately in R2) ----------
 async function loadVapid(env) {
   if (vapidCache) return vapidCache;
@@ -215,7 +258,7 @@ async function deliver(env, data, hashes) {
 }
 
 // ---------- events ----------
-// During the Shabbat window nothing is sent: messages wait and are released after it ends.
+// During Shabbat and holidays nothing is sent: messages wait and are released when the quiet period ends.
 export async function notifyEvent(env, ev) {
   try {
     if (!env.PRODUCT_IMAGES || !CATS.includes(ev.cat)) return;
@@ -226,10 +269,10 @@ export async function notifyEvent(env, ev) {
     for (const [id, sub] of Object.entries(data.subs)) {
       const p = sub.prefs?.[ev.cat];
       if (!p || !p.on) continue;
-      const hold = shabbatEndIfActive(now);
+      const hold = quietEndIfActive(now);
       if (p.mode === "daily" || hold) {
         const wanted = p.mode === "daily" ? nextOccurrence(p.hour, now) : now;
-        const dueAt = shabbatEndIfActive(wanted) || wanted;
+        const dueAt = quietEndIfActive(wanted) || wanted;
         sub.pending = (sub.pending || []).concat({ ...msg, dueAt }).slice(-20);
       } else {
         sub.outbox = (sub.outbox || []).concat(msg).slice(-MAX_OUTBOX);
@@ -280,10 +323,10 @@ export async function delayedProductNotify(env) {
   }
 }
 
-// Called every ~15 minutes: releases daily-digest messages whose hour has arrived. Does nothing during Shabbat.
+// Called every ~15 minutes: releases daily-digest messages whose hour has arrived. Does nothing during Shabbat or holidays.
 export async function flushDue(env) {
   const out = { moved: 0, pings: 0, batch: false };
-  if (shabbatEndIfActive(Date.now())) return { ...out, shabbat: true };
+  if (quietEndIfActive(Date.now())) return { ...out, quiet: true };
   const batch = await readJson(env, BATCH_KEY, {});
   if (batch.count && Date.now() - batch.lastAt > 60000) { await sendProductBatch(env); out.batch = true; }
   const data = await loadSubs(env);
