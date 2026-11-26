@@ -7,18 +7,19 @@
   if(window.__hsPush)return;
   window.__hsPush=1;
   var CATS=[
-    {k:'lottery',t:'הגרלת אבות ובנים'},
-    {k:'products',t:'מוצרים חדשים'},
-    {k:'bulletin',t:'פרסום עלון חדש'},
-    {k:'news',t:'מודעות ועדכונים'}
+    {k:'lottery',l1:'הגרלת',l2:'אבות ובנים'},
+    {k:'products',l1:'מוצרים',l2:'חדשים'},
+    {k:'bulletin',l1:'פרסום',l2:'עלון חדש'},
+    {k:'news',l1:'מודעות',l2:'ועדכונים'}
   ];
   var HOUR_MIN=5,HOUR_MAX=23,ITEM=40;
   var supported=('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window);
   var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 
   var css=''
-  +'#hs-push{position:fixed;inset:0;z-index:2100;display:flex;padding:16px;overflow:auto;background:rgba(14,22,48,.78);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);direction:rtl;font-family:"Heebo","Segoe UI",Arial,sans-serif}'
-  +'#hs-push .pc{margin:auto;width:100%;max-width:420px;background:linear-gradient(180deg,#fffdf7 0%,#fcefcf 100%);color:#2b2112;border:2px solid #e2b04a;border-radius:26px;padding:22px 18px 18px;box-shadow:0 24px 60px rgba(0,0,0,.55)}'
+  +'#hs-push, #hs-push *{box-sizing:border-box}'
+  +'#hs-push{position:fixed;inset:0;z-index:2100;display:flex;padding:12px;overflow:auto;background:rgba(14,22,48,.78);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);direction:rtl;font-family:"Heebo","Segoe UI",Arial,sans-serif}'
+  +'#hs-push .pc{margin:auto;width:100%;max-width:420px;overflow:hidden;background:linear-gradient(180deg,#fffdf7 0%,#fcefcf 100%);color:#2b2112;border:2px solid #e2b04a;border-radius:26px;padding:20px 14px 16px;box-shadow:0 24px 60px rgba(0,0,0,.55)}'
   +'#hs-push .hd{text-align:center;margin-bottom:14px}'
   +'#hs-push h2{margin:0 0 4px;font-size:1.45rem;font-weight:800}'
   +'#hs-push p.sub{margin:0;font-size:.93rem;color:#6b5a35;line-height:1.5}'
@@ -29,12 +30,13 @@
   +'#hs-push .opt{display:none;margin:10px 0 0;padding:10px 0 0;border-top:1px dashed #e6cf94;font-size:.96rem}'
   +'#hs-push .row.on .opt{display:block}'
   +'#hs-push .opt label{display:flex;align-items:center;gap:10px;margin:6px 0;cursor:pointer}'
-  +'#hs-push .opt label span,#hs-push label.ck span{white-space:nowrap}'
+  +'#hs-push .opt label span{white-space:nowrap}'
+  +'#hs-push .ct{display:block;text-align:center;white-space:normal;line-height:1.3}'
   +'#hs-push .opt input[type=radio]{width:18px;height:18px;accent-color:#b8860b;flex:none;margin:0}'
   +'#hs-push select.hr{display:none}'
-  +'#hs-push .tp{display:flex;justify-content:center;margin:10px 0 4px;transition:opacity .2s,filter .2s}'
+  +'#hs-push .tp{display:flex;justify-content:center;width:100%;max-width:100%;margin:10px 0 4px;transition:opacity .2s,filter .2s}'
   +'#hs-push .tp.dis{opacity:.38;filter:grayscale(1)}'
-  +'#hs-push .wbox{position:relative;width:150px;height:120px}'
+  +'#hs-push .wbox{position:relative;flex:none;width:150px;max-width:100%;height:120px}'
   +'#hs-push .wheel{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;border:1.5px solid #cdb26a;border-radius:16px;background:#fff;scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}'
   +'#hs-push .wheel::-webkit-scrollbar{display:none}'
   +'#hs-push .wpad{height:40px}'
@@ -44,13 +46,13 @@
   +'#hs-push .tp.dis .wheel{pointer-events:none}'
   +'#hs-push .msg{min-height:1.3em;margin:6px 2px 0;font-size:.93rem;text-align:center;color:#2b2112;line-height:1.5}'
   +'#hs-push .msg.err{color:#b00020}'
-  +'#hs-push .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}'
+  +'#hs-push .btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px}'
   +'#hs-push button{font:inherit;font-weight:800;border-radius:14px;padding:12px 10px;cursor:pointer;border:2px solid #b8860b;background:#fff;color:#7a5b00;min-height:48px}'
   +'#hs-push button.pri{grid-column:1/-1;background:linear-gradient(135deg,#c9971c,#a87408);border-color:#a87408;color:#fff;font-size:1.05rem;box-shadow:0 6px 14px rgba(168,116,8,.35)}'
   +'#hs-push button.off{border-color:#d9a3a3;color:#9b2c2c}'
   +'#hs-push button:active{transform:scale(.98)}'
   +'#hs-push button:disabled{opacity:.5}'
-  +'#hs-push .shab{margin:14px 0 0;font-size:.86rem;color:#6b5a35;text-align:center;white-space:nowrap}'
+  +'#hs-push .shab{margin:12px 0 0;font-size:.8rem;color:#6b5a35;text-align:center;white-space:nowrap}'
   +'#hs-push .shab strong{font-weight:800;color:#7a5b00}';
   var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
 
@@ -65,7 +67,7 @@
     var items='';for(var h=HOUR_MIN;h<=HOUR_MAX;h++)items+='<div class="it" data-h="'+h+'">'+pad(h)+'</div>';
     var opts='';for(var h2=HOUR_MIN;h2<=HOUR_MAX;h2++)opts+='<option value="'+h2+'"'+(h2===8?' selected':'')+'>'+pad(h2)+'</option>';
     var rows=CATS.map(function(c){
-      return '<div class="row" data-k="'+c.k+'"><label class="ck"><input type="checkbox" class="on"><span>'+esc(c.t)+'</span></label>'
+      return '<div class="row" data-k="'+c.k+'"><label class="ck"><input type="checkbox" class="on"><span class="ct">'+esc(c.l1)+'<br>'+esc(c.l2)+'</span></label>'
         +'<div class="opt"><label><input type="radio" name="m-'+c.k+'" value="now" checked><span>מיד כשמתעדכן באתר</span></label>'
         +'<label><input type="radio" name="m-'+c.k+'" value="daily"><span>פעם ביום בשעה:</span></label>'
         +'<div class="tp dis"><div class="wbox"><div class="wheel"><div class="wpad"></div>'+items+'<div class="wpad"></div></div><div class="hl"></div></div>'
