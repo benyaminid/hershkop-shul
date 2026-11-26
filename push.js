@@ -198,7 +198,7 @@
       }).then(function(){
         apply({lottery:{on:false},products:{on:false},bulletin:{on:false},news:{on:false}});
         say('כל ההתראות כובו.');
-      }).catch(function(e){say((e&&e.message)||'לא ניתן לכבות כרג.',true)}).then(function(){off.disabled=false});
+      }).catch(function(e){say((e&&e.message)||'לא ניתן לכבות כרגע.',true)}).then(function(){off.disabled=false});
     });
   }
 
