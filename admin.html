@@ -86,6 +86,11 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
 <section id="catalogueTab" class="admin-tab-panel" hidden>
 <div class="panel">
   <div class="topline"><div><h2>קטלוג מוצרים להדפסה</h2><p class="muted">הקטלוג נבנה בזמן אמת מהמוצרים שהחנות מציגה באתר. מוצרים מוסתרים ומוצרים ללא מלאי שאינם מוגדרים להצגה לא ייכללו.</p></div></div>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:14px 0">
+    <div><label for="catalogueColumns">מוצרים לרוחב (עמודות)</label><input id="catalogueColumns" type="number" min="1" max="6" step="1" value="2"></div>
+    <div><label for="catalogueRows">מוצרים לאורך (שורות)</label><input id="catalogueRows" type="number" min="1" max="8" step="1" value="4"></div>
+  </div>
+  <p class="muted">בחר כמה כרטיסי מוצרים יוצגו בכל עמוד A5. מוצרים שתסיר כאן יישארו בחנות ולא יימחקו מהמאגר.</p>
   <div class="actions"><button type="button" id="catalogueRefresh" class="secondary">↻ רענון מוצרים</button><button type="button" id="cataloguePrint">🖨️ ייצוא קטלוג להדפסה</button></div>
   <div id="catalogueMsg" class="notice" hidden></div>
   <div id="cataloguePreview" class="empty">לחץ על רענון כדי לטעון את המוצרים הפעילים באתר.</div>
@@ -125,7 +130,7 @@ let banners=[];
 let bulletinState=null;
 let lotteryState=null;
 let selectedBulletinFile=null;
-let catalogueProducts=[];
+let catalogueProducts=[];\nlet catalogueExcluded=[];
 let activeAdminTab="products";
 function setAdminTab(tab){
  activeAdminTab=tab;
@@ -373,15 +378,42 @@ function catalogueVisible(p){
   return !p.h&&(p.s==null||Number(p.s)>0||p.z===true);
 }
 function catalogueMessage(text,error=false){message($("catalogueMsg"),text,error)}
+function catalogueImages(p){
+  const urls=Array.isArray(p.imgs)&&p.imgs.length?p.imgs:(p.img?[p.img]:[]);
+  return urls.slice(0,2);
+}
+function catalogueProductCard(p,index,printMode=false){
+  const urls=catalogueImages(p);
+  const src=u=>printMode?escapeHtml(new URL(u,location.origin).href):escapeHtml(u);
+  let media;
+  if(urls.length===2){
+    media='<div class="catalogue-fan"><img src="'+src(urls[0])+'" alt="" onerror="this.style.display=\'none\'"><img src="'+src(urls[1])+'" alt="" onerror="this.style.display=\'none\'"></div>';
+  }else if(urls.length===1){
+    media='<img class="single-product-image" src="'+src(urls[0])+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'"><div class="emoji" style="display:none">'+escapeHtml(p.e||"🎁")+'</div>';
+  }else{
+    media='<div class="emoji">'+escapeHtml(p.e||"🎁")+'</div>';
+  }
+  return '<article class="product">'+media+'<div class="name">'+escapeHtml(p.n||"מוצר")+'</div><div class="price">'+escapeHtml(Number(p.p||0).toLocaleString("he-IL"))+' הרשקלים</div></article>';
+}
+function catalogueSettings(){
+  const columns=Math.max(1,Math.min(6,Math.floor(Number($("catalogueColumns").value)||2)));
+  const rows=Math.max(1,Math.min(8,Math.floor(Number($("catalogueRows").value)||4)));
+  $("catalogueColumns").value=columns;$("catalogueRows").value=rows;
+  return {columns,rows,perPage:columns*rows};
+}
 function renderCatalogue(){
   const root=$("cataloguePreview");
+  const selected=catalogueProducts.filter(p=>!catalogueExcluded.includes(p));
+  const removed=catalogueProducts.filter(p=>catalogueExcluded.includes(p));
   if(!catalogueProducts.length){root.className="empty";root.textContent="אין כרגע מוצרים פעילים להצגה בקטלוג.";return}
   root.className="";
-  root.innerHTML='<strong>נמצאו '+catalogueProducts.length+' מוצרים פעילים.</strong><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px;margin-top:12px">'+catalogueProducts.slice(0,12).map(p=>{
-    const src=p.imgs&&p.imgs[0]||p.img||"";
-    const media=src?'<img src="'+escapeHtml(src)+'" alt="" style="width:58px;height:58px;object-fit:contain;background:#0c1526;border-radius:9px">':'<span style="font-size:2rem">'+escapeHtml(p.e||"🎁")+'</span>';
-    return '<div style="display:flex;align-items:center;gap:8px;min-width:0;padding:8px;border:1px solid var(--line);border-radius:10px">'+media+'<div style="min-width:0"><strong style="display:block;overflow-wrap:anywhere">'+escapeHtml(p.n)+'</strong><small>'+escapeHtml(p.p)+' הרשקלים</small></div></div>';
-  }).join("")+'</div>'+(catalogueProducts.length>12?'<p class="muted">מוצגים כאן 12 מוצרים ראשונים בלבד. בקטלוג יודפסו כל '+catalogueProducts.length+' המוצרים.</p>':'');
+  root.innerHTML='<strong>בקטלוג: '+selected.length+' מוצרים. הוסרו מהקטלוג: '+removed.length+'.</strong>'+
+    '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:8px;margin-top:12px">'+
+    selected.map((p)=>'<div style="display:flex;align-items:center;gap:8px;min-width:0;padding:8px;border:1px solid var(--line);border-radius:10px">'+
+      '<div style="min-width:0;flex:1"><strong style="display:block;overflow-wrap:anywhere">'+escapeHtml(p.n)+'</strong><small>'+escapeHtml(p.p)+' הרשקלים</small></div>'+
+      '<button type="button" class="secondary" data-catalogue-remove="'+catalogueProducts.indexOf(p)+'">הסר</button></div>').join("")+'</div>'+
+    (removed.length?'<h3 style="margin-top:16px">מוצרים שהוסרו</h3><div style="display:flex;flex-wrap:wrap;gap:7px">'+removed.map(p=>'<button type="button" class="secondary" data-catalogue-restore="'+catalogueProducts.indexOf(p)+'">החזר: '+escapeHtml(p.n)+'</button>').join("")+'</div>':'');
+  $("cataloguePrint").disabled=!selected.length;
 }
 async function loadCatalogue(){
   catalogueMessage("טוען את המוצרים כפי שהם מוצגים בחנות...");
@@ -392,34 +424,44 @@ async function loadCatalogue(){
     const data=await response.json();
     if(!Array.isArray(data))throw new Error("התקבל מבנה נתונים לא תקין מהחנות.");
     catalogueProducts=data.filter(catalogueVisible).sort((x,y)=>(Number(x.p)||0)-(Number(y.p)||0)||String(x.n||"").localeCompare(String(y.n||""),"he"));
+    catalogueExcluded=[];
     renderCatalogue();
-    catalogueMessage("הקטלוג עודכן. "+catalogueProducts.length+" מוצרים פעילים מוכנים לייצוא.");
+    catalogueMessage("הקטלוג עודכן. "+catalogueProducts.length+" מוצרים פעילים נטענו. אפשר להסיר ולהחזיר מוצרים לפני ההדפסה.");
     $("cataloguePrint").disabled=!catalogueProducts.length;
   }catch(error){catalogueMessage(error.message||"לא ניתן לטעון את המוצרים.",true)}
   finally{$("catalogueRefresh").disabled=false}
 }
+$("cataloguePreview").addEventListener("click",e=>{
+  const remove=e.target.closest("[data-catalogue-remove]");
+  const restore=e.target.closest("[data-catalogue-restore]");
+  if(remove){const p=catalogueProducts[Number(remove.dataset.catalogueRemove)];if(p&&!catalogueExcluded.includes(p))catalogueExcluded.push(p);renderCatalogue()}
+  if(restore){const p=catalogueProducts[Number(restore.dataset.catalogueRestore)];catalogueExcluded=catalogueExcluded.filter(x=>x!==p);renderCatalogue()}
+});
 function printCatalogue(){
-  if(!catalogueProducts.length){catalogueMessage("אין מוצרים לייצוא. רענן את הנתונים תחילה.",true);return}
-  const chunks=[],base=Math.floor(catalogueProducts.length/8),extra=catalogueProducts.length%8;
-  let offset=0;
-  for(let i=0;i<8;i++){const count=base+(i<extra?1:0);chunks.push(catalogueProducts.slice(offset,offset+count));offset+=count}
-  const pages=chunks.map((items,i)=>{
-    const cards=items.map(p=>{
-      const src=(p.imgs&&p.imgs[0])||p.img||"";
-      const image=src?'<img src="'+escapeHtml(new URL(src,location.origin).href)+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'"><div class="emoji" style="display:none">'+escapeHtml(p.e||"🎁")+'</div>':'<div class="emoji">'+escapeHtml(p.e||"🎁")+'</div>';
-      return '<article class="product">'+image+'<div class="name">'+escapeHtml(p.n||"מוצר")+'</div><div class="price">'+escapeHtml(Number(p.p||0).toLocaleString("he-IL"))+' הרשקלים</div></article>';
-    }).join("");
-    return '<section class="page" dir="rtl"><header class="page-head"><div class="brand">הרש-שופ</div><div class="heading">קטלוג הפרסים</div></header><div class="products">'+cards+'</div><footer>הרשקופ שול · '+(i+1)+'</footer></section>';
-  });
-  const spreads=[[8,1],[2,7],[6,3],[4,5]];
+  const selected=catalogueProducts.filter(p=>!catalogueExcluded.includes(p));
+  if(!selected.length){catalogueMessage("אין מוצרים לייצוא. החזר לפחות מוצר אחד לקטלוג.",true);return}
+  const {columns,rows,perPage}=catalogueSettings();
+  const pageCount=Math.max(4,Math.ceil(selected.length/perPage/4)*4);
+  const pages=[];
+  for(let i=0;i<pageCount;i++){
+    const items=selected.slice(i*perPage,(i+1)*perPage);
+    const cards=items.map((p,j)=>catalogueProductCard(p,j,true)).join("");
+    pages.push('<section class="page" dir="rtl" style="--rows:'+rows+'"><header class="page-head"><div class="brand">הרש-שופ</div><div class="heading">קטלוג הפרסים</div></header><div class="products" style="grid-template-columns:repeat('+columns+',minmax(0,1fr));grid-template-rows:repeat('+rows+',minmax(0,1fr))">'+cards+'</div><footer>הרשקופ שול · '+(i+1)+'</footer></section>');
+  }
+  const spreads=[];
+  for(let i=0;i<pageCount/4;i++){
+    spreads.push([pageCount-2*i,1+2*i],[2+2*i,pageCount-1-2*i]);
+  }
   const sheets=spreads.map(pair=>'<div class="sheet"><div class="page-wrap">'+pages[pair[0]-1]+'</div><div class="page-wrap">'+pages[pair[1]-1]+'</div></div>').join("");
   const w=window.open("","_blank");
   if(!w){catalogueMessage("הדפדפן חסם חלון חדש. אפשר לאפשר חלונות קופצים לאתר ולנסות שוב.",true);return}
   w.document.open();
-  w.document.write('<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="'+location.origin+'/"><title>קטלוג הרש-שופ להדפסה</title><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}html,body{margin:0;padding:0;font-family:Heebo,Arial,sans-serif;color:#eef0f5}.sheet{width:297mm;height:210mm;display:flex;direction:ltr;page-break-after:always;break-after:page;overflow:hidden}.sheet:last-child{page-break-after:auto;break-after:auto}.page-wrap{width:148.5mm;height:210mm;flex:none;overflow:hidden}.page{width:148.5mm;height:210mm;padding:7mm 8mm 6mm;display:flex;flex-direction:column;direction:rtl;position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 8% 12%,rgba(49,78,133,.42),transparent 38%),radial-gradient(ellipse at 94% 88%,rgba(177,127,39,.18),transparent 34%),linear-gradient(145deg,#0b1020 0%,#111a2d 54%,#0b1222 100%)}.page:before,.page:after{content:"";position:absolute;z-index:-1;pointer-events:none;border-radius:50%}.page:before{width:78mm;height:78mm;top:-43mm;left:-25mm;border:1px solid rgba(224,178,88,.26);box-shadow:0 0 0 5mm rgba(224,178,88,.035),0 0 0 11mm rgba(143,176,236,.035)}.page:after{width:52mm;height:52mm;bottom:-30mm;right:-19mm;border:1px solid rgba(143,176,236,.2);box-shadow:0 0 0 6mm rgba(143,176,236,.035),0 0 0 12mm rgba(224,178,88,.025)}.page-head{height:17mm;flex:none;border-bottom:1px solid rgba(224,178,88,.32);display:flex;align-items:center;justify-content:space-between;margin-bottom:4mm;position:relative}.page-head:after{content:"✦  ·  ✧  ·  ✦";position:absolute;bottom:-2.5mm;left:4mm;color:rgba(224,178,88,.65);font-size:8pt;letter-spacing:2px}.brand{font-size:17pt;font-weight:800;color:#e0b258;text-shadow:0 2px 14px rgba(224,178,88,.18)}.heading{font-size:11pt;font-weight:700;color:#a9c3f0}.products{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:3mm}.product{min-width:0;min-height:0;border:0;border-radius:0;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));padding:2.2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;break-inside:avoid;position:relative}.product:before{content:"✧";position:absolute;top:1mm;inset-inline-end:2mm;color:rgba(224,178,88,.48);font-size:9pt}.product img,.emoji{width:100%;height:23mm;object-fit:contain;flex:none;border:0;outline:0;box-shadow:none;background:transparent;mix-blend-mode:normal}.emoji{display:grid;place-items:center;font-size:27pt}.name{font-size:10pt;font-weight:700;color:#f1f3f8;line-height:1.2;margin-top:1.2mm;max-height:2.4em;overflow:hidden}.price{font-size:12pt;font-weight:800;color:#e0b258;margin-top:1mm;text-shadow:0 1px 10px rgba(224,178,88,.14)}.page footer{height:5mm;flex:none;text-align:center;color:#8390a8;font-size:7pt;padding-top:1mm}.page-wrap:first-child{border-right:0.2mm dashed rgba(224,178,88,.35)}@page{size:A4 landscape;margin:0}@media screen{body{background:#080d18}.sheet{margin:12px auto;background:#0b1020;box-shadow:0 5px 28px rgba(0,0,0,.4)}.sheet:last-child{margin-bottom:24px}}@media print{.sheet{margin:0;box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+sheets+'<script>window.addEventListener("load",function(){setTimeout(function(){window.print()},700)})<\/script></body></html>');
+  w.document.write('<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="'+location.origin+'/"><title>קטלוג הרש-שופ להדפסה</title><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}html,body{margin:0;padding:0;font-family:Heebo,Arial,sans-serif;color:#eef0f5}.sheet{width:297mm;height:210mm;display:flex;direction:ltr;page-break-after:always;break-after:page;overflow:hidden}.sheet:last-child{page-break-after:auto;break-after:auto}.page-wrap{width:148.5mm;height:210mm;flex:none;overflow:hidden}.page{width:148.5mm;height:210mm;padding:7mm 8mm 6mm;display:flex;flex-direction:column;direction:rtl;position:relative;isolation:isolate;overflow:hidden;background:radial-gradient(ellipse at 8% 12%,rgba(49,78,133,.42),transparent 38%),radial-gradient(ellipse at 94% 88%,rgba(177,127,39,.18),transparent 34%),linear-gradient(145deg,#0b1020 0%,#111a2d 54%,#0b1222 100%)}.page:before,.page:after{content:"";position:absolute;z-index:-1;pointer-events:none;border-radius:50%}.page:before{width:78mm;height:78mm;top:-43mm;left:-25mm;border:1px solid rgba(224,178,88,.26);box-shadow:0 0 0 5mm rgba(224,178,88,.035),0 0 0 11mm rgba(143,176,236,.035)}.page:after{width:52mm;height:52mm;bottom:-30mm;right:-19mm;border:1px solid rgba(143,176,236,.2);box-shadow:0 0 0 6mm rgba(143,176,236,.035),0 0 0 12mm rgba(224,178,88,.025)}.page-head{height:17mm;flex:none;border-bottom:1px solid rgba(224,178,88,.32);display:flex;align-items:center;justify-content:space-between;margin-bottom:4mm;position:relative}.page-head:after{content:"✦  ·  ✧  ·  ✦";position:absolute;bottom:-2.5mm;left:4mm;color:rgba(224,178,88,.65);font-size:8pt;letter-spacing:2px}.brand{font-size:17pt;font-weight:800;color:#e0b258;text-shadow:0 2px 14px rgba(224,178,88,.18)}.heading{font-size:11pt;font-weight:700;color:#a9c3f0}.products{flex:1;min-height:0;display:grid;gap:3mm}.product{min-width:0;min-height:0;border:0;border-radius:0;background:linear-gradient(145deg,rgba(255,255,255,.045),rgba(255,255,255,.012));padding:2.2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;break-inside:avoid;position:relative}.product:before{content:"✧";position:absolute;top:1mm;inset-inline-end:2mm;color:rgba(224,178,88,.48);font-size:9pt}.product img,.emoji{width:100%;height:calc(150mm / var(--rows) * .52);max-height:30mm;object-fit:contain;flex:none;border:0;outline:0;box-shadow:none;background:transparent;mix-blend-mode:normal}.product .catalogue-fan{height:calc(150mm / var(--rows) * .52);max-height:30mm;width:100%;display:flex;align-items:center;justify-content:center;position:relative;flex:none}.catalogue-fan img{width:58%;height:100%;object-fit:contain;position:relative}.catalogue-fan img:first-child{transform:rotate(-8deg) translateX(5mm);z-index:1}.catalogue-fan img:last-child{transform:rotate(8deg) translateX(-5mm);z-index:2}.single-product-image{display:block}.emoji{display:grid;place-items:center;font-size:27pt}.name{font-size:10pt;font-weight:700;color:#f1f3f8;line-height:1.2;margin-top:1.2mm;max-height:2.4em;overflow:hidden}.price{font-size:12pt;font-weight:800;color:#e0b258;margin-top:1mm;text-shadow:0 1px 10px rgba(224,178,88,.14)}.page footer{height:5mm;flex:none;text-align:center;color:#8390a8;font-size:7pt;padding-top:1mm}.page-wrap:first-child{border-right:0.2mm dashed rgba(224,178,88,.35)}@page{size:A4 landscape;margin:0}@media screen{body{background:#080d18}.sheet{margin:12px auto;background:#0b1020;box-shadow:0 5px 28px rgba(0,0,0,.4)}.sheet:last-child{margin-bottom:24px}}@media print{.sheet{margin:0;box-shadow:none;-webkit-print-color-adjust:exact;print-color-adjust:exact}}</style></head><body>'+sheets+'<script>window.addEventListener("load",function(){setTimeout(function(){window.print()},700)})<\/script></body></html>');
   w.document.close();
-  catalogueMessage("נפתח קובץ ההדפסה. בחר A4 לרוחב והדפסה דו-צדדית עם היפוך בקצה הקצר.");
+  catalogueMessage("נפתח קובץ ההדפסה: "+selected.length+" מוצרים, "+columns+" לרוחב ו-"+rows+" לאורך בכל עמוד. בחר A4 לרוחב והדפסה דו-צדדית עם היפוך בקצה הקצר.");
 }
+$("catalogueColumns").addEventListener("change",()=>{catalogueSettings();catalogueMessage("הפריסה עודכנה. ההגדרות יחולו בייצוא הבא.")});
+$("catalogueRows").addEventListener("change",()=>{catalogueSettings();catalogueMessage("הפריסה עודכנה. ההגדרות יחולו בייצוא הבא.")});
 $("catalogueRefresh").addEventListener("click",loadCatalogue);
 $("cataloguePrint").addEventListener("click",printCatalogue);
 
