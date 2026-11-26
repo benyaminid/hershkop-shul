@@ -12,6 +12,7 @@
     {k:'bulletin',t:'עלון חדש'},
     {k:'news',t:'הודעות'}
   ];
+  var HOUR_MIN=5,HOUR_MAX=23,ITEM=40;
   var supported=('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window);
   var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 
@@ -30,8 +31,17 @@
   +'#hs-push .opt label{display:flex;align-items:center;gap:10px;margin:6px 0;cursor:pointer}'
   +'#hs-push .opt label span{white-space:nowrap}'
   +'#hs-push .opt input[type=radio]{width:18px;height:18px;accent-color:#b8860b;flex:none;margin:0}'
-  +'#hs-push .hrw{margin:2px 28px 4px 0}'
-  +'#hs-push select{font:inherit;padding:5px 10px;border-radius:10px;border:1.5px solid #cdb26a;background:#fff;color:#2b2112;min-width:110px}'
+  +'#hs-push select.hr{display:none}'
+  +'#hs-push .tp{display:flex;justify-content:center;margin:10px 0 4px;transition:opacity .2s,filter .2s}'
+  +'#hs-push .tp.dis{opacity:.38;filter:grayscale(1)}'
+  +'#hs-push .wbox{position:relative;width:150px;height:120px}'
+  +'#hs-push .wheel{position:absolute;inset:0;overflow-y:auto;scroll-snap-type:y mandatory;border:1.5px solid #cdb26a;border-radius:16px;background:#fff;scrollbar-width:none;-ms-overflow-style:none;overscroll-behavior:contain}'
+  +'#hs-push .wheel::-webkit-scrollbar{display:none}'
+  +'#hs-push .wpad{height:40px}'
+  +'#hs-push .it{height:40px;line-height:40px;scroll-snap-align:center;text-align:center;font-weight:700;font-size:1.1rem;color:#9a8a60;cursor:pointer;direction:ltr;user-select:none;-webkit-user-select:none}'
+  +'#hs-push .it.sel{color:#2b2112;font-weight:800;font-size:1.3rem}'
+  +'#hs-push .hl{position:absolute;left:6px;right:6px;top:40px;height:40px;border-top:2px solid #b8860b;border-bottom:2px solid #b8860b;background:rgba(201,151,28,.14);border-radius:8px;pointer-events:none}'
+  +'#hs-push .tp.dis .wheel{pointer-events:none}'
   +'#hs-push .msg{min-height:1.3em;margin:6px 2px 0;font-size:.93rem;text-align:center;color:#2b2112;line-height:1.5}'
   +'#hs-push .msg.err{color:#b00020}'
   +'#hs-push .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}'
@@ -40,22 +50,26 @@
   +'#hs-push button.off{border-color:#d9a3a3;color:#9b2c2c}'
   +'#hs-push button:active{transform:scale(.98)}'
   +'#hs-push button:disabled{opacity:.5}'
-  +'#hs-push .shab{margin:14px 4px 0;font-size:.85rem;color:#6b5a35;text-align:center;line-height:1.5}';
+  +'#hs-push .shab{margin:14px 0 0;font-size:.86rem;color:#6b5a35;text-align:center;white-space:nowrap}'
+  +'#hs-push .shab strong{font-weight:800;color:#7a5b00}';
   var st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
 
   function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function pad(h){return (h<10?'0':'')+h+':00'}
   function b64ToBytes(b){b=b.replace(/-/g,'+').replace(/_/g,'/');while(b.length%4)b+='=';var r=atob(b),o=new Uint8Array(r.length);for(var i=0;i<r.length;i++)o[i]=r.charCodeAt(i);return o}
   function post(path,body){return fetch(path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(function(r){return r.json().catch(function(){return{}}).then(function(d){if(!r.ok)throw new Error(d.error||'שגיאה');return d})})}
   function getReg(){return Promise.race([navigator.serviceWorker.ready,new Promise(function(_,rej){setTimeout(function(){rej(new Error('האפליקציה עדיין לא מוכנה. נסו שוב בעוד רגע.'))},6000)})])}
 
   function openModal(){
     if(document.getElementById('hs-push'))return;
-    var hours='';for(var h=5;h<=23;h++)hours+='<option value="'+h+'"'+(h===8?' selected':'')+'>'+(h<10?'0':'')+h+':00</option>';
+    var items='';for(var h=HOUR_MIN;h<=HOUR_MAX;h++)items+='<div class="it" data-h="'+h+'">'+pad(h)+'</div>';
+    var opts='';for(var h2=HOUR_MIN;h2<=HOUR_MAX;h2++)opts+='<option value="'+h2+'"'+(h2===8?' selected':'')+'>'+pad(h2)+'</option>';
     var rows=CATS.map(function(c){
       return '<div class="row" data-k="'+c.k+'"><label class="ck"><input type="checkbox" class="on"><span>'+esc(c.t)+'</span></label>'
         +'<div class="opt"><label><input type="radio" name="m-'+c.k+'" value="now" checked><span>מיד כשמתעדכן באתר</span></label>'
         +'<label><input type="radio" name="m-'+c.k+'" value="daily"><span>פעם ביום בשעה:</span></label>'
-        +'<div class="hrw"><select class="hr">'+hours+'</select></div></div></div>';
+        +'<div class="tp dis"><div class="wbox"><div class="wheel"><div class="wpad"></div>'+items+'<div class="wpad"></div></div><div class="hl"></div></div>'
+        +'<select class="hr" disabled>'+opts+'</select></div></div></div>';
     }).join('');
     var warn='';
     if(!supported){
@@ -68,12 +82,56 @@
     ov.innerHTML='<div class="pc"><div class="hd"><h2>🔔 התראות מהאתר</h2><p class="sub">בחרו על מה לקבל התראה, ומתי.</p></div>'+rows
       +'<div class="msg'+(warn?' err':'')+'">'+esc(warn)+'</div>'
       +'<div class="btns"><button type="button" class="pri" id="hs-save">שמירה</button><button type="button" class="off" id="hs-off">כיבוי כל ההתראות</button><button type="button" id="hs-close">סגירה</button></div>'
-      +'<p class="shab">בשבת לא יישלחו התראות, משישי אחר הצהריים ועד מוצאי שבת. עדכונים שיפורסמו בזמן זה יישלחו במוצאי שבת.</p></div>';
+      +'<p class="shab"><strong>לא יישלחו הודעות בשבתות וחגים (לפי שעון ישראל)</strong></p></div>';
     document.body.appendChild(ov);
     var msg=ov.querySelector('.msg');
     function say(t,err){msg.textContent=t;msg.className='msg'+(err?' err':'')}
-    function refreshRow(row){row.classList.toggle('on',row.querySelector('.on').checked)}
-    [].forEach.call(ov.querySelectorAll('.row'),function(r){r.querySelector('.on').addEventListener('change',function(){refreshRow(r)})});
+
+    function markSel(row,h){
+      [].forEach.call(row.querySelectorAll('.it'),function(it){it.classList.toggle('sel',Number(it.getAttribute('data-h'))===h)});
+    }
+    function syncWheel(row){
+      var sel=row.querySelector('.hr'),w=row.querySelector('.wheel'),h=parseInt(sel.value,10);
+      w.scrollTop=(h-HOUR_MIN)*ITEM;
+      markSel(row,h);
+    }
+    function refreshDaily(row){
+      var daily=row.querySelector('input[type=radio][value="daily"]').checked;
+      var tp=row.querySelector('.tp');
+      tp.classList.toggle('dis',!daily);
+      row.querySelector('.hr').disabled=!daily;
+      if(daily)setTimeout(function(){syncWheel(row)},0);
+    }
+    function refreshRow(row){
+      row.classList.toggle('on',row.querySelector('.on').checked);
+      refreshDaily(row);
+    }
+
+    [].forEach.call(ov.querySelectorAll('.row'),function(r){
+      r.querySelector('.on').addEventListener('change',function(){refreshRow(r)});
+      [].forEach.call(r.querySelectorAll('input[type=radio]'),function(rad){rad.addEventListener('change',function(){refreshDaily(r)})});
+      var w=r.querySelector('.wheel'),timer=0;
+      w.addEventListener('scroll',function(){
+        clearTimeout(timer);
+        timer=setTimeout(function(){
+          var idx=Math.round(w.scrollTop/ITEM);
+          idx=Math.max(0,Math.min(HOUR_MAX-HOUR_MIN,idx));
+          var h=HOUR_MIN+idx;
+          r.querySelector('.hr').value=String(h);
+          markSel(r,h);
+        },80);
+      });
+      [].forEach.call(r.querySelectorAll('.it'),function(it){
+        it.addEventListener('click',function(){
+          var h=Number(it.getAttribute('data-h'));
+          w.scrollTo({top:(h-HOUR_MIN)*ITEM,behavior:'smooth'});
+          r.querySelector('.hr').value=String(h);
+          markSel(r,h);
+        });
+      });
+      refreshRow(r);
+    });
+
     function collect(){
       var prefs={};
       [].forEach.call(ov.querySelectorAll('.row'),function(r){
