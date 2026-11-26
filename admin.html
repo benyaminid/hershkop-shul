@@ -35,7 +35,7 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
 <div id="loginMsg" class="notice" hidden></div>
 </section>
 <section id="app" hidden>
-<nav class="admin-tabs"><button type="button" class="admin-tab active" data-admin-tab="products">🛍️ ניהול מוצרים</button><button type="button" class="admin-tab" data-admin-tab="banners">📢 ניהול מודעות</button><button type="button" class="admin-tab" data-admin-tab="bulletin">📰 עדכון העלון</button><button type="button" class="admin-tab" data-admin-tab="lottery">🎟️ הגרלה שבועית</button></nav>
+<nav class="admin-tabs"><button type="button" class="admin-tab active" data-admin-tab="products">🛍️ ניהול מוצרים</button><button type="button" class="admin-tab" data-admin-tab="banners">📢 ניהול מודעות</button><button type="button" class="admin-tab" data-admin-tab="bulletin">📰 עדכון העלון</button><button type="button" class="admin-tab" data-admin-tab="lottery">🎟️ הגרלה שבועית</button><button type="button" class="admin-tab" data-admin-tab="catalogue">📖 קטלוג להדפסה</button></nav>
 <div id="productsTab" class="admin-tab-panel">
 <div class="panel">
 <div class="topline"><div><h1>ניהול האתר</h1><p class="muted">ניהול מוצרים, תמונות ומודעות Popup במקום אחד.</p></div><div class="actions"><button type="button" id="saveAll" hidden>שמירת כל השינויים</button><button id="add">＋ מוצר חדש</button></div></div>
@@ -83,6 +83,15 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
   <div id="lotteryHistory"></div>
 </div>
 </section>
+<section id="catalogueTab" class="admin-tab-panel" hidden>
+<div class="panel">
+  <div class="topline"><div><h2>קטלוג מוצרים להדפסה</h2><p class="muted">הקטלוג נבנה בזמן אמת מהמוצרים שהחנות מציגה באתר. מוצרים מוסתרים ומוצרים ללא מלאי שאינם מוגדרים להצגה לא ייכללו.</p></div></div>
+  <div class="actions"><button type="button" id="catalogueRefresh" class="secondary">↻ רענון מוצרים</button><button type="button" id="cataloguePrint">🖨️ ייצוא קטלוג להדפסה</button></div>
+  <div id="catalogueMsg" class="notice" hidden></div>
+  <div id="cataloguePreview" class="empty">לחץ על רענון כדי לטעון את המוצרים הפעילים באתר.</div>
+  <p class="muted" style="margin-top:14px">הקובץ מסודר כחוברת: 8 עמודי A5 המוטמעים על 4 דפי A4 לרוחב. בהדפסה בחר דו-צדדי, היפוך בקצה הקצר, גודל 100% וללא שוליים. אפשר גם לבחור "שמירה כ-PDF".</p>
+</div>
+</section>
 <section id="editor" class="panel" hidden>
 <h2 id="editorTitle">מוצר חדש</h2>
 <form id="productForm">
@@ -116,6 +125,7 @@ let banners=[];
 let bulletinState=null;
 let lotteryState=null;
 let selectedBulletinFile=null;
+let catalogueProducts=[];
 let activeAdminTab="products";
 function setAdminTab(tab){
  activeAdminTab=tab;
@@ -124,12 +134,13 @@ function setAdminTab(tab){
  $("bannerTab").hidden=tab!=="banners";
  $("bulletinTab").hidden=tab!=="bulletin";
  $("lotteryTab").hidden=tab!=="lottery";
+ $("catalogueTab").hidden=tab!=="catalogue";
  document.querySelectorAll("[data-admin-tab]").forEach(b=>b.classList.toggle("active",b.dataset.adminTab===tab));
  $("add").hidden=tab!=="products";
  $("saveAll").hidden=tab!=="products"||!(pending.size||pendingNew.length);
  $("saveAllBottom").hidden=tab!=="products"||!(pending.size||pendingNew.length);
 }
-document.querySelectorAll("[data-admin-tab]").forEach(b=>b.addEventListener("click",()=>setAdminTab(b.dataset.adminTab)));
+document.querySelectorAll("[data-admin-tab]").forEach(b=>b.addEventListener("click",()=>{setAdminTab(b.dataset.adminTab);if(b.dataset.adminTab==="catalogue")loadCatalogue()}));
 const bannerDateInput=$("bannerDate");
 function localDate(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function bannerMessage(text,error=false){message($("bannerMsg"),text,error)}
@@ -357,6 +368,60 @@ $("bulletinStart").addEventListener("click",async()=>{
   }catch(error){bulletinMessage(error.message||"עדכון העלון נכשל.",true)}
   finally{$("bulletinFile").disabled=false;$("bulletinStart").disabled=false;}
 });
+
+function catalogueVisible(p){
+  return !p.h&&(p.s==null||Number(p.s)>0||p.z===true);
+}
+function catalogueMessage(text,error=false){message($("catalogueMsg"),text,error)}
+function renderCatalogue(){
+  const root=$("cataloguePreview");
+  if(!catalogueProducts.length){root.className="empty";root.textContent="אין כרגע מוצרים פעילים להצגה בקטלוג.";return}
+  root.className="";
+  root.innerHTML='<strong>נמצאו '+catalogueProducts.length+' מוצרים פעילים.</strong><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:9px;margin-top:12px">'+catalogueProducts.slice(0,12).map(p=>{
+    const src=p.imgs&&p.imgs[0]||p.img||"";
+    const media=src?'<img src="'+escapeHtml(src)+'" alt="" style="width:58px;height:58px;object-fit:contain;background:#0c1526;border-radius:9px">':'<span style="font-size:2rem">'+escapeHtml(p.e||"🎁")+'</span>';
+    return '<div style="display:flex;align-items:center;gap:8px;min-width:0;padding:8px;border:1px solid var(--line);border-radius:10px">'+media+'<div style="min-width:0"><strong style="display:block;overflow-wrap:anywhere">'+escapeHtml(p.n)+'</strong><small>'+escapeHtml(p.p)+' הרשקלים</small></div></div>';
+  }).join("")+'</div>'+(catalogueProducts.length>12?'<p class="muted">מוצגים כאן 12 מוצרים ראשונים בלבד. בקטלוג יודפסו כל '+catalogueProducts.length+' המוצרים.</p>':'');
+}
+async function loadCatalogue(){
+  catalogueMessage("טוען את המוצרים כפי שהם מוצגים בחנות...");
+  $("catalogueRefresh").disabled=true;$("cataloguePrint").disabled=true;
+  try{
+    const response=await fetch("/api/products",{credentials:"same-origin",cache:"no-store"});
+    if(!response.ok)throw new Error("טעינת נתוני החנות נכשלה ("+response.status+").");
+    const data=await response.json();
+    if(!Array.isArray(data))throw new Error("התקבל מבנה נתונים לא תקין מהחנות.");
+    catalogueProducts=data.filter(catalogueVisible).sort((x,y)=>(Number(x.p)||0)-(Number(y.p)||0)||String(x.n||"").localeCompare(String(y.n||""),"he"));
+    renderCatalogue();
+    catalogueMessage("הקטלוג עודכן. "+catalogueProducts.length+" מוצרים פעילים מוכנים לייצוא.");
+    $("cataloguePrint").disabled=!catalogueProducts.length;
+  }catch(error){catalogueMessage(error.message||"לא ניתן לטעון את המוצרים.",true)}
+  finally{$("catalogueRefresh").disabled=false}
+}
+function printCatalogue(){
+  if(!catalogueProducts.length){catalogueMessage("אין מוצרים לייצוא. רענן את הנתונים תחילה.",true);return}
+  const chunks=[],base=Math.floor(catalogueProducts.length/8),extra=catalogueProducts.length%8;
+  let offset=0;
+  for(let i=0;i<8;i++){const count=base+(i<extra?1:0);chunks.push(catalogueProducts.slice(offset,offset+count));offset+=count}
+  const pages=chunks.map((items,i)=>{
+    const cards=items.map(p=>{
+      const src=(p.imgs&&p.imgs[0])||p.img||"";
+      const image=src?'<img src="'+escapeHtml(new URL(src,location.origin).href)+'" alt="" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'grid\'"><div class="emoji" style="display:none">'+escapeHtml(p.e||"🎁")+'</div>':'<div class="emoji">'+escapeHtml(p.e||"🎁")+'</div>';
+      return '<article class="product">'+image+'<div class="name">'+escapeHtml(p.n||"מוצר")+'</div><div class="price">'+escapeHtml(Number(p.p||0).toLocaleString("he-IL"))+' הרשקלים</div></article>';
+    }).join("");
+    return '<section class="page" dir="rtl"><header class="page-head"><div class="brand">הרש-שופ</div><div class="heading">קטלוג הפרסים</div></header><div class="products">'+cards+'</div><footer>הרשקופ שול · '+(i+1)+'</footer></section>';
+  });
+  const spreads=[[8,1],[2,7],[6,3],[4,5]];
+  const sheets=spreads.map(pair=>'<div class="sheet"><div class="page-wrap">'+pages[pair[0]-1]+'</div><div class="page-wrap">'+pages[pair[1]-1]+'</div></div>').join("");
+  const w=window.open("","_blank");
+  if(!w){catalogueMessage("הדפדפן חסם חלון חדש. אפשר לאפשר חלונות קופצים לאתר ולנסות שוב.",true);return}
+  w.document.open();
+  w.document.write('<!doctype html><html lang="he" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><base href="'+location.origin+'/"><title>קטלוג הרש-שופ להדפסה</title><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800&display=swap" rel="stylesheet"><style>*{box-sizing:border-box}html,body{margin:0;padding:0;font-family:Heebo,Arial,sans-serif;color:#1d2433}.sheet{width:297mm;height:210mm;display:flex;direction:ltr;page-break-after:always;break-after:page;overflow:hidden}.sheet:last-child{page-break-after:auto;break-after:auto}.page-wrap{width:148.5mm;height:210mm;flex:none;overflow:hidden}.page{width:148.5mm;height:210mm;padding:7mm 8mm 6mm;display:flex;flex-direction:column;direction:rtl;position:relative;background:#fff}.page-head{height:17mm;flex:none;border-bottom:1px solid #e4dfd2;display:flex;align-items:center;justify-content:space-between;margin-bottom:4mm}.brand{font-size:17pt;font-weight:800;color:#1f3a68}.heading{font-size:11pt;font-weight:700;color:#b8862b}.products{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(4,minmax(0,1fr));gap:3mm}.product{min-width:0;min-height:0;border:1px solid #e4dfd2;border-radius:3mm;padding:2.2mm;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;overflow:hidden;break-inside:avoid}.product img,.emoji{width:100%;height:23mm;object-fit:contain;flex:none}.emoji{display:grid;place-items:center;font-size:27pt}.name{font-size:10pt;font-weight:700;line-height:1.2;margin-top:1.2mm;max-height:2.4em;overflow:hidden}.price{font-size:12pt;font-weight:800;color:#b8862b;margin-top:1mm}.page footer{height:5mm;flex:none;text-align:center;color:#8a8f9a;font-size:7pt;padding-top:1mm}.page-wrap:first-child{border-right:0.2mm dashed #d7d7d7}@page{size:A4 landscape;margin:0}@media screen{body{background:#e8ebf0}.sheet{margin:12px auto;background:#fff;box-shadow:0 3px 18px #0002}.sheet:last-child{margin-bottom:24px}}@media print{.sheet{margin:0;box-shadow:none}}</style></head><body>'+sheets+'<script>window.addEventListener("load",function(){setTimeout(function(){window.print()},700)})<\/script></body></html>');
+  w.document.close();
+  catalogueMessage("נפתח קובץ ההדפסה. בחר A4 לרוחב והדפסה דו-צדדית עם היפוך בקצה הקצר.");
+}
+$("catalogueRefresh").addEventListener("click",loadCatalogue);
+$("cataloguePrint").addEventListener("click",printCatalogue);
 
 async function api(url,options={}){
   const response=await fetch(url,{credentials:"same-origin",cache:"no-store",...options,headers:{"Content-Type":"application/json",...(options.headers||{})}});
