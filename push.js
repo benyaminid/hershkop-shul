@@ -7,10 +7,10 @@
   if(window.__hsPush)return;
   window.__hsPush=1;
   var CATS=[
-    {k:'lottery',t:'הגרלה שבוצעה'},
+    {k:'lottery',t:'הגרלת אבות ובנים'},
     {k:'products',t:'מוצרים חדשים'},
-    {k:'bulletin',t:'עלון חדש'},
-    {k:'news',t:'הודעות'}
+    {k:'bulletin',t:'פרסום עלון חדש'},
+    {k:'news',t:'מודעות ועדכונים'}
   ];
   var HOUR_MIN=5,HOUR_MAX=23,ITEM=40;
   var supported=('serviceWorker' in navigator)&&('PushManager' in window)&&('Notification' in window);
@@ -24,12 +24,12 @@
   +'#hs-push p.sub{margin:0;font-size:.93rem;color:#6b5a35;line-height:1.5}'
   +'#hs-push .row{background:#fff;border:1.5px solid #efdca8;border-radius:16px;padding:12px 14px;margin:0 0 10px;transition:border-color .2s,background .2s}'
   +'#hs-push .row.on{border-color:#b8860b;background:#fffaf0}'
-  +'#hs-push label.ck{display:flex;align-items:center;gap:12px;font-weight:800;font-size:1.08rem;cursor:pointer}'
+  +'#hs-push label.ck{display:flex;align-items:center;justify-content:center;gap:12px;font-weight:800;font-size:1.08rem;cursor:pointer}'
   +'#hs-push input[type=checkbox]{width:22px;height:22px;accent-color:#b8860b;flex:none;margin:0}'
   +'#hs-push .opt{display:none;margin:10px 0 0;padding:10px 0 0;border-top:1px dashed #e6cf94;font-size:.96rem}'
   +'#hs-push .row.on .opt{display:block}'
   +'#hs-push .opt label{display:flex;align-items:center;gap:10px;margin:6px 0;cursor:pointer}'
-  +'#hs-push .opt label span{white-space:nowrap}'
+  +'#hs-push .opt label span,#hs-push label.ck span{white-space:nowrap}'
   +'#hs-push .opt input[type=radio]{width:18px;height:18px;accent-color:#b8860b;flex:none;margin:0}'
   +'#hs-push select.hr{display:none}'
   +'#hs-push .tp{display:flex;justify-content:center;margin:10px 0 4px;transition:opacity .2s,filter .2s}'
