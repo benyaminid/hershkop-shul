@@ -19,8 +19,9 @@
   var css=''
   +'#hs-push, #hs-push *{box-sizing:border-box}'
   +'#hs-push{position:fixed;inset:0;z-index:2100;display:flex;padding:12px;overflow:auto;background:rgba(14,22,48,.78);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);direction:rtl;font-family:"Heebo","Segoe UI",Arial,sans-serif}'
-  +'#hs-push .pc{margin:auto;width:100%;max-width:420px;overflow:hidden;background:linear-gradient(180deg,#fffdf7 0%,#fcefcf 100%);color:#2b2112;border:2px solid #e2b04a;border-radius:26px;padding:20px 14px 16px;box-shadow:0 24px 60px rgba(0,0,0,.55)}'
+  +'#hs-push .pc{position:relative;margin:auto;width:100%;max-width:420px;overflow:hidden;background:linear-gradient(180deg,#fffdf7 0%,#fcefcf 100%);color:#2b2112;border:2px solid #e2b04a;border-radius:26px;padding:20px 14px 16px;box-shadow:0 24px 60px rgba(0,0,0,.55)}'
   +'#hs-push .hd{text-align:center;margin-bottom:14px}'
+  +'#hs-push .xbtn{position:absolute;top:10px;left:10px;width:34px;height:34px;min-height:34px;padding:0;border-radius:50%;border:1.5px solid #cdb26a;background:#fff;color:#7a5b00;font-size:1.2rem;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.18)}'
   +'#hs-push h2{margin:0 0 4px;font-size:1.45rem;font-weight:800}'
   +'#hs-push p.sub{margin:0;font-size:.93rem;color:#6b5a35;line-height:1.5}'
   +'#hs-push .row{background:#fff;border:1.5px solid #efdca8;border-radius:16px;padding:12px 14px;margin:0 0 10px;transition:border-color .2s,background .2s}'
@@ -81,7 +82,7 @@
     }
     var ov=document.createElement('div');
     ov.id='hs-push';ov.setAttribute('role','dialog');ov.setAttribute('aria-modal','true');
-    ov.innerHTML='<div class="pc"><div class="hd"><h2>🔔 התראות מהאתר</h2><p class="sub">בחרו על מה לקבל התראה, ומתי.</p></div>'+rows
+    ov.innerHTML='<div class="pc"><button type="button" class="xbtn" id="hs-x" aria-label="סגירה">&times;</button><div class="hd"><h2>🔔 התראות מהאתר</h2><p class="sub">בחרו על מה לקבל התראה, ומתי.</p></div>'+rows
       +'<div class="msg'+(warn?' err':'')+'">'+esc(warn)+'</div>'
       +'<div class="btns"><button type="button" class="pri" id="hs-save">שמירה</button><button type="button" class="off" id="hs-off">כיבוי כל ההתראות</button><button type="button" id="hs-close">סגירה</button></div>'
       +'<p class="shab"><strong>לא יישלחו הודעות בשבתות וחגים (לפי שעון ישראל)</strong></p></div>';
@@ -155,6 +156,7 @@
     function close(){if(ov.parentNode)ov.parentNode.removeChild(ov)}
     ov.addEventListener('click',function(e){if(e.target===ov)close()});
     ov.querySelector('#hs-close').addEventListener('click',close);
+    ov.querySelector('#hs-x').addEventListener('click',close);
 
     if(supported){
       getReg().then(function(reg){return reg.pushManager.getSubscription()}).then(function(sub){
@@ -196,7 +198,7 @@
       }).then(function(){
         apply({lottery:{on:false},products:{on:false},bulletin:{on:false},news:{on:false}});
         say('כל ההתראות כובו.');
-      }).catch(function(e){say((e&&e.message)||'לא ניתן לכבות כרגע.',true)}).then(function(){off.disabled=false});
+      }).catch(function(e){say((e&&e.message)||'לא ניתן לכבות כרג.',true)}).then(function(){off.disabled=false});
     });
   }
 
