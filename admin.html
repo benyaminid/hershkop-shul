@@ -36,7 +36,7 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
 <div id="loginMsg" class="notice" hidden></div>
 </section>
 <section id="app" hidden>
-<nav class="admin-tabs"><button type="button" class="admin-tab active" data-admin-tab="products">🛍️ ניהול מוצרים</button><button type="button" class="admin-tab" data-admin-tab="banners">📢 ניהול מודעות</button><button type="button" class="admin-tab" data-admin-tab="bulletin">📰 עדכון העלון</button><button type="button" class="admin-tab" data-admin-tab="lottery">🎟️ הגרלה שבועית</button><button type="button" class="admin-tab" data-admin-tab="catalogue">📖 קטלוג להדפסה</button></nav>
+<nav class="admin-tabs"><button type="button" class="admin-tab active" data-admin-tab="products">🛍️ ניהול מוצרים</button><button type="button" class="admin-tab" data-admin-tab="banners">📢 ניהול מודעות</button><button type="button" class="admin-tab" data-admin-tab="bulletin">📰 עדכון העלון</button><button type="button" class="admin-tab" data-admin-tab="lottery">🎟️ הגרלה שבועית</button><button type="button" class="admin-tab" data-admin-tab="rules">📝 עריכת נהלים</button><button type="button" class="admin-tab" data-admin-tab="catalogue">📖 קטלוג להדפסה</button></nav>
 <div id="productsTab" class="admin-tab-panel">
 <div class="panel">
 <div class="topline"><div><h1>ניהול האתר</h1><p class="muted">ניהול מוצרים, תמונות ומודעות Popup במקום אחד.</p></div><div class="actions"><button type="button" id="saveAll" hidden>שמירת כל השינויים</button><button id="add">＋ מוצר חדש</button></div></div>
@@ -84,6 +84,15 @@ button,.btn{border:1px solid #496895;border-radius:11px;background:linear-gradie
   <div id="lotteryHistory"></div>
 </div>
 </section>
+<section id="rulesTab" class="admin-tab-panel" hidden><div class="panel">
+<div class="topline"><div><h2>עריכת נהלים וכותרות</h2><p class="muted">ערוך את כותרת העמוד, כותרות הנהלים ואת התוכן של כל אחד מהם. השינויים נשמרים באתר מיד לאחר הלחיצה.</p></div></div>
+<div id="rulesMsg" class="notice" hidden></div>
+<label for="rulesPageTitle">כותרת עמוד הנהלים</label><input id="rulesPageTitle" maxlength="120">
+<hr><h3>נהלי חלוקת הרשקלים</h3><label for="rulesTitle1">כותרת</label><input id="rulesTitle1" maxlength="120"><label for="rulesBody1">תוכן הנהלים</label><textarea id="rulesBody1" rows="10"></textarea>
+<hr><h3>נהלי מכירת המתנות</h3><label for="rulesTitle2">כותרת</label><input id="rulesTitle2" maxlength="120"><label for="rulesBody2">תוכן הנהלים</label><textarea id="rulesBody2" rows="10"></textarea>
+<hr><h3>נהלי אבות ובנים</h3><label for="rulesTitle3">כותרת</label><input id="rulesTitle3" maxlength="120"><label for="rulesBody3">תוכן הנהלים</label><textarea id="rulesBody3" rows="10"></textarea>
+<div class="actions"><button type="button" id="rulesSave">שמירת הנהלים</button><button type="button" class="secondary" id="rulesReload">טעינה מחדש</button></div>
+</div></section>
 <section id="catalogueTab" class="admin-tab-panel" hidden>
 <div class="panel">
   <div class="topline"><div><h2>קטלוג מוצרים להדפסה</h2><p class="muted">הקטלוג נבנה בזמן אמת מהמוצרים שהחנות מציגה באתר. מוצרים מוסתרים ומוצרים ללא מלאי שאינם מוגדרים להצגה לא ייכללו.</p></div></div>
@@ -133,6 +142,7 @@ let lotteryState=null;
 let selectedBulletinFile=null;
 let catalogueProducts=[];
 let catalogueExcluded=[];
+let rulesSite=null;
 let activeAdminTab="products";
 function setAdminTab(tab){
  activeAdminTab=tab;
@@ -142,12 +152,13 @@ function setAdminTab(tab){
  $("bulletinTab").hidden=tab!=="bulletin";
  $("lotteryTab").hidden=tab!=="lottery";
  $("catalogueTab").hidden=tab!=="catalogue";
+ $("rulesTab").hidden=tab!=="rules";
  document.querySelectorAll("[data-admin-tab]").forEach(b=>b.classList.toggle("active",b.dataset.adminTab===tab));
  $("add").hidden=tab!=="products";
  $("saveAll").hidden=tab!=="products"||!(pending.size||pendingNew.length);
  $("saveAllBottom").hidden=tab!=="products"||!(pending.size||pendingNew.length);
 }
-document.querySelectorAll("[data-admin-tab]").forEach(b=>b.addEventListener("click",()=>{setAdminTab(b.dataset.adminTab);if(b.dataset.adminTab==="catalogue")loadCatalogue()}));
+document.querySelectorAll("[data-admin-tab]").forEach(b=>b.addEventListener("click",()=>{setAdminTab(b.dataset.adminTab);if(b.dataset.adminTab==="catalogue")loadCatalogue();if(b.dataset.adminTab==="rules")loadRules()}));
 const bannerDateInput=$("bannerDate");
 function localDate(){const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function bannerMessage(text,error=false){message($("bannerMsg"),text,error)}
@@ -179,6 +190,27 @@ async function loadBulletin(){
   try{const data=await api("/api/bulletin");bulletinState=data.bulletin||null;renderBulletin()}
   catch(e){$("bulletinCurrent").textContent="לא ניתן לטעון את פרטי העלון: "+e.message}
 }
+function rulesMessage(text,error=false){message($("rulesMsg"),text,error)}
+function splitRuleSections(site){
+ const news=site&&site.pages&&site.pages.news||{},parts=String(news.b||"").split(/\n\s*\n/).filter(Boolean);
+ const read=(part)=>{const lines=String(part||"").split("\n"),heading=(lines.shift()||"").trim().replace(/^\*|\*$/g,"").replace(/:$/,"").trim();return{heading,body:lines.join("\n").trim()}};
+ const one=read(parts[0]||""),two=read(parts[1]||""),titles=Array.isArray(news.ruleTitles)?news.ruleTitles:[];
+ return {pageTitle:news.t||"",title1:one.heading||"נהלי חלוקת הרשקלים",body1:one.body,title2:two.heading||"נהלי מכירת המתנות",body2:two.body,title3:titles[2]||"נהלי אבות ובנים",body3:site.pages&&site.pages.fathers&&site.pages.fathers.b||""};
+}
+function fillRules(site){rulesSite=JSON.parse(JSON.stringify(site||{}));const v=splitRuleSections(rulesSite);
+ $("rulesPageTitle").value=v.pageTitle;$("rulesTitle1").value=v.title1;$("rulesBody1").value=v.body1;$("rulesTitle2").value=v.title2;$("rulesBody2").value=v.body2;$("rulesTitle3").value=v.title3;$("rulesBody3").value=v.body3;
+}
+async function loadRules(){rulesMessage("טוען את הנהלים...");try{const data=await api("/api/site-content");let site=data.site;if(!site){const response=await fetch("/site.json",{cache:"no-store"});if(!response.ok)throw new Error("לא ניתן לטעון את נתוני האתר");site=await response.json()}fillRules(site);rulesMessage("הנהלים נטענו. אפשר לערוך ולשמור.")}catch(e){rulesMessage("טעינת הנהלים נכשלה: "+e.message,true)}}
+async function saveRules(){
+ if(["rulesPageTitle","rulesTitle1","rulesTitle2","rulesTitle3"].some(id=>!$(id).value.trim())){rulesMessage("יש למלא את כל הכותרות.",true);return}
+ const next=JSON.parse(JSON.stringify(rulesSite||{}));next.pages=next.pages||{};next.pages.news=next.pages.news||{};next.pages.fathers=next.pages.fathers||{};
+ const t1=$("rulesTitle1").value.trim(),t2=$("rulesTitle2").value.trim(),t3=$("rulesTitle3").value.trim();
+ next.pages.news.t=$("rulesPageTitle").value.trim();next.pages.news.b="*"+t1+":*\n"+$("rulesBody1").value.trim()+"\n\n*"+t2+":*\n"+$("rulesBody2").value.trim();
+ next.pages.news.ruleTitles=[t1,t2,t3];next.pages.fathers.b=$("rulesBody3").value;
+ const button=$("rulesSave");button.disabled=true;rulesMessage("שומר את הנהלים...");
+ try{const result=await api("/api/site-content",{method:"PUT",body:JSON.stringify({site:next})});fillRules(result.site||next);rulesMessage("הנהלים נשמרו בהצלחה ומוצגים באתר.")}catch(e){rulesMessage("שמירת הנהלים נכשלה: "+e.message,true)}finally{button.disabled=false}
+}
+$("rulesSave").addEventListener("click",saveRules);$("rulesReload").addEventListener("click",loadRules);
 function detectParsha(fileName){
   const base=String(fileName||"").replace(/\.pdf$/i,"").replace(/[_]+/g," ").replace(/\s+/g," ").trim();
   const after=base.match(/פרשת\s+(.+?)(?=\s+(?:עלון|שבועי|תשפ|20\d{2})|$)/u);
