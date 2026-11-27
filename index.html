@@ -315,6 +315,20 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
   #fathers .win .old-number-search input,#fathers .win .old-number-search .btn{padding:4px 7px;font-size:.78rem}
 }
 
+
+/* Restore shared page heading rhythm; let the lottery panel use the full content width. */
+#fathers .win{width:100%;max-width:none}
+@media(max-width:600px){
+  main:has(#fathers.on){padding:20px 16px 90px}
+  #fathers>h1{font-size:1.8rem;margin:.2em 0 .3em;text-align:initial}
+  #fathers>.lead{font-size:inherit;line-height:inherit;margin:0 0 18px;text-align:initial}
+  #fathers .win{width:100%;max-width:none}
+}
+@media(max-width:600px) and (max-height:700px){
+  main:has(#fathers.on){padding:20px 16px 90px}
+  #fathers>h1{font-size:1.8rem}
+}
+
 </style>
 </head>
 <body>
@@ -335,7 +349,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:22</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v49</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:26</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v50</span></div>
 </nav></div></header>
 
 <main>
@@ -615,7 +629,7 @@ function ruleBody(s){return String(s||"").split("\n").map(function(l){return l.t
 function ruleCard(title,body){return '<div class="panel rules-panel"><h3>'+em(title)+'</h3>'+ruleBody(body)+'</div>'}
 function pageRender(k){var p=PAGES[k];if(k==="fathers")setTimeout(refreshWinnerStatus,0);if(k==="bulletin"){var pt=String(p.t).split(" – ");document.getElementById(k).innerHTML='<div class="bh"><h1>'+em(pt[0])+'</h1>'+(pt[1]?'<span class="bp">'+em(pt.slice(1).join(" – "))+'</span>':'')+'</div>'+bullHtml()+(cloud?'<p><button class="btn alt" data-edit="bulletin">✏ עריכת העלון</button></p>':'');fbInit();return}
 if(k==="news"){var sections=String(p.b||"").split(/\n\s*\n/).filter(Boolean),fathers=String(PAGES.fathers&&PAGES.fathers.b||"");var category1=sections[0]||"",category2=sections[1]||"",heading=function(s){var first=String(s).split("\n")[0]||"";return first.replace(/^\*|\*$/g,"")},body=function(s){return String(s).split("\n").slice(1).join("\n")};document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+ruleCard(heading(category1),body(category1))+ruleCard(heading(category2),body(category2))+ruleCard("נהלי אבות ובנים",fathers)+(cloud?'<p><button class="btn alt" data-edit="news">✏ עריכת העמוד</button></p>':'');return}
-var blocks=p.b.split(/\n\s*\n/).filter(Boolean).map(function(s){return '<div class="panel">'+s.split("\n").map(function(l){var m=l.match(/^(.+?)\s*\|\s*(https?:\/\/\S+)$/);return m?'<p><a class="lnk'+(lic(m[1],m[2])?' ic':'')+'" href="'+esc(m[2])+'" target="_blank" rel="noopener">'+lic(m[1],m[2])+em(m[1])+'</a></p>':'<p>'+em(l)+'</p>'}).join("")+'</div>'}).join("");document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+(k==="fathers"?winHtml():'')+(p.l?'<p class="lead">'+em(p.l)+'</p>':'')+(k==="fathers"?'':blocks)+(cloud?'<p><button class="btn alt" data-edit="'+k+'">✏ עריכת העמוד</button></p>':'')}
+var blocks=p.b.split(/\n\s*\n/).filter(Boolean).map(function(s){return '<div class="panel">'+s.split("\n").map(function(l){var m=l.match(/^(.+?)\s*\|\s*(https?:\/\/\S+)$/);return m?'<p><a class="lnk'+(lic(m[1],m[2])?' ic':'')+'" href="'+esc(m[2])+'" target="_blank" rel="noopener">'+lic(m[1],m[2])+em(m[1])+'</a></p>':'<p>'+em(l)+'</p>'}).join("")+'</div>'}).join("");document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+(p.l?'<p class="lead">'+em(p.l)+'</p>':'')+(k==="fathers"?winHtml():'')+(k==="fathers"?'':blocks)+(cloud?'<p><button class="btn alt" data-edit="'+k+'">✏ עריכת העמוד</button></p>':'')}
 function lic(l,u){var s=l+" "+u,a='<svg class="li" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
 if(/whatsapp|wa\.me|וואצאפ|וואטסאפ|ווצאפ|ווטסאפ/i.test(s))return '<svg class="li" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#25D366" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/><path fill="#fff" d="M16.6 14.2c-.2-.1-1.3-.6-1.5-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.1 6.1 0 0 1-3-2.6c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.3c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.7.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.1-.4-.2z"/></svg>';
 if(/תשלום|אשראי|תרומ/.test(l))return a+'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg>';
