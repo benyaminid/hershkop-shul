@@ -277,6 +277,44 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 #fathers .win .old-number-search .btn{flex:0 0 auto}
 @media(max-width:420px){#fathers .win{padding:20px 12px}#fathers .win .trophy{width:88px}#fathers .win .wn{grid-template-columns:repeat(2,minmax(112px,132px));gap:14px 8px}#fathers .win .winner-num{width:72px!important;height:72px!important;min-width:72px!important;min-height:72px!important}}
 
+
+/* Mobile lottery layout: five compact balls in one row and fit the page viewport. */
+@media(max-width:600px){
+  main:has(#fathers.on){padding:6px 10px 8px}
+  #fathers>h1{font-size:1.2rem;margin:0 0 2px;text-align:center}
+  #fathers>.lead{font-size:.76rem;line-height:1.2;margin:0 0 5px;text-align:center}
+  #fathers .win{padding:8px 8px;margin:0 auto 6px;border-radius:14px}
+  #fathers .win .trophy{width:48px;height:auto;margin:0 auto 1px}
+  #fathers .win h3{font-size:1.05rem;line-height:1.2;margin:1px 0 3px}
+  #fathers .win .winner-week{font-size:.78rem;line-height:1.2;margin:2px auto 4px;padding:4px 9px}
+  #fathers .win .sub{font-size:.7rem;line-height:1.2;margin:0 0 4px}
+  #fathers .win .wn{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));justify-content:stretch;justify-items:center;align-items:start;gap:3px;width:100%;margin:5px auto 2px}
+  #fathers .win .winner-item{width:100%;min-width:0;gap:3px}
+  #fathers .win .winner-num{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;font-size:1rem!important;border-width:1.5px!important}
+  #fathers .win .winner-num::before{top:5px;left:8px;width:14px;height:8px}
+  #fathers .win .winner-status{width:100%;min-height:27px;padding:3px 1px;font-size:.57rem;line-height:1.1;border-radius:7px;overflow-wrap:anywhere}
+  #fathers .win .old-number-search{margin:7px auto 0;padding-top:6px}
+  #fathers .win .old-number-search h4{font-size:.78rem;line-height:1.2;margin:0 0 4px}
+  #fathers .win .old-number-search form{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
+  #fathers .win .old-number-search input{flex:1 1 0;width:1%;min-width:0;padding:6px 8px;margin:0;font-size:.85rem}
+  #fathers .win .old-number-search .btn{flex:0 0 auto;padding:6px 11px;font-size:.85rem}
+}
+@media(max-width:600px) and (max-height:700px){
+  main:has(#fathers.on){padding-top:3px;padding-bottom:4px}
+  #fathers>h1{font-size:1.05rem}
+  #fathers .win{padding:5px 7px;margin-bottom:4px}
+  #fathers .win .trophy{width:38px}
+  #fathers .win h3{font-size:.96rem;margin:0 0 2px}
+  #fathers .win .winner-week{margin:1px auto 3px;padding:3px 8px;font-size:.7rem}
+  #fathers .win .sub{font-size:.64rem;margin-bottom:2px}
+  #fathers .win .wn{margin:3px auto 1px;gap:2px}
+  #fathers .win .winner-num{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;font-size:.9rem!important}
+  #fathers .win .winner-status{min-height:23px;font-size:.52rem;padding:2px 0}
+  #fathers .win .old-number-search{margin-top:4px;padding-top:4px}
+  #fathers .win .old-number-search h4{font-size:.7rem;margin-bottom:2px}
+  #fathers .win .old-number-search input,#fathers .win .old-number-search .btn{padding:4px 7px;font-size:.78rem}
+}
+
 </style>
 </head>
 <body>
@@ -297,7 +335,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:19</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v48</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:22</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v49</span></div>
 </nav></div></header>
 
 <main>
