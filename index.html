@@ -271,7 +271,7 @@ body:has(#fathers.on) main{padding-bottom:24px}
 body:has(#fathers.on) footer{padding:12px 16px 20px}
 
 
-/* v56: stronger 3D lottery spheres and symmetric placement across the full page width. */
+/* v57: slightly smaller lottery spheres and status labels for cleaner fit. */
 body:has(#fathers.on) main{padding-bottom:8px!important}
 body:has(#fathers.on) footer{padding:4px 16px 6px!important}
 body:has(#fathers.on) .win{padding:12px 10px 10px}
@@ -293,7 +293,7 @@ body:has(#fathers.on) .wn .winner-item{
 body:has(#fathers.on) .wn .winner-num{
   position:relative;isolation:isolate;overflow:hidden;
   display:flex;align-items:center;justify-content:center;
-  width:min(62px,100%);aspect-ratio:1;height:auto;
+  width:min(54px,100%);aspect-ratio:1;height:auto;
   min-width:0;margin:0 auto;padding:0;border:0;
   border-radius:50%;box-sizing:border-box;color:#573300;
   background:
@@ -325,9 +325,16 @@ body:has(#fathers.on) .wn .winner-num:disabled{filter:saturate(.78);opacity:1;cu
 body:has(#fathers.on) .wn .winner-item .winner-status{width:100%;min-width:0}
 @media(max-width:360px){
   body:has(#fathers.on) .wn{column-gap:2px}
-  body:has(#fathers.on) .wn .winner-num{width:min(44px,100%)}
+  body:has(#fathers.on) .wn .winner-num{width:min(40px,100%)}
 }
 
+
+/* v57: compact lottery balls and winner-status rectangles without changing the symmetric grid. */
+body:has(#fathers.on) .wn .winner-item .winner-status{
+  box-sizing:border-box;height:42px;min-height:42px;
+  padding:1px 2px;font-size:clamp(.54rem,2.2vw,.68rem);
+  line-height:1.02;overflow:hidden
+}
 </style>
 </head>
 <body>
@@ -348,7 +355,7 @@ body:has(#fathers.on) .wn .winner-item .winner-status{width:100%;min-width:0}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:43</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v56</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:46</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v57</span></div>
 </nav></div></header>
 
 <main>
