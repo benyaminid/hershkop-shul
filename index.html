@@ -256,85 +256,8 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 
 
 #news .rules-panel{padding:16px 18px;margin-bottom:14px}#news .rules-panel h3{margin:0 0 10px;color:var(--accent)}#news .rules-panel p{margin:0 0 7px;line-height:1.55}#news .rules-panel p:last-child{margin-bottom:0}
-#winner-modal{align-items:center;padding:12px}#winner-modal .sheet{max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow:hidden;border-radius:18px;padding:14px 18px}#winner-modal .sheet h3{margin:8px 0}#winner-modal .sheet p{margin:6px 0}#winner-modal .sheet label{display:block;margin:5px 0;font-size:.95rem}#winner-modal .sheet input{padding:8px;margin:3px 0 5px}#winner-modal .sheet .cart-actions{margin-top:8px}
-
-/* Lottery panel: roomy card, centered grid and spherical winner balls. */
-#fathers .win{box-sizing:border-box;width:100%;max-width:760px;margin:0 auto 20px;padding:24px clamp(16px,4vw,30px);text-align:center}
-#fathers .win .trophy{display:block;width:104px;height:auto;margin:0 auto 8px}
-#fathers .win h3{font-size:1.45rem;margin:8px 0}
-#fathers .win .winner-week{margin:8px auto 12px;padding:8px 18px;font-size:1rem}
-#fathers .win .sub{font-size:.95rem;margin:0 0 12px}
-#fathers .win .wn{display:grid;grid-template-columns:repeat(auto-fit,minmax(112px,132px));justify-content:center;justify-items:center;align-items:start;gap:16px 14px;width:100%;margin:14px auto 4px;direction:rtl}
-#fathers .win .winner-item{box-sizing:border-box;display:flex;width:100%;min-width:0;flex-direction:column;align-items:center;justify-content:flex-start;gap:8px}
-#fathers .win .winner-num{box-sizing:border-box!important;position:relative!important;isolation:isolate;display:inline-flex!important;align-items:center!important;justify-content:center!important;width:76px!important;height:76px!important;min-width:76px!important;min-height:76px!important;padding:0!important;border:2px solid #fff4c6!important;border-radius:50%!important;background:radial-gradient(circle at 30% 23%,#fff 0%,#fff3bd 8%,#f8dc7c 24%,#e4b63e 53%,#bd8418 78%,#805508 100%)!important;color:#382600!important;font-size:1.4rem!important;font-weight:850!important;line-height:1!important;box-shadow:inset 0 4px 8px rgba(255,255,255,.9),inset 0 -7px 12px rgba(91,54,0,.38),0 6px 12px rgba(0,0,0,.28)!important;text-shadow:0 1px 0 rgba(255,255,255,.5)}
-#fathers .win .winner-num::before{content:"";position:absolute;z-index:3;top:8px;left:14px;width:23px;height:13px;border-radius:50%;transform:rotate(-35deg);background:linear-gradient(180deg,rgba(255,255,255,.98),rgba(255,255,255,0));pointer-events:none}
-#fathers .win .winner-num:disabled{opacity:1!important;filter:saturate(.82)}
-#fathers .win .winner-status{box-sizing:border-box;width:100%;min-height:44px;padding:9px 8px;border-radius:11px;font-size:.82rem;line-height:1.3;text-align:center}
-#fathers .win .old-number-search{margin:22px auto 0;padding-top:16px;text-align:center}
-#fathers .win .old-number-search h4{font-size:1rem;margin:0 0 10px}
-#fathers .win .old-number-search form{justify-content:center}
-#fathers .win .old-number-search input{flex:0 1 260px;min-width:0}
-#fathers .win .old-number-search .btn{flex:0 0 auto}
-@media(max-width:420px){#fathers .win{padding:20px 12px}#fathers .win .trophy{width:88px}#fathers .win .wn{grid-template-columns:repeat(2,minmax(112px,132px));gap:14px 8px}#fathers .win .winner-num{width:72px!important;height:72px!important;min-width:72px!important;min-height:72px!important}}
 
 
-/* Mobile lottery layout: five compact balls in one row and fit the page viewport. */
-@media(max-width:600px){
-  main:has(#fathers.on){padding:6px 10px 8px}
-  #fathers>h1{font-size:1.2rem;margin:0 0 2px;text-align:center}
-  #fathers>.lead{font-size:.76rem;line-height:1.2;margin:0 0 5px;text-align:center}
-  #fathers .win{padding:8px 8px;margin:0 auto 6px;border-radius:14px}
-  #fathers .win .trophy{width:48px;height:auto;margin:0 auto 1px}
-  #fathers .win h3{font-size:1.05rem;line-height:1.2;margin:1px 0 3px}
-  #fathers .win .winner-week{font-size:.78rem;line-height:1.2;margin:2px auto 4px;padding:4px 9px}
-  #fathers .win .sub{font-size:.7rem;line-height:1.2;margin:0 0 4px}
-  #fathers .win .wn{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));justify-content:stretch;justify-items:center;align-items:start;gap:3px;width:100%;margin:5px auto 2px}
-  #fathers .win .winner-item{width:100%;min-width:0;gap:3px}
-  #fathers .win .winner-num{width:42px!important;height:42px!important;min-width:42px!important;min-height:42px!important;font-size:1rem!important;border-width:1.5px!important}
-  #fathers .win .winner-num::before{top:5px;left:8px;width:14px;height:8px}
-  #fathers .win .winner-status{width:100%;min-height:27px;padding:3px 1px;font-size:.57rem;line-height:1.1;border-radius:7px;overflow-wrap:anywhere}
-  #fathers .win .old-number-search{margin:7px auto 0;padding-top:6px}
-  #fathers .win .old-number-search h4{font-size:.78rem;line-height:1.2;margin:0 0 4px}
-  #fathers .win .old-number-search form{display:flex;align-items:center;gap:6px;flex-wrap:nowrap}
-  #fathers .win .old-number-search input{flex:1 1 0;width:1%;min-width:0;padding:6px 8px;margin:0;font-size:.85rem}
-  #fathers .win .old-number-search .btn{flex:0 0 auto;padding:6px 11px;font-size:.85rem}
-}
-@media(max-width:600px) and (max-height:700px){
-  main:has(#fathers.on){padding-top:3px;padding-bottom:4px}
-  #fathers>h1{font-size:1.05rem}
-  #fathers .win{padding:5px 7px;margin-bottom:4px}
-  #fathers .win .trophy{width:38px}
-  #fathers .win h3{font-size:.96rem;margin:0 0 2px}
-  #fathers .win .winner-week{margin:1px auto 3px;padding:3px 8px;font-size:.7rem}
-  #fathers .win .sub{font-size:.64rem;margin-bottom:2px}
-  #fathers .win .wn{margin:3px auto 1px;gap:2px}
-  #fathers .win .winner-num{width:36px!important;height:36px!important;min-width:36px!important;min-height:36px!important;font-size:.9rem!important}
-  #fathers .win .winner-status{min-height:23px;font-size:.52rem;padding:2px 0}
-  #fathers .win .old-number-search{margin-top:4px;padding-top:4px}
-  #fathers .win .old-number-search h4{font-size:.7rem;margin-bottom:2px}
-  #fathers .win .old-number-search input,#fathers .win .old-number-search .btn{padding:4px 7px;font-size:.78rem}
-}
-
-
-/* Restore shared page heading rhythm; let the lottery panel use the full content width. */
-#fathers .win{width:100%;max-width:none}
-@media(max-width:600px){
-  main:has(#fathers.on){padding:20px 16px 90px}
-  #fathers>h1{font-size:1.8rem;margin:.2em 0 .3em;text-align:initial}
-  #fathers>.lead{font-size:inherit;line-height:inherit;margin:0 0 18px;text-align:initial}
-  #fathers .win{width:100%;max-width:none}
-}
-@media(max-width:600px) and (max-height:700px){
-  main:has(#fathers.on){padding:20px 16px 90px}
-  #fathers>h1{font-size:1.8rem}
-}
-
-
-
-/* Extend the lottery card down to the bottom of the available page area. */
-#fathers .win{min-height:calc(100dvh - 250px);box-sizing:border-box}
-@media(max-width:600px){#fathers .win{min-height:calc(100dvh - 300px)}}
-@media(max-width:600px) and (max-height:700px){#fathers .win{min-height:calc(100dvh - 270px)}}
 </style>
 </head>
 <body>
@@ -355,7 +278,7 @@ body:has(#updates.on) footer{padding:6px 16px 8px!important}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:29</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v51</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:34</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v52</span></div>
 </nav></div></header>
 
 <main>
@@ -538,7 +461,7 @@ var px=Math.max(0,Math.min(2*W,DR.md>0?2*dx:2*W+2*dx)),py=Math.max(H*.1,Math.min
 function fbEnd(){if(!DR)return;var d=DR;DR=null;var W=document.getElementById("fbs").clientWidth;if(!d.mv)return;
 var t=d.P?d.P[0]/(2*W):(d.md>0?0:1);
 if(d.md>0){var go=t>.25;fbRun(FB,FB+1,t,go?1:0,function(){if(go)FB++;fbIdle()})}else{var go2=t<.75;fbRun(FB-1,FB,t,go2?0:1,function(){if(go2)FB--;fbIdle()})}}
-document.addEventListener("click",function(e){var t=e.target;if(t.id==="fathers-rules-toggle"){var box=document.getElementById("fathers-rules"),open=box.hidden;box.hidden=!open;t.setAttribute("aria-expanded",String(open));t.textContent=open?"הסתרת נהלי אבות ובנים":"נהלי אבות ובנים";}if(!t.dataset||t.dataset.fb!=="share")return;var u="https://claude.ai/artifact/B1FsDmGbCj44WiAYfmNxsB#bulletin",n=document.getElementById("fbn"),o=n.textContent,say=function(m){n.textContent=m;setTimeout(function(){n.textContent=o},2500)},cp=function(){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){say("הקישור הועתק")},function(){say(u)});else say(u)};
+document.addEventListener("click",function(e){var t=e.target;if(!t.dataset||t.dataset.fb!=="share")return;var u="https://claude.ai/artifact/B1FsDmGbCj44WiAYfmNxsB#bulletin",n=document.getElementById("fbn"),o=n.textContent,say=function(m){n.textContent=m;setTimeout(function(){n.textContent=o},2500)},cp=function(){if(navigator.clipboard)navigator.clipboard.writeText(u).then(function(){say("הקישור הועתק")},function(){say(u)});else say(u)};
 if(navigator.share)navigator.share({title:"עלון שבועי – הרשקופ שול",text:"העלון השבועי של קהילת הרשקופ שול",url:u}).catch(function(er){if(!er||er.name!=="AbortError")cp()});else cp()});
 document.addEventListener("pointerup",fbEnd);document.addEventListener("click",function(e){var t=e.target,l=document.getElementById("lbx");if(t.tagName==="IMG"&&t.closest&&t.closest(".card .ph")){document.getElementById("lbi").src=t.src;l.classList.add("show")}else if(t===l||t.id==="lbi")l.classList.remove("show")});
 var PZ={s:1,x:0,y:0},PT={},G=null;
@@ -635,7 +558,7 @@ function ruleBody(s){return String(s||"").split("\n").map(function(l){return l.t
 function ruleCard(title,body){return '<div class="panel rules-panel"><h3>'+em(title)+'</h3>'+ruleBody(body)+'</div>'}
 function pageRender(k){var p=PAGES[k];if(k==="fathers")setTimeout(refreshWinnerStatus,0);if(k==="bulletin"){var pt=String(p.t).split(" – ");document.getElementById(k).innerHTML='<div class="bh"><h1>'+em(pt[0])+'</h1>'+(pt[1]?'<span class="bp">'+em(pt.slice(1).join(" – "))+'</span>':'')+'</div>'+bullHtml()+(cloud?'<p><button class="btn alt" data-edit="bulletin">✏ עריכת העלון</button></p>':'');fbInit();return}
 if(k==="news"){var sections=String(p.b||"").split(/\n\s*\n/).filter(Boolean),fathers=String(PAGES.fathers&&PAGES.fathers.b||"");var category1=sections[0]||"",category2=sections[1]||"",heading=function(s){var first=String(s).split("\n")[0]||"";return first.replace(/^\*|\*$/g,"")},body=function(s){return String(s).split("\n").slice(1).join("\n")};document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+ruleCard(heading(category1),body(category1))+ruleCard(heading(category2),body(category2))+ruleCard("נהלי אבות ובנים",fathers)+(cloud?'<p><button class="btn alt" data-edit="news">✏ עריכת העמוד</button></p>':'');return}
-var blocks=p.b.split(/\n\s*\n/).filter(Boolean).map(function(s){return '<div class="panel">'+s.split("\n").map(function(l){var m=l.match(/^(.+?)\s*\|\s*(https?:\/\/\S+)$/);return m?'<p><a class="lnk'+(lic(m[1],m[2])?' ic':'')+'" href="'+esc(m[2])+'" target="_blank" rel="noopener">'+lic(m[1],m[2])+em(m[1])+'</a></p>':'<p>'+em(l)+'</p>'}).join("")+'</div>'}).join("");document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+(p.l?'<p class="lead">'+em(p.l)+'</p>':'')+(k==="fathers"?winHtml():'')+(k==="fathers"?'':blocks)+(cloud?'<p><button class="btn alt" data-edit="'+k+'">✏ עריכת העמוד</button></p>':'')}
+var blocks=p.b.split(/\n\s*\n/).filter(Boolean).map(function(s){return '<div class="panel">'+s.split("\n").map(function(l){var m=l.match(/^(.+?)\s*\|\s*(https?:\/\/\S+)$/);return m?'<p><a class="lnk'+(lic(m[1],m[2])?' ic':'')+'" href="'+esc(m[2])+'" target="_blank" rel="noopener">'+lic(m[1],m[2])+em(m[1])+'</a></p>':'<p>'+em(l)+'</p>'}).join("")+'</div>'}).join("");document.getElementById(k).innerHTML='<h1>'+em(p.t)+'</h1>'+(k==="fathers"?winHtml():'')+(p.l?'<p class="lead">'+em(p.l)+'</p>':'')+(k==="fathers"?'':blocks)+(cloud?'<p><button class="btn alt" data-edit="'+k+'">✏ עריכת העמוד</button></p>':'')}
 function lic(l,u){var s=l+" "+u,a='<svg class="li" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
 if(/whatsapp|wa\.me|וואצאפ|וואטסאפ|ווצאפ|ווטסאפ/i.test(s))return '<svg class="li" viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path fill="#25D366" d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2z"/><path fill="#fff" d="M16.6 14.2c-.2-.1-1.3-.6-1.5-.7-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.1 6.1 0 0 1-3-2.6c-.2-.4.2-.4.6-1.2.1-.1 0-.3 0-.4l-.7-1.6c-.2-.4-.4-.4-.5-.4h-.4c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.3c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.7.6.4-.1 1.3-.5 1.5-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.1-.4-.2z"/></svg>';
 if(/תשלום|אשראי|תרומ/.test(l))return a+'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg>';
