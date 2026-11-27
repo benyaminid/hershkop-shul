@@ -195,7 +195,7 @@ function splitRuleSections(site){
  const news=site&&site.pages&&site.pages.news||{},parts=String(news.b||"").split(/\n\s*\n/).filter(Boolean);
  const read=(part)=>{const lines=String(part||"").split("\n"),heading=(lines.shift()||"").trim().replace(/^\*|\*$/g,"").replace(/:$/,"").trim();return{heading,body:lines.join("\n").trim()}};
  const one=read(parts[0]||""),two=read(parts[1]||""),titles=Array.isArray(news.ruleTitles)?news.ruleTitles:[];
- return {pageTitle:news.t||"",title1:one.heading||"נהלי חלוקת הרשקלים",body1:one.body,title2:two.heading||"נהלי מכירת המתנות",body2:two.body,title3:titles[2]||"נהלי אבות ובנים",body3:site.pages&&site.pages.fathers&&site.pages.fathers.b||""};
+ const bodies=Array.isArray(news.ruleBodies)?news.ruleBodies:[];return {pageTitle:news.t||"",title1:titles[0]||one.heading||"נהלי חלוקת הרשקלים",body1:bodies[0]??one.body,title2:titles[1]||two.heading||"נהלי מכירת המתנות",body2:bodies[1]??two.body,title3:titles[2]||"נהלי אבות ובנים",body3:site.pages&&site.pages.fathers&&site.pages.fathers.b||""};
 }
 function fillRules(site){rulesSite=JSON.parse(JSON.stringify(site||{}));const v=splitRuleSections(rulesSite);
  $("rulesPageTitle").value=v.pageTitle;$("rulesTitle1").value=v.title1;$("rulesBody1").value=v.body1;$("rulesTitle2").value=v.title2;$("rulesBody2").value=v.body2;$("rulesTitle3").value=v.title3;$("rulesBody3").value=v.body3;
@@ -206,7 +206,7 @@ async function saveRules(){
  const next=JSON.parse(JSON.stringify(rulesSite||{}));next.pages=next.pages||{};next.pages.news=next.pages.news||{};next.pages.fathers=next.pages.fathers||{};
  const t1=$("rulesTitle1").value.trim(),t2=$("rulesTitle2").value.trim(),t3=$("rulesTitle3").value.trim();
  next.pages.news.t=$("rulesPageTitle").value.trim();next.pages.news.b="*"+t1+":*\n"+$("rulesBody1").value.trim()+"\n\n*"+t2+":*\n"+$("rulesBody2").value.trim();
- next.pages.news.ruleTitles=[t1,t2,t3];next.pages.fathers.b=$("rulesBody3").value;
+ next.pages.news.ruleTitles=[t1,t2,t3];next.pages.news.ruleBodies=[$("rulesBody1").value,$("rulesBody2").value];next.pages.fathers.b=$("rulesBody3").value;
  const button=$("rulesSave");button.disabled=true;rulesMessage("שומר את הנהלים...");
  try{const result=await api("/api/site-content",{method:"PUT",body:JSON.stringify({site:next})});fillRules(result.site||next);rulesMessage("הנהלים נשמרו בהצלחה ומוצגים באתר.")}catch(e){rulesMessage("שמירת הנהלים נכשלה: "+e.message,true)}finally{button.disabled=false}
 }
