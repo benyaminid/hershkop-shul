@@ -454,7 +454,8 @@ function printCatalogue(){
     }
     const items=selected.slice(i*perPage,(i+1)*perPage);
     const cards=items.map((p,j)=>catalogueProductCard(p,j,true)).join("");
-    pages.push('<section class="page" dir="rtl" style="--rows:'+rows+';--columns:'+columns+';--image-height:min(30mm,calc(280mm / '+perPage+'),calc(90mm / '+columns+' * .72),calc(150mm / '+rows+' * .62))"><header class="page-head"><div class="brand">הרש-שופ</div><div class="heading">קטלוג הפרסים</div></header><div class="products" style="grid-template-columns:repeat('+columns+',minmax(0,1fr));grid-template-rows:repeat('+rows+',minmax(0,1fr))">'+cards+'</div><footer>הרשקופ שול · '+(i+2)+'</footer></section>');
+    const imageHeight=Math.max(5,Math.min(30,280/perPage,90/columns*.72,150/rows*.62));
+    pages.push('<section class="page" dir="rtl" style="--rows:'+rows+';--columns:'+columns+';--image-height:'+imageHeight.toFixed(1)+'mm"><header class="page-head"><div class="brand">הרש-שופ</div><div class="heading">קטלוג הפרסים</div></header><div class="products" style="grid-template-columns:repeat('+columns+',minmax(0,1fr));grid-template-rows:repeat('+rows+',minmax(0,1fr))">'+cards+'</div><footer>הרשקופ שול · '+(i+2)+'</footer></section>');
   }
   const spreads=[];
   for(let i=0;i<pageCount/4;i++){
