@@ -1,4 +1,4 @@
-import { json, sameOrigin, isAdmin } from "../../_lib/admin-auth.js";
+import { json, sameOrigin, isAdmin } from "../_lib/admin-auth.js";
 const KEY = "site-content.json";
 const MAX_SIZE = 500000;
 export async function onRequest({ request, env }) {
