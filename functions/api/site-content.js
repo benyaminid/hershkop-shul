@@ -15,7 +15,7 @@ export async function onRequest({ request, env }) {
     const body = await request.json(),site = body?.site,news = site?.pages?.news,fathers = site?.pages?.fathers;
     if (!site || typeof site !== "object" || Array.isArray(site) || !news || typeof news.t !== "string" || !news.t.trim() || news.t.length > 120 ||
       typeof news.b !== "string" || news.b.length > 30000 || !Array.isArray(news.ruleTitles) || news.ruleTitles.length !== 3 ||
-      !news.ruleTitles.every(x => typeof x === "string" && x.trim() && x.length <= 120) || !fathers || typeof fathers.b !== "string" || fathers.b.length > 30000)
+      !news.ruleTitles.every(x => typeof x === "string" && x.trim() && x.length <= 120) || !Array.isArray(news.ruleBodies) || news.ruleBodies.length !== 2 || !news.ruleBodies.every(x => typeof x === "string" && x.length <= 30000) || !fathers || typeof fathers.b !== "string" || fathers.b.length > 30000)
       return json({ error: "נתוני הנהלים אינם תקינים" }, 400);
     const serialized = JSON.stringify(site);
     if (serialized.length > MAX_SIZE) return json({ error: "הנתונים גדולים מדי" }, 413);
