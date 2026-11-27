@@ -335,6 +335,28 @@ body:has(#fathers.on) .wn .winner-item .winner-status{
   padding:1px 2px;font-size:clamp(.54rem,2.2vw,.68rem);
   line-height:1.02;overflow:hidden
 }
+
+/* v58: narrower grid items create visible, even gaps between balls, labels and card edges. */
+body:has(#fathers.on) .wn{
+  width:100%;margin:8px 0 0;padding:0;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  column-gap:0
+}
+body:has(#fathers.on) .wn .winner-item{
+  width:78%;max-width:88px;min-width:0;
+  justify-self:center
+}
+body:has(#fathers.on) .wn .winner-num{
+  width:min(46px,100%);font-size:1.2rem
+}
+body:has(#fathers.on) .wn .winner-item .winner-status{
+  width:100%;height:40px;min-height:40px;
+  padding:1px 2px;font-size:clamp(.52rem,2.05vw,.64rem)
+}
+@media(max-width:360px){
+  body:has(#fathers.on) .wn .winner-item{width:74%}
+  body:has(#fathers.on) .wn .winner-num{width:min(36px,100%);font-size:1rem}
+}
 </style>
 </head>
 <body>
@@ -355,7 +377,7 @@ body:has(#fathers.on) .wn .winner-item .winner-status{
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:46</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v57</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:48</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v58</span></div>
 </nav></div></header>
 
 <main>
