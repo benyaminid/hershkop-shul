@@ -271,7 +271,7 @@ body:has(#fathers.on) main{padding-bottom:24px}
 body:has(#fathers.on) footer{padding:12px 16px 20px}
 
 
-/* v55: true spherical lottery balls and exact horizontal centering on the fathers page. */
+/* v56: stronger 3D lottery spheres and symmetric placement across the full page width. */
 body:has(#fathers.on) main{padding-bottom:8px!important}
 body:has(#fathers.on) footer{padding:4px 16px 6px!important}
 body:has(#fathers.on) .win{padding:12px 10px 10px}
@@ -281,47 +281,51 @@ body:has(#fathers.on) .win .sub{margin:0 0 8px}
 body:has(#fathers.on) .wn{
   display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   justify-items:center;align-items:start;direction:ltr;
-  gap:clamp(5px,2.2vw,14px);width:min(100%,440px);
-  max-width:100%;box-sizing:border-box;margin:8px auto 0;
+  column-gap:clamp(2px,1vw,10px);row-gap:0;
+  width:calc(100% + 20px);max-width:none;box-sizing:border-box;
+  margin:8px -10px 0;padding:0;
   position:relative;left:auto;right:auto;transform:none
 }
 body:has(#fathers.on) .wn .winner-item{
-  display:flex;flex:initial;width:100%;max-width:68px;min-width:0;
+  display:flex;flex:initial;width:100%;max-width:none;min-width:0;
   align-items:center;gap:5px;direction:rtl
 }
 body:has(#fathers.on) .wn .winner-num{
   position:relative;isolation:isolate;overflow:hidden;
   display:flex;align-items:center;justify-content:center;
-  width:clamp(46px,13.5vw,62px);height:clamp(46px,13.5vw,62px);
+  width:min(62px,100%);aspect-ratio:1;height:auto;
   min-width:0;margin:0 auto;padding:0;border:0;
-  border-radius:50%;box-sizing:border-box;color:#563500;
+  border-radius:50%;box-sizing:border-box;color:#573300;
   background:
-    radial-gradient(ellipse at 29% 19%,rgba(255,255,255,.98) 0%,rgba(255,250,220,.8) 8%,rgba(255,236,164,.18) 24%,transparent 39%),
-    radial-gradient(circle at 34% 29%,#fff0ae 0%,#f8d66b 30%,#e5a52c 62%,#a9660b 100%);
-  box-shadow:inset -7px -8px 13px rgba(91,48,0,.48),
-    inset 4px 4px 9px rgba(255,255,255,.72),
-    0 5px 9px rgba(45,28,0,.28);
+    radial-gradient(ellipse at 27% 19%,rgba(255,255,255,.98) 0%,rgba(255,250,220,.9) 5%,rgba(255,238,183,.34) 17%,transparent 34%),
+    radial-gradient(circle at 34% 29%,#fff0b0 0%,#f6d36b 25%,#e9ad36 49%,#c17a16 75%,#754006 100%);
+  box-shadow:
+    inset 5px 5px 9px rgba(255,255,255,.72),
+    inset -9px -11px 16px rgba(91,48,0,.58),
+    inset 1px -2px 4px rgba(255,255,255,.22),
+    0 7px 11px rgba(45,28,0,.32);
   font-size:clamp(1.05rem,4.7vw,1.4rem);font-weight:900;
-  line-height:1;text-shadow:0 1px 1px rgba(255,255,255,.55);
+  line-height:1;text-shadow:0 1px 0 rgba(255,255,255,.72),0 2px 3px rgba(91,48,0,.22);
   cursor:pointer
 }
 body:has(#fathers.on) .wn .winner-num::before{
-  content:"";position:absolute;inset:7%;border-radius:50%;
-  background:radial-gradient(ellipse at 32% 18%,rgba(255,255,255,.7),rgba(255,255,255,0) 58%);
-  pointer-events:none;z-index:0
+  content:"";position:absolute;top:7%;left:17%;width:43%;height:25%;
+  border-radius:50%;transform:rotate(-32deg);
+  background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.34) 48%,rgba(255,255,255,0));
+  filter:blur(1px);pointer-events:none;z-index:0
 }
-body:has(#fathers.on) .wn .winner-num:active{
-  transform:scale(.97);
-  box-shadow:inset -7px -8px 13px rgba(91,48,0,.48),
-    inset 4px 4px 9px rgba(255,255,255,.72),
-    0 3px 6px rgba(45,28,0,.24)
+body:has(#fathers.on) .wn .winner-num::after{
+  content:"";position:absolute;right:12%;bottom:13%;width:48%;height:23%;
+  border-radius:50%;transform:rotate(-32deg);
+  background:radial-gradient(ellipse,rgba(86,45,0,.23),rgba(86,45,0,0) 72%);
+  filter:blur(2px);pointer-events:none;z-index:0
 }
+body:has(#fathers.on) .wn .winner-num:active{transform:scale(.97)}
 body:has(#fathers.on) .wn .winner-num:disabled{filter:saturate(.78);opacity:1;cursor:default}
 body:has(#fathers.on) .wn .winner-item .winner-status{width:100%;min-width:0}
 @media(max-width:360px){
-  body:has(#fathers.on) .wn{gap:4px}
-  body:has(#fathers.on) .wn .winner-item{max-width:58px}
-  body:has(#fathers.on) .wn .winner-num{width:44px;height:44px}
+  body:has(#fathers.on) .wn{column-gap:2px}
+  body:has(#fathers.on) .wn .winner-num{width:min(44px,100%)}
 }
 
 </style>
@@ -344,7 +348,7 @@ body:has(#fathers.on) .wn .winner-item .winner-status{width:100%;min-width:0}
 <a href="#news" data-p="news">נהלי חלוקה ומכירה</a>
 <a href="/admin.html">⚙ ניהול</a>
 <button type="button" id="adm" class="chip" hidden>⚙ ניהול</button>
-<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:40</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v55</span></div>
+<div class="menu-updated">עדכון אחרון:<br><span dir="ltr" style="display:inline-block;unicode-bidi:isolate">27.11.26 03:43</span><br>גרסת מטמון: <span dir="ltr" style="display:inline-block;unicode-bidi:isolate">v56</span></div>
 </nav></div></header>
 
 <main>
