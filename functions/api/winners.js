@@ -105,18 +105,33 @@ export async function onRequest({ request, env }) {
       return json({ error: "נא למלא שם פרטי ושם משפחה תקינים" }, 400);
     }
 
-    let lottery = null;
-    let registrationKey = "";
+    // The current lottery is stored in Cloudflare R2. When its object exists,
+    // R2 is the source of truth for registrations; do not require Airtable.
     if (env.PRODUCT_IMAGES) {
       const object = await env.PRODUCT_IMAGES.get("weekly-lottery.json");
       if (object) {
-        lottery = JSON.parse(await object.text());
-        if (lottery && lottery.registrations && typeof lottery.registrations === "object") {
-          if (lottery.registrations[number]) return json({ error: "הזכייה במספר זה כבר נרשמה" }, 409);
-          registrationKey = number;
+        const lottery = JSON.parse(await object.text());
+        if (!lottery || !Array.isArray(lottery.nums) ||
+            !lottery.registrations || typeof lottery.registrations !== "object" ||
+            Array.isArray(lottery.registrations)) {
+          throw new Error("LotteryStorageInvalid");
         }
+        if (!lottery.nums.map(String).includes(number)) {
+          return json({ error: "המספר אינו שייך להגרלה הנוכחית" }, 400);
+        }
+        if (lottery.registrations[number]) return json({ error: "הזכייה במספר זה כבר נרשמה" }, 409);
+        lottery.registrations = {
+          ...lottery.registrations,
+          [number]: { firstName, lastName, registeredAt: new Date().toISOString() }
+        };
+        await env.PRODUCT_IMAGES.put("weekly-lottery.json", JSON.stringify(lottery), {
+          httpMetadata: { contentType: "application/json; charset=utf-8", cacheControl: "no-store" }
+        });
+        return json({ success: true });
       }
     }
+
+    // Compatibility fallback for legacy deployments that still store winners in Airtable.
     const createUrl = `https://api.airtable.com/v0/${env.AIRTABLE_BASE_ID}/${TABLE_ID}`;
     const update = await fetch(createUrl, {
       method: "POST",
